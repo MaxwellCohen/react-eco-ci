@@ -1,0 +1,57 @@
+name: flight
+# Builds React with the Flight flags off and on, runs flight-ssr-bench's real-Chromium hydration check
+# and in-process bench for each, and publishes a comparison to GitHub Pages under /flight/.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [flight-versions.json, scripts/run-flight.mjs, scripts/flight-report.mjs, .github/workflows/flight.yml]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [off, on]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 11 }
+      - run: node scripts/run-flight.mjs ${{ matrix.variant }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flight-${{ matrix.variant }}
+          path: results/${{ matrix.variant }}
+  report:
+    needs: run
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: results, pattern: flight-*, merge-multiple: false }
+      - name: Normalize artifact folders
+        run: |
+          for d in results/flight-*; do mv "$d" "results/${d#results/flight-}"; done
+      - name: Build report
+        id: rep
+        run: |
+          set +e
+          node scripts/flight-report.mjs results site/flight | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Publish to GitHub Pages (gh-pages /flight)
+        run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git fetch origin gh-pages
+          git checkout gh-pages
+          rm -rf flight && cp -R site/flight flight
+          git add flight && git commit -m "flight results $(date -u +%FT%TZ)" || echo "nothing to commit"
+          git push origin gh-pages
+      - name: Fail if hydration checks are red
+        if: ${{ steps.rep.outputs.status != '0' }}
+        run: exit 1
