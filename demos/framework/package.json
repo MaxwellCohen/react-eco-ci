@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/rsc.jsx --bundle --format=esm --platform=neutral --conditions=react-server,workerd,worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/rsc.mjs && esbuild src/worker.jsx --bundle --format=esm --platform=neutral --conditions=workerd,worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/worker.js && esbuild src/client.jsx --bundle --format=iife --platform=browser --minify --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/client/client.js",
+    "build": "esbuild src/rsc.jsx --bundle --jsx=automatic --format=esm --platform=neutral --conditions=react-server,workerd,worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/rsc.mjs && esbuild src/worker.jsx --bundle --jsx=automatic --format=esm --platform=neutral --conditions=workerd,worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/worker.js && esbuild src/client.jsx --bundle --jsx=automatic --format=iife --platform=browser --minify --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/client/client.js",
     "deploy": "wrangler deploy"
   },
   "dependencies": { "react": "*", "react-dom": "*", "scheduler": "*", "react-server-dom-webpack": "*" },
