@@ -73,19 +73,40 @@ export function render(optIn, itemCount, delayMs, options) {
   return renderToReadableStream(<Page itemCount={itemCount} delayMs={delayMs} />, clientManifest, options);
 }
 
-// /form-counter: a tiny page whose only client component is driven by useActionState + form actions.
-function PageCounter() {
-  return (
-    <html lang="en">
-      <head><meta charSet="utf-8" /><title>Form action counter</title></head>
-      <body>
-        <h1>Form action counter</h1>
-        <p><a href="/">home</a></p>
-        <FormCounter />
-      </body>
-    </html>
-  );
+// /form-counter: a form-action counter (useActionState + <form action> + formAction props) on a page that also has content
+// the opt-in features can act on: inline CSS and JSON-LD (elided), stateless client rows (pruned) and, with ?delay=, a
+// late Suspense boundary. The counter is interactive, so it must NOT be pruned and has to hydrate normally.
+function makeCounterPage(prune) {
+  return function PageCounter({ delayMs }) {
+    const rows = generateProducts(200).map(p => { const row = <Row key={p.id} {...p} />; return prune ? prune(row, 'tr') : row; });
+    return (
+      <html lang="en">
+        <head>
+          <meta charSet="utf-8" />
+          <title>Form action counter</title>
+          <style dangerouslySetInnerHTML={{ __html: css }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+        </head>
+        <body>
+          <h1>Form action counter</h1>
+          <p><a href="/">home</a></p>
+          <FormCounter />
+          <Suspense fallback={null}>
+            <table className="product-table"><tbody>{rows}</tbody></table>
+          </Suspense>
+          {delayMs > 0 && (
+            <Suspense fallback={<p id="reviews-fallback">Loading reviews…</p>}>
+              <Reviews ms={delayMs} prune={prune} />
+            </Suspense>
+          )}
+        </body>
+      </html>
+    );
+  };
 }
-export function renderCounter(options) {
-  return renderToReadableStream(<PageCounter />, clientManifest, options);
+const PageCounterPlain = makeCounterPage(null);
+const PageCounterOptIn = makeCounterPage(unstable_pruneForBrowser);
+export function renderCounter(optIn, delayMs, options) {
+  const Page = optIn ? PageCounterOptIn : PageCounterPlain;
+  return renderToReadableStream(<Page delayMs={delayMs} />, clientManifest, options);
 }
