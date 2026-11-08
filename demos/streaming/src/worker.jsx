@@ -15,7 +15,10 @@ function opts(q) {
 async function stream(q) {
   const { page, ctx } = opts(q);
   const { App } = createPages(React, ctx);
-  return renderToReadableStream(React.createElement(App, { page }));
+  // The flag only makes the option available; declarative patching is opt-in per render.
+  // Default: on for variants that force the flag, override with ?mode=decl|script.
+  const mode = q.get('mode') || (version.flags.includes('enableFizzDeclarativePatching') ? 'decl' : 'script');
+  return renderToReadableStream(React.createElement(App, { page }), { unstable_declarativePatching: mode === 'decl' });
 }
 
 function index() {
@@ -28,7 +31,7 @@ function index() {
 flags forced on: ${v.flags.length ? v.flags.map(f => `<code>${esc(f)}</code>`).join(' ') : 'none'}</p>
 <p>Each page is rendered live and streamed by this Worker. <b>raw HTML</b> shows the exact bytes as they arrive. Open another variant's URL and compare.</p>
 <ul>${links}</ul>
-<p>Extra params: <code>n=500</code> (heavy boundaries), <code>cssMs=900</code>, <code>order=forwards|reverse</code>.</p>`;
+<p>Extra params: <code>mode=decl|script</code> (declarative patching vs <code>$RC</code> scripts; only effective on builds with the flag), <code>n=500</code> (heavy boundaries), <code>cssMs=900</code>, <code>order=forwards|reverse</code>.</p>`;
 }
 
 export default {

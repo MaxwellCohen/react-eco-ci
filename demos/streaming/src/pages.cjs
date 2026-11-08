@@ -392,7 +392,9 @@ module.exports = function createPages(React, ctx) {
         'head',
         null,
         h('meta', {charSet: 'utf-8'}),
-        h('script', {dangerouslySetInnerHTML: {__html: PROBE}}),
+        ctx && ctx.probe === 'none'
+          ? null
+          : h('script', {dangerouslySetInnerHTML: {__html: PROBE}}),
         // Optional template-for polyfill (served from /polyfill.js), loaded like the
         // Chrome team suggests: a blocking script in <head>, before the patches.
         ctx && ctx.polyfill ? h('script', {src: '/polyfill.js'}) : null,
