@@ -79,7 +79,9 @@ jobs:
         if: ${{ inputs.next_url != '' }}
         env:
           NEXT_URL: ${{ inputs.next_url }}
-        run: jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json && mv tmp.json react-urls.json
+        run: |
+          jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json
+          mv tmp.json react-urls.json
       - run: node scripts/build-variant.mjs ${{ matrix.template }} ${{ needs.publish.outputs.label }}
       - name: Deploy to Cloudflare
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
