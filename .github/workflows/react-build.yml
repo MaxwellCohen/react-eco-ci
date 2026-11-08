@@ -44,11 +44,17 @@ jobs:
         with:
           node-version-file: react-src/.nvmrc
           cache: yarn
-          cache-dependency-path: react-src/yarn.lock
+          cache-dependency-path: |
+            react-src/yarn.lock
+            react-src/compiler/yarn.lock
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 11 }
       - run: yarn install --frozen-lockfile
         working-directory: react-src
+      # The compiler is a separate yarn workspace; its @types are needed when
+      # `yarn build` compiles eslint-plugin-react-hooks against compiler sources.
+      - run: yarn install --frozen-lockfile
+        working-directory: react-src/compiler
       - run: yarn build -r=${{ inputs.channel }}
         working-directory: react-src
       - name: Publish to pkg.pr.new
