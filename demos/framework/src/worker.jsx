@@ -58,8 +58,10 @@ async function renderPage(optIn, rows) {
   function Root() { return React.use(response); }
   const fizz = await renderToReadableStream(React.createElement(Root));
   await fizz.allReady;
-  const html = dec.decode(new Uint8Array((await readAll(fizz)).reduce((a, c) => [...a, ...c], [])));
-  const scripts = (await inline).map(c => `<script>(self.__FLIGHT_DATA||=[]).push(${JSON.stringify(dec.decode(c))})</script>`).join('');
+  const htmlDec = new TextDecoder();
+  const html = (await readAll(fizz)).map(c => htmlDec.decode(c, { stream: true })).join('') + htmlDec.decode();
+  const fDec = new TextDecoder();
+  const scripts = (await inline).map(c => `<script>(self.__FLIGHT_DATA||=[]).push(${JSON.stringify(fDec.decode(c, { stream: true }))})</script>`).join('');
   const trailer = '</body></html>';
   const doc = (html.endsWith(trailer) ? html.slice(0, -trailer.length) : html) + scripts + '<script src="/client.js" defer></script>' + trailer;
   return { doc, flightBytes: scripts.length };
