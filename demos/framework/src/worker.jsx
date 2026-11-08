@@ -69,14 +69,15 @@ async function renderPage(optIn, rows, delayMs) {
 
 // Streaming: send the Fizz shell as soon as it is ready, then interleave Fizz chunks and inlined Flight data as they
 // arrive. HTML is buffered within a tick so a <script> is never injected mid-tag.
-async function streamPage(optIn, rows, delayMs) {
+async function streamPage(optIn, rows, delayMs, early = true) {
   const elided = optIn ? new Map() : null;
   const options = optIn ? { onElidedValue: (id, v) => elided.set(id, resolveLive(v)) } : undefined;
   const flight = await render(optIn, rows, delayMs, options);
   const [forSsr, forInline] = flight.tee();
   const response = createFromReadableStream(forSsr, { serverConsumerManifest: ssrManifest, ...(elided ? { elidedRows: elided } : {}) });
   function Root() { return React.use(response); }
-  const fizz = await renderToReadableStream(React.createElement(Root));
+  // Early: Fizz emits <script async src> right after the shell, so the client boots (and hydrates) while the stream is still open.
+  const fizz = await renderToReadableStream(React.createElement(Root), early ? { bootstrapScripts: ['/client.js'] } : undefined);
   const trailer = '</body></html>';
   const { readable, writable } = new TransformStream();
   const w = writable.getWriter();
@@ -110,7 +111,8 @@ async function streamPage(optIn, rows, delayMs) {
       await Promise.all([htmlDone, flightDone]);
       if (timer) clearTimeout(timer), (timer = null);
       await chain; await flush();
-      await w.write(enc.encode('<script src="/client.js" defer></script>' + trailer));
+      // null tells the client's Flight stream that the server is done; late hydration loads the script only now.
+      await w.write(enc.encode('<script>(self.__FLIGHT_DATA||=[]).push(null)</script>' + (early ? '' : '<script src="/client.js" async></script>') + trailer));
       await w.close();
     } catch (e) { await w.abort(e); }
   })();
@@ -126,6 +128,7 @@ const index = () => `<!doctype html><meta charset=utf-8><meta name=viewport cont
 <li><b>Framework does NOT opt in</b>: <a href="/plain">/plain</a> &middot; <a href="/stats.json?mode=plain">stats</a> &middot; <a href="view-source:/plain">view-source</a></li>
 <li><b>Framework opts in</b> (<code>onElidedValue</code> + <code>unstable_pruneForBrowser</code>): <a href="/optin">/optin</a> &middot; <a href="/stats.json?mode=optin">stats</a> &middot; <a href="view-source:/optin">view-source</a></li>
 </ul>
+<p><b>Early hydration:</b> the client script boots right after the shell (a bootstrap <code>&lt;script async&gt;</code>, like Next.js) and hydrates while the document is still streaming; the Flight stream stays open until the server says it is done. <code>?hydrate=late</code> loads the script only after the document ends. The badge reports whether hydration started before the stream finished.</p>
 <p><b>Streaming:</b> pages stream Fizz HTML with the Flight data inlined as it arrives. Add <code>?delay=1500</code> to make a Suspense section (&ldquo;Reviews&rdquo;) arrive late, and <code>?stream=0</code> to buffer the whole document instead. Try <a href="/optin?delay=1500">/optin?delay=1500</a> or <a href="/plain?delay=1500">/plain?delay=1500</a>.</p>
 <p>Each page shows a live <b>hydration check</b> badge (bottom-right): rows adopted from the server DOM, recoverable errors, and a click self-test.</p>`;
 
@@ -151,12 +154,12 @@ const handler = {
         const { doc } = await renderPage(optIn, rows, delay);
         return new Response(doc, { headers: { 'content-type': 'text/html; charset=utf-8' } });
       }
-      return new Response(await streamPage(optIn, rows, delay), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+      return new Response(await streamPage(optIn, rows, delay, q.get('hydrate') !== 'late'), { headers: { 'content-type': 'text/html; charset=utf-8' } });
     }
     if (url.pathname === '/stats.json') {
       const optIn = q.get('mode') === 'optin';
       const t0 = Date.now();
-      const body = await streamPage(optIn, rows, delay);
+      const body = await streamPage(optIn, rows, delay, q.get('hydrate') !== 'late');
       const parts = []; let firstMs = -1;
       const r = body.getReader(); const sd = new TextDecoder();
       for (;;) { const { done, value } = await r.read(); if (done) break; if (firstMs < 0) firstMs = Date.now() - t0; parts.push(sd.decode(value, { stream: true })); }
