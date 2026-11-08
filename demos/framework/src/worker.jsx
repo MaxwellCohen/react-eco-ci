@@ -48,10 +48,10 @@ async function gzipSize(str) {
   return (await cs.arrayBuffer()).byteLength;
 }
 
-async function renderPage(optIn, rows) {
+async function renderPage(optIn, rows, delayMs) {
   const elided = optIn ? new Map() : null;
   const options = optIn ? { onElidedValue: (id, v) => elided.set(id, resolveLive(v)) } : undefined;
-  const flight = await render(optIn, rows, options);
+  const flight = await render(optIn, rows, delayMs, options);
   const [forSsr, forInline] = flight.tee();
   const inline = readAll(forInline);
   const response = createFromReadableStream(forSsr, { serverConsumerManifest: ssrManifest, ...(elided ? { elidedRows: elided } : {}) });
@@ -67,6 +67,56 @@ async function renderPage(optIn, rows) {
   return { doc, flightBytes: scripts.length };
 }
 
+// Streaming: send the Fizz shell as soon as it is ready, then interleave Fizz chunks and inlined Flight data as they
+// arrive. HTML is buffered within a tick so a <script> is never injected mid-tag.
+async function streamPage(optIn, rows, delayMs) {
+  const elided = optIn ? new Map() : null;
+  const options = optIn ? { onElidedValue: (id, v) => elided.set(id, resolveLive(v)) } : undefined;
+  const flight = await render(optIn, rows, delayMs, options);
+  const [forSsr, forInline] = flight.tee();
+  const response = createFromReadableStream(forSsr, { serverConsumerManifest: ssrManifest, ...(elided ? { elidedRows: elided } : {}) });
+  function Root() { return React.use(response); }
+  const fizz = await renderToReadableStream(React.createElement(Root));
+  const trailer = '</body></html>';
+  const { readable, writable } = new TransformStream();
+  const w = writable.getWriter();
+  let htmlBuf = '', scripts = '', timer = null, chain = Promise.resolve();
+  const flush = async () => {
+    if (htmlBuf) { const h = htmlBuf; htmlBuf = ''; await w.write(enc.encode(h)); }
+    if (scripts) { const s = scripts; scripts = ''; await w.write(enc.encode(s)); }
+  };
+  const schedule = () => { if (!timer) timer = setTimeout(() => { timer = null; chain = chain.then(flush); }, 0); };
+  const htmlDec = new TextDecoder(), fDec = new TextDecoder();
+  const htmlDone = (async () => {
+    const r = fizz.getReader();
+    for (;;) {
+      const { done, value } = await r.read();
+      if (done) break;
+      let s = htmlDec.decode(value, { stream: true });
+      if (s.endsWith(trailer)) s = s.slice(0, -trailer.length);
+      htmlBuf += s; schedule();
+    }
+  })();
+  const flightDone = (async () => {
+    const r = forInline.getReader();
+    for (;;) {
+      const { done, value } = await r.read();
+      if (done) break;
+      scripts += `<script>(self.__FLIGHT_DATA||=[]).push(${JSON.stringify(fDec.decode(value, { stream: true }))})</script>`; schedule();
+    }
+  })();
+  (async () => {
+    try {
+      await Promise.all([htmlDone, flightDone]);
+      if (timer) clearTimeout(timer), (timer = null);
+      await chain; await flush();
+      await w.write(enc.encode('<script src="/client.js" defer></script>' + trailer));
+      await w.close();
+    } catch (e) { await w.abort(e); }
+  })();
+  return readable;
+}
+
 const index = () => `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Flight opt-in demo (${version.variant})</title>
 <style>body{font:15px/1.5 system-ui;max-width:760px;margin:24px auto;padding:0 16px}code{background:#8882;padding:1px 5px;border-radius:4px}li{margin:8px 0}</style>
 <h1>Flight HTML-first: framework opt-in demo</h1>
@@ -76,6 +126,7 @@ const index = () => `<!doctype html><meta charset=utf-8><meta name=viewport cont
 <li><b>Framework does NOT opt in</b>: <a href="/plain">/plain</a> &middot; <a href="/stats.json?mode=plain">stats</a> &middot; <a href="view-source:/plain">view-source</a></li>
 <li><b>Framework opts in</b> (<code>onElidedValue</code> + <code>unstable_pruneForBrowser</code>): <a href="/optin">/optin</a> &middot; <a href="/stats.json?mode=optin">stats</a> &middot; <a href="view-source:/optin">view-source</a></li>
 </ul>
+<p><b>Streaming:</b> pages stream Fizz HTML with the Flight data inlined as it arrives. Add <code>?delay=1500</code> to make a Suspense section (&ldquo;Reviews&rdquo;) arrive late, and <code>?stream=0</code> to buffer the whole document instead. Try <a href="/optin?delay=1500">/optin?delay=1500</a> or <a href="/plain?delay=1500">/plain?delay=1500</a>.</p>
 <p>Each page shows a live <b>hydration check</b> badge (bottom-right): rows adopted from the server DOM, recoverable errors, and a click self-test.</p>`;
 
 export default {
@@ -93,14 +144,25 @@ const handler = {
     const url = new URL(req.url), q = url.searchParams;
     if (url.pathname === '/') return new Response(index(), { headers: { 'content-type': 'text/html; charset=utf-8' } });
     const rows = Math.min(+(q.get('rows') || 1000), 5000);
+    const delay = Math.min(+(q.get('delay') || 0), 5000);
     if (url.pathname === '/plain' || url.pathname === '/optin') {
-      const { doc } = await renderPage(url.pathname === '/optin', rows);
-      return new Response(doc, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+      const optIn = url.pathname === '/optin';
+      if (q.get('stream') === '0') {
+        const { doc } = await renderPage(optIn, rows, delay);
+        return new Response(doc, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+      }
+      return new Response(await streamPage(optIn, rows, delay), { headers: { 'content-type': 'text/html; charset=utf-8' } });
     }
     if (url.pathname === '/stats.json') {
       const optIn = q.get('mode') === 'optin';
-      const { doc, flightBytes } = await renderPage(optIn, rows);
-      return Response.json({ ...version, mode: optIn ? 'optin' : 'plain', rows, htmlBytes: enc.encode(doc).length, htmlGzip: await gzipSize(doc), inlinedFlightBytes: flightBytes, react: React.version });
+      const t0 = Date.now();
+      const body = await streamPage(optIn, rows, delay);
+      const parts = []; let firstMs = -1;
+      const r = body.getReader(); const sd = new TextDecoder();
+      for (;;) { const { done, value } = await r.read(); if (done) break; if (firstMs < 0) firstMs = Date.now() - t0; parts.push(sd.decode(value, { stream: true })); }
+      const doc = parts.join('');
+      const flightBytes = [...doc.matchAll(/<script>\(self\.__FLIGHT_DATA[^]*?<\/script>/g)].reduce((n, m) => n + m[0].length, 0);
+      return Response.json({ ...version, mode: optIn ? 'optin' : 'plain', rows, delay, htmlBytes: enc.encode(doc).length, htmlGzip: await gzipSize(doc), inlinedFlightBytes: flightBytes, chunks: parts.length, firstChunkMs: firstMs, totalMs: Date.now() - t0, react: React.version });
     }
     return env.ASSETS.fetch(req);
   },

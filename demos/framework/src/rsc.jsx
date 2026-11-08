@@ -10,12 +10,17 @@ export const clientManifest = {
   Counter: { id: 'Counter', chunks: [], name: '*' },
   Row: { id: 'Row', chunks: [], name: '*' },
 };
+// A slow server component: with streaming, the shell is sent first and this arrives `ms` later.
+async function Reviews({ ms }) {
+  await new Promise(r => setTimeout(r, ms));
+  return <section id="reviews"><h2>Reviews</h2><p>Loaded after {ms} ms on the server.</p></section>;
+}
 const css = makeCss(), jsonLd = makeJsonLd();
 
 // The same page for both frameworks. `prune` is the author's assertion that stateless rows do nothing in the
 // browser (only used by the opted-in framework; the other passes null so every row ships as ordinary Flight).
 function makePage(prune) {
-  return function Page({ itemCount }) {
+  return function Page({ itemCount, delayMs }) {
     const products = generateProducts(itemCount);
     return (
       <html lang="en">
@@ -39,6 +44,11 @@ function makePage(prune) {
               </tbody>
             </table>
           </Suspense>
+          {delayMs > 0 && (
+            <Suspense fallback={<p id="reviews-fallback">Loading reviews…</p>}>
+              <Reviews ms={delayMs} />
+            </Suspense>
+          )}
         </body>
       </html>
     );
@@ -47,7 +57,7 @@ function makePage(prune) {
 const PagePlain = makePage(null);
 const PageOptIn = makePage(unstable_pruneForBrowser);
 
-export function render(optIn, itemCount, options) {
+export function render(optIn, itemCount, delayMs, options) {
   const Page = optIn ? PageOptIn : PagePlain;
-  return renderToReadableStream(<Page itemCount={itemCount} />, clientManifest, options);
+  return renderToReadableStream(<Page itemCount={itemCount} delayMs={delayMs} />, clientManifest, options);
 }
