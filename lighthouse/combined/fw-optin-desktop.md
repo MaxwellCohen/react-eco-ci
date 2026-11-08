@@ -1,4 +1,4 @@
-# Web performance report: https://react-eco-fw-on.to-email-max.workers.dev/optin
+# Web performance report: https://react-eco-fw-on.to-email-max.workers.dev/optin?badge=0
 
 ## Scores (0–100)
 
@@ -8,7 +8,7 @@
 
 ## Desktop metrics
 
-Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.4 s (good)
+Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.6 s (good)
 Baseline features used: 5 widely available, 3 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Desktop · URL https://react-eco-fw-on.to-email-max.workers.dev/optin · desktop · performance score 100
-  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.4 s (good)
+- Desktop · URL https://react-eco-fw-on.to-email-max.workers.dev/optin?badge=0 · desktop · performance score 100
+  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.6 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (17.2 KiB unused)
+- Unused CSS: inline <style>/<script> (17.3 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (40.9 KiB unused)
+- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (40.6 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.

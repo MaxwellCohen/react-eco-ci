@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-BThb0WGa.js (47.6 KiB unused)
+- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-BThb0WGa.js (45.3 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
@@ -46,7 +46,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 48 KiB (`unused-javascript`, Desktop)
+- **[performance] Reduce unused JavaScript** — Est savings of 45 KiB (`unused-javascript`, Desktop)
   - https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-BThb0WGa.js
 - **[best-practices] Browser errors were logged to the console** (`errors-in-console`, Desktop)
   - Failed to load resource: the server responded with a status of 404 ()

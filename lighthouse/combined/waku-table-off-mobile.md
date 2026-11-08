@@ -4,11 +4,11 @@
 
 | Report | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Mobile | 98 | 100 | 96 | 91 |
+| Mobile | 96 | 100 | 96 | 91 |
 
 ## Mobile metrics
 
-Lab: FCP 1.0 s (good); LCP 1.0 s (good); TBT 160 ms (good); CLS 0 (good); SI 1.0 s (good)
+Lab: FCP 1.1 s (good); LCP 1.1 s (good); TBT 230 ms (needs-improvement); CLS 0 (good); SI 1.2 s (good)
 Baseline features used: 4 widely available, 4 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Mobile · URL https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/table · mobile · performance score 98
-  - Lab: First Contentful Paint 1.0 s (good); Largest Contentful Paint 1.0 s (good); Total Blocking Time 160 ms (good); Cumulative Layout Shift 0 (good); Speed Index 1.0 s (good)
+- Mobile · URL https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/table · mobile · performance score 96
+  - Lab: First Contentful Paint 1.1 s (good); Largest Contentful Paint 1.1 s (good); Total Blocking Time 230 ms (needs improvement); Cumulative Layout Shift 0 (good); Speed Index 1.2 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,12 +31,14 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/assets/index-CVqiwEkP.js (47.2 KiB unused)
+- Total Blocking Time — 230 ms
+- Unused JS: https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/assets/index-CVqiwEkP.js (49.5 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
 - Lazy-load anything not needed for first paint: search, menus, dialogs, lightboxes, editors, video players. Mount dialogs on first open, wrapped in Suspense/loading and error boundaries.
 - Verify lazy chunks are NOT modulepreloaded on the initial page.
+- If the framework supports partial/deferred hydration (islands, server components, visible/idle hydration), defer hydration of below-the-fold and non-interactive sections.
 
 ## 3. Lock in the gains
 - Add bundle budgets enforced in CI (gzip bytes) for render-blocking CSS, total CSS, initial JS, and module preload count. Deferred downloads still count.
@@ -46,7 +48,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 47 KiB (`unused-javascript`, Mobile)
+- **[performance] Reduce unused JavaScript** — Est savings of 49 KiB (`unused-javascript`, Mobile)
   - https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/assets/index-CVqiwEkP.js
 - **[best-practices] Browser errors were logged to the console** (`errors-in-console`, Mobile)
   - Failed to load resource: the server responded with a status of 404 ()

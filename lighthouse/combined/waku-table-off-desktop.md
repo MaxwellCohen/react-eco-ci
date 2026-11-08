@@ -46,7 +46,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 49 KiB (`unused-javascript`, Desktop)
+- **[performance] Reduce unused JavaScript** — Est savings of 50 KiB (`unused-javascript`, Desktop)
   - https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/assets/index-CVqiwEkP.js
 - **[best-practices] Browser errors were logged to the console** (`errors-in-console`, Desktop)
   - Failed to load resource: the server responded with a status of 404 ()
