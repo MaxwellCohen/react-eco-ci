@@ -4,11 +4,11 @@
 
 | Report | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Mobile | 96 | 100 | 96 | 91 |
+| Mobile | 94 | 100 | 96 | 91 |
 
 ## Mobile metrics
 
-Lab: FCP 1.5 s (good); LCP 1.5 s (good); TBT 230 ms (needs-improvement); CLS 0 (good); SI 1.9 s (good)
+Lab: FCP 1.5 s (good); LCP 1.5 s (good); TBT 290 ms (needs-improvement); CLS 0 (good); SI 1.5 s (good)
 Baseline features used: 5 widely available, 4 newly available, 3 limited (limited: link-rel-expect, blocking-render, referencetarget)
 CSP: No CSP found in enforcement mode (High)
 
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Mobile · URL https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/table · mobile · performance score 96
-  - Lab: First Contentful Paint 1.5 s (good); Largest Contentful Paint 1.5 s (good); Total Blocking Time 230 ms (needs improvement); Cumulative Layout Shift 0 (good); Speed Index 1.9 s (good)
+- Mobile · URL https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/table · mobile · performance score 94
+  - Lab: First Contentful Paint 1.5 s (good); Largest Contentful Paint 1.5 s (good); Total Blocking Time 290 ms (needs improvement); Cumulative Layout Shift 0 (good); Speed Index 1.5 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (15.4 KiB unused)
+- Unused CSS: inline <style>/<script> (15.3 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Total Blocking Time — 230 ms
+- Total Blocking Time — 290 ms
 - Unused JS: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (34.7 KiB unused)
 - Unused JS: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/1dmc_eytr3lah.js (26.1 KiB unused)
 - Legacy polyfills: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (13.9 KiB)

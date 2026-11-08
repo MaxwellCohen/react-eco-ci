@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (34.8 KiB unused)
+- Unused JS: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (34.7 KiB unused)
 - Unused JS: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/1dmc_eytr3lah.js (26.2 KiB unused)
 - Legacy polyfills: https://react-eco-next-1930da7c-next164-on.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (13.9 KiB)
 

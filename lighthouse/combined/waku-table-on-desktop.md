@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (14.8 KiB unused)
+- Unused CSS: inline <style>/<script> (14.9 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.

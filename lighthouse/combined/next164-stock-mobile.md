@@ -4,11 +4,11 @@
 
 | Report | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Mobile | 95 | 100 | 96 | 91 |
+| Mobile | 93 | 100 | 96 | 91 |
 
 ## Mobile metrics
 
-Lab: FCP 1.3 s (good); LCP 1.3 s (good); TBT 240 ms (needs-improvement); CLS 0 (good); SI 1.7 s (good)
+Lab: FCP 1.3 s (good); LCP 1.3 s (good); TBT 300 ms (needs-improvement); CLS 0 (good); SI 1.9 s (good)
 Baseline features used: 5 widely available, 4 newly available, 1 limited (limited: referencetarget)
 CSP: No CSP found in enforcement mode (High)
 
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Mobile · URL https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/table · mobile · performance score 95
-  - Lab: First Contentful Paint 1.3 s (good); Largest Contentful Paint 1.3 s (good); Total Blocking Time 240 ms (needs improvement); Cumulative Layout Shift 0 (good); Speed Index 1.7 s (good)
+- Mobile · URL https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/table · mobile · performance score 93
+  - Lab: First Contentful Paint 1.3 s (good); Largest Contentful Paint 1.3 s (good); Total Blocking Time 300 ms (needs improvement); Cumulative Layout Shift 0 (good); Speed Index 1.9 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,8 +31,8 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Server response and document delivery
 Evidence from the report:
-- Document request latency — Est savings of 510 ms
-- Reduce initial server response time — Root document took 610 ms
+- Document request latency — Est savings of 610 ms
+- Reduce initial server response time — Root document took 710 ms
 
 What to do:
 - Confirm the main heading and LCP content are present in the initial HTML response.
@@ -51,7 +51,7 @@ What to do:
 
 ## 4. JavaScript size and main-thread work
 Evidence from the report:
-- Total Blocking Time — 240 ms
+- Total Blocking Time — 300 ms
 - Unused JS: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js (30.6 KiB unused)
 - Unused JS: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/0m3mby5pxg4oz.js (25.8 KiB unused)
 - Legacy polyfills: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js (13.9 KiB)
@@ -71,7 +71,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Document request latency** — Est savings of 510 ms (`document-latency-insight`, Mobile)
+- **[performance] Document request latency** — Est savings of 610 ms (`document-latency-insight`, Mobile)
 - **[performance] Reduce unused JavaScript** — Est savings of 56 KiB (`unused-javascript`, Mobile)
   - https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js
   - https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/0m3mby5pxg4oz.js

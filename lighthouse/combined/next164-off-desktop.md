@@ -8,7 +8,7 @@
 
 ## Desktop metrics
 
-Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.7 s (good)
+Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.6 s (good)
 Baseline features used: 5 widely available, 4 newly available, 3 limited (limited: link-rel-expect, blocking-render, referencetarget)
 CSP: No CSP found in enforcement mode (High)
 
@@ -21,7 +21,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## Report data
 - Desktop · URL https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/table · desktop · performance score 100
-  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.7 s (good)
+  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.6 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (14.4 KiB unused)
+- Unused CSS: inline <style>/<script> (14.3 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (34.8 KiB unused)
+- Unused JS: https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (37.1 KiB unused)
 - Unused JS: https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/2e49ry0yi2e59.js (26.0 KiB unused)
 - Legacy polyfills: https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js (13.9 KiB)
 
@@ -58,7 +58,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 61 KiB (`unused-javascript`, Desktop)
+- **[performance] Reduce unused JavaScript** — Est savings of 63 KiB (`unused-javascript`, Desktop)
   - https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/0tcl1c_oqt77a.js
   - https://react-eco-next-1930da7c-next164-off.to-email-max.workers.dev/_next/static/chunks/2e49ry0yi2e59.js
 - **[performance] Reduce unused CSS** — Est savings of 14 KiB (`unused-css-rules`, Desktop)
