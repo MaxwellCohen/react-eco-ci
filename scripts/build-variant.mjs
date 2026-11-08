@@ -37,6 +37,6 @@ const wr = join(out, 'wrangler.jsonc');
 if (existsSync(wr)) writeFileSync(wr, readFileSync(wr, 'utf8').replace('__NAME__', `react-eco-${template}-${name}`.toLowerCase().replace(/[^a-z0-9-]/g, '-')));
 
 const run = (cmd, args) => execFileSync(cmd, args, { cwd: out, stdio: 'inherit', env: { ...process.env, REACT_VARIANT: name, NEXT_PUBLIC_REACT_VARIANT: name } });
-run('npm', ['install', '--no-audit', '--no-fund']);
+run('npm', ['install', '--no-audit', '--no-fund', '--legacy-peer-deps']);
 run('npm', ['run', 'build']);
 console.log(`\nbuilt ${template}/${name} -> ${out}`);

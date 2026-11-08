@@ -25,6 +25,9 @@ on:
       templates:
         description: JSON list of demo templates to build and deploy
         default: '["vite","next","waku","perf"]'
+      reuse_run:
+        description: Run id whose react-urls artifact to reuse instead of rebuilding React (pair with next_url)
+        required: false
       next_url:
         description: Optional Next fork preview URL (pkg.pr.new .../next@<sha>) with vendored React
         required: false
@@ -38,6 +41,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  actions: read
 
 jobs:
   publish:
@@ -64,7 +68,13 @@ jobs:
         run: |
           node scripts/force-flags.mjs react-src "$FLAGS"
           git -C react-src diff --stat
+      - name: Reuse react-urls from an earlier run
+        if: ${{ inputs.reuse_run != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download ${{ inputs.reuse_run }} -R ${{ github.repository }} -n react-urls
       - uses: actions/setup-node@v4
+        if: ${{ inputs.reuse_run == '' }}
         with:
           node-version-file: react-src/.nvmrc
           cache: yarn
@@ -72,16 +82,21 @@ jobs:
             react-src/yarn.lock
             react-src/compiler/yarn.lock
       - uses: actions/setup-java@v4
+        if: ${{ inputs.reuse_run == '' }}
         with: { distribution: temurin, java-version: 11 }
       - run: yarn install --frozen-lockfile
+        if: ${{ inputs.reuse_run == '' }}
         working-directory: react-src
       # The compiler is a separate yarn workspace; its @types are needed when
       # `yarn build` compiles eslint-plugin-react-hooks against compiler sources.
       - run: yarn install --frozen-lockfile
+        if: ${{ inputs.reuse_run == '' }}
         working-directory: react-src/compiler
       - run: yarn build -r=${{ inputs.channel }}
+        if: ${{ inputs.reuse_run == '' }}
         working-directory: react-src
       - name: Publish to pkg.pr.new
+        if: ${{ inputs.reuse_run == '' }}
         run: node scripts/publish-react.mjs react-src/build/oss-${{ inputs.channel }}
       - uses: actions/upload-artifact@v4
         with:
@@ -90,7 +105,7 @@ jobs:
 
   next-fork:
     needs: publish
-    if: ${{ inputs.next_repo != '' }}
+    if: ${{ inputs.next_repo != '' && inputs.reuse_run == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     outputs:
