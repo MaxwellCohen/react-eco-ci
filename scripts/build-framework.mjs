@@ -2,7 +2,7 @@
 // Builds React (Flight prod build, flags forced per variant), packs react/react-dom/scheduler/react-server-dom-webpack
 // and builds demos/framework (a tiny Flight+Fizz framework Worker with /plain and /optin pages).
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const name = process.argv[2];
@@ -17,7 +17,10 @@ run('git', ['clone', '--depth', '1', '--branch', v.ref, `https://github.com/${v.
 const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: src }).toString().trim();
 if (v.flags.length) run('node', [join(root, 'scripts/force-flags.mjs'), src, v.flags.join(',')]);
 run('yarn', ['install', '--frozen-lockfile'], src);
-run('yarn', ['build-for-flight-prod'], src);
+// Like `build-for-flight-prod`, plus the edge/legacy-browser Fizz bundles the Worker imports (NODE_PROD only).
+const names = 'react/index,react/jsx,react.react-server,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server.node,react-dom-server.edge,react-dom-server.browser,react-dom-server-legacy.node,react-dom-server-legacy.browser,scheduler,react-server-dom-webpack/';
+run('node', ['./scripts/rollup/build.js', names, '--type=NODE_PROD'], src, { RELEASE_CHANNEL: 'experimental' });
+renameSync(join(src, 'build/node_modules'), join(src, 'build/oss-experimental'));
 
 const files = {};
 const pkgs = ['react', 'react-dom', 'scheduler', 'react-server-dom-webpack'];
