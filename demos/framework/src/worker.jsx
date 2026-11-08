@@ -80,6 +80,16 @@ const index = () => `<!doctype html><meta charset=utf-8><meta name=viewport cont
 
 export default {
   async fetch(req, env) {
+    try {
+      return await handle(req, env);
+    } catch (e) {
+      return new Response(`render error: ${e && e.stack || e}`, { status: 500, headers: { 'content-type': 'text/plain' } });
+    }
+  },
+};
+
+const handler = {
+  async fetch(req, env) {
     const url = new URL(req.url), q = url.searchParams;
     if (url.pathname === '/') return new Response(index(), { headers: { 'content-type': 'text/html; charset=utf-8' } });
     const rows = Math.min(+(q.get('rows') || 1000), 5000);
@@ -95,3 +105,4 @@ export default {
     return env.ASSETS.fetch(req);
   },
 };
+const handle = (req, env) => handler.fetch(req, env);
