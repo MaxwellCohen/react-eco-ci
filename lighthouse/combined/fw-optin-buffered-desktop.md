@@ -8,7 +8,7 @@
 
 ## Desktop metrics
 
-Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 30 ms (good); CLS 0 (good); SI 0.7 s (good)
+Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.7 s (good)
 Baseline features used: 5 widely available, 3 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
@@ -21,7 +21,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## Report data
 - Desktop · URL https://react-eco-fw-on.to-email-max.workers.dev/optin?stream=0&badge=0 · desktop · performance score 100
-  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 30 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.7 s (good)
+  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.7 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (17.2 KiB unused)
+- Unused CSS: inline <style>/<script> (17.1 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
