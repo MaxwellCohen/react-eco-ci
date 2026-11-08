@@ -126,14 +126,13 @@ jobs:
         working-directory: next-src
       - name: Publish next to pkg.pr.new
         id: pub
-        working-directory: next-src
         run: |
-          npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json ../next-output.json ./packages/next
-          echo "url=$(jq -r '.packages[] | select(.name=="next") | .url' ../next-output.json)" >> "$GITHUB_OUTPUT"
+          npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json next-output.json ./next-src/packages/next
+          echo "url=$(jq -r '.packages[] | select(.name=="next") | .url' next-output.json)" >> "$GITHUB_OUTPUT"
 
   demos:
     needs: [publish, next-fork]
-    if: ${{ !cancelled() && needs.publish.result == 'success' && (needs.next-fork.result == 'success' || needs.next-fork.result == 'skipped') }}
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       # Job-level so the deploy step's `if` can see it (secrets are not allowed in `if`).
