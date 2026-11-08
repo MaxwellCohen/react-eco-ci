@@ -6,8 +6,7 @@ import Counter from './Counter.jsx';
 import Row from './Row.jsx';
 
 const modules = { Counter: { default: Counter }, Row: { default: Row } };
-window.__webpack_require__ = id => modules[id];
-window.__webpack_chunk_load__ = () => Promise.resolve();
+self.__modules = modules;
 
 const saved = { rows: null };
 document.addEventListener('readystatechange', () => { if (document.readyState === 'interactive' && !saved.rows) saved.rows = Array.from(document.querySelectorAll('tr')); });
