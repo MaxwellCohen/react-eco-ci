@@ -21,9 +21,9 @@ const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: src }).toString().
 const flagFile = join(src, 'packages/shared/ReactFeatureFlags.js');
 let flags = readFileSync(flagFile, 'utf8');
 for (const f of v.flags) {
-  const re = new RegExp(`export const ${f}: boolean = \\w+;`);
+  const re = new RegExp(`export const ${f}(: boolean)? = \\w+;`);
   if (!re.test(flags)) throw new Error(`flag ${f} not found in ${v.repo}@${v.ref}`);
-  flags = flags.replace(re, `export const ${f}: boolean = true;`);
+  flags = flags.replace(re, `export const ${f}$1 = true;`);
 }
 writeFileSync(flagFile, flags);
 

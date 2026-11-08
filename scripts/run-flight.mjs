@@ -19,9 +19,9 @@ const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: src }).toString().
 const flagFile = join(src, 'packages/shared/ReactFeatureFlags.js');
 let flags = readFileSync(flagFile, 'utf8');
 for (const f of v.flags) {
-  const re = new RegExp(`export const ${f}: boolean = \\w+;`);
+  const re = new RegExp(`export const ${f}(: boolean)? = \\w+;`);
   if (!re.test(flags)) throw new Error(`flag ${f} not found`);
-  flags = flags.replace(re, `export const ${f}: boolean = true;`);
+  flags = flags.replace(re, `export const ${f}$1 = true;`);
 }
 writeFileSync(flagFile, flags);
 
@@ -30,10 +30,14 @@ run('yarn', ['build-for-flight-prod'], src);
 const fx = join(src, 'fixtures/flight-ssr-bench');
 run('yarn', ['install', '--frozen-lockfile'], fx);
 run('yarn', ['copy-modules'], fx);
-run('npm', ['install', '--no-save', '--no-audit', '--no-fund', 'playwright'], fx);
-run('npx', ['playwright', 'install', '--with-deps', 'chromium'], fx);
+// Playwright lives outside the fixture (npm rejects its devEngines field); NODE_PATH lets e2e/run.js find it.
+const pw = join(src, '.pw');
+mkdirSync(pw, { recursive: true });
+writeFileSync(join(pw, 'package.json'), '{"private":true}');
+run('npm', ['install', '--no-audit', '--no-fund', 'playwright'], pw);
+run('npx', ['playwright', 'install', '--with-deps', 'chromium'], pw);
 
-const env = { ...process.env, NODE_ENV: 'production' };
+const env = { ...process.env, NODE_ENV: 'production', NODE_PATH: join(pw, 'node_modules') };
 const e2e = spawnSync('node', ['e2e/run.js', '--rows=1000'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
 writeFileSync(join(res, 'e2e.log'), (e2e.stdout || '') + (e2e.stderr || ''));
 writeFileSync(join(res, 'e2e.jsonl'), (e2e.stdout || '').split('\n').filter(l => l.startsWith('{')).join('\n'));
