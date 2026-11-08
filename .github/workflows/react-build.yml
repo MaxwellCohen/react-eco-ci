@@ -105,7 +105,7 @@ jobs:
 
   next-fork:
     needs: publish
-    if: ${{ inputs.next_repo != '' && inputs.reuse_run == '' }}
+    if: ${{ inputs.next_repo != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     outputs:
