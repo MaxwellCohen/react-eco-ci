@@ -4,7 +4,7 @@
 // Writes results/<variant>/{e2e.jsonl,e2e.log,inproc.txt,meta.json}. Never fails on a red e2e (the report does).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const name = process.argv[2];
 const v = JSON.parse(readFileSync('flight-versions.json', 'utf8'))[name];
@@ -37,7 +37,7 @@ writeFileSync(join(pw, 'package.json'), '{"private":true}');
 run('npm', ['install', '--no-audit', '--no-fund', 'playwright'], pw);
 const env = { ...process.env, NODE_ENV: 'production', NODE_PATH: join(pw, 'node_modules') };
 // Install the browser for the exact playwright that e2e/run.js resolves (the repo's own copy wins over ours).
-const cli = execFileSync('node', ['-p', "require.resolve('playwright/cli.js')"], { cwd: fx, env }).toString().trim();
+const cli = join(dirname(execFileSync('node', ['-p', "require.resolve('playwright/package.json')"], { cwd: fx, env }).toString().trim()), 'cli.js');
 console.log('playwright cli:', cli);
 run('node', [cli, 'install', '--with-deps', 'chromium'], fx, { NODE_PATH: join(pw, 'node_modules') });
 const e2e = spawnSync('node', ['e2e/run.js', '--rows=1000'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
