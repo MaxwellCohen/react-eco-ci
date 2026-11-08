@@ -18,7 +18,7 @@ const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: src }).toString().
 if (v.flags.length) run('node', [join(root, 'scripts/force-flags.mjs'), src, v.flags.join(',')]);
 run('yarn', ['install', '--frozen-lockfile'], src);
 // Like `build-for-flight-prod`, plus the edge/legacy-browser Fizz bundles the Worker imports (NODE_PROD only).
-const names = 'react/index,react/jsx,react.react-server,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server.node,react-dom-server.edge,react-dom-server.browser,react-dom-server-legacy.node,react-dom-server-legacy.browser,scheduler,react-server-dom-webpack/';
+const names = 'react/index,react/jsx,react.react-server,react-jsx-runtime.react-server,react-jsx-dev-runtime.react-server,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server.node,react-dom-server.edge,react-dom-server.browser,react-dom-server-legacy.node,react-dom-server-legacy.browser,scheduler,react-server-dom-webpack/';
 run('node', ['./scripts/rollup/build.js', names, '--type=NODE_PROD'], src, { RELEASE_CHANNEL: 'experimental' });
 renameSync(join(src, 'build/node_modules'), join(src, 'build/oss-experimental'));
 
