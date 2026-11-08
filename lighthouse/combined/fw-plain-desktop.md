@@ -8,8 +8,8 @@
 
 ## Desktop metrics
 
-Lab: FCP 0.5 s (good); LCP 0.5 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.6 s (good)
-Baseline features used: 5 widely available, 3 newly available, 2 limited (limited: link-rel-expect, blocking-render)
+Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 10 ms (good); CLS 0 (good); SI 0.8 s (good)
+Baseline features used: 5 widely available, 4 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
 ## Speed-up prompt
@@ -21,7 +21,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## Report data
 - Desktop · URL https://react-eco-fw-on.to-email-max.workers.dev/plain?badge=0 · desktop · performance score 100
-  - Lab: First Contentful Paint 0.5 s (good); Largest Contentful Paint 0.5 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.6 s (good)
+  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 10 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.8 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (16.7 KiB unused)
+- Unused CSS: inline <style>/<script> (18.3 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (41.5 KiB unused)
+- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (39.8 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
@@ -55,9 +55,9 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 41 KiB (`unused-javascript`, Desktop)
+- **[performance] Reduce unused JavaScript** — Est savings of 40 KiB (`unused-javascript`, Desktop)
   - https://react-eco-fw-on.to-email-max.workers.dev/client.js
-- **[performance] Reduce unused CSS** — Est savings of 17 KiB (`unused-css-rules`, Desktop)
+- **[performance] Reduce unused CSS** — Est savings of 18 KiB (`unused-css-rules`, Desktop)
   - .c0{color:#000000;margin:0px 0px;padding:0px;display:flex;flex-direction:column; … } …
 - **[accessibility] Touch targets do not have sufficient size or spacing.** (`target-size`, Desktop)
   - body > header.site-header > nav > a `<a href="/">`
