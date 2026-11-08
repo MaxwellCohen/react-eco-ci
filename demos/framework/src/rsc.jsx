@@ -11,9 +11,18 @@ export const clientManifest = {
   Row: { id: 'Row', chunks: [], name: '*' },
 };
 // A slow server component: with streaming, the shell is sent first and this arrives `ms` later.
-async function Reviews({ ms }) {
+async function Reviews({ ms, prune }) {
   await new Promise(r => setTimeout(r, ms));
-  return <section id="reviews"><h2>Reviews</h2><p>Loaded after {ms} ms on the server.</p></section>;
+  // Stateless client rows inside a late boundary: with early hydration the client may render these (as pruned stubs when
+  // the framework opts in) before or after the server DOM for the boundary has streamed in.
+  const more = generateProducts(300).map(p => { const row = <Row key={`r${p.id}`} {...p} id={undefined} />; return prune ? prune(row, 'tr') : row; });
+  return (
+    <section id="reviews">
+      <h2>Reviews</h2>
+      <p>Loaded after {ms} ms on the server.</p>
+      <table className="reviews-table"><tbody>{more}</tbody></table>
+    </section>
+  );
 }
 const css = makeCss(), jsonLd = makeJsonLd();
 
@@ -46,7 +55,7 @@ function makePage(prune) {
           </Suspense>
           {delayMs > 0 && (
             <Suspense fallback={<p id="reviews-fallback">Loading reviews…</p>}>
-              <Reviews ms={delayMs} />
+              <Reviews ms={delayMs} prune={prune} />
             </Suspense>
           )}
         </body>
