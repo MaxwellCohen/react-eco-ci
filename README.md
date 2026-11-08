@@ -12,3 +12,5 @@ The package URLs are in the `react-urls` artifact. Note: pkg.pr.new keys by this
 
 Each demo shows `React.version` (and `/version.json`).
 **Next.js caveat:** App Router uses Next's vendored React, so the override doesn't change it; the demo prints server and client versions so you can tell.
+
+**Next with vendored React:** use your Next fork's flow — `pnpm sync-react-csb <react-sha>` there, push, let `publish-preview.yml` publish `next` to pkg.pr.new, then pass that URL as `next_url` (or add `"next": "<url>"` to `react-urls.json`). The Next demo installs it instead of stock `next`, so the App Router runs your vendored React.

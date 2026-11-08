@@ -16,6 +16,9 @@ on:
         default: experimental
         type: choice
         options: [experimental, stable]
+      next_url:
+        description: Optional Next fork preview URL (pkg.pr.new .../next@<sha>) with vendored React
+        required: false
 
 permissions:
   contents: read
@@ -58,6 +61,10 @@ jobs:
   demos:
     needs: publish
     runs-on: ubuntu-latest
+    env:
+      # Job-level so the deploy step's `if` can see it (secrets are not allowed in `if`).
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     strategy:
       fail-fast: false
       matrix:
@@ -68,11 +75,13 @@ jobs:
         with: { name: react-urls }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - name: Add Next fork URL
+        if: ${{ inputs.next_url != '' }}
+        env:
+          NEXT_URL: ${{ inputs.next_url }}
+        run: jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json && mv tmp.json react-urls.json
       - run: node scripts/build-variant.mjs ${{ matrix.template }} ${{ needs.publish.outputs.label }}
       - name: Deploy to Cloudflare
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
         working-directory: .build/${{ matrix.template }}-${{ needs.publish.outputs.label }}
         run: npm run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

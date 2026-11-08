@@ -15,12 +15,16 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 cpSync(join(root, 'templates', template), out, { recursive: true });
 
-const PKGS = Object.keys(urls);
+// `next` (optional) = your Next fork preview, e.g. https://pkg.pr.new/MaxwellCohen/next.js/next@<sha>.
+// That build already vendors its own React (see sync-react-csb + copy_vendor_react), so it is not overridden.
+const { next: nextUrl, ...reactUrls } = urls;
+const PKGS = Object.keys(reactUrls);
 
 const pkgPath = join(out, 'package.json');
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-for (const p of PKGS) if (pkg.dependencies?.[p]) pkg.dependencies[p] = urls[p];
-pkg.overrides = { ...pkg.overrides, ...urls };
+for (const p of PKGS) if (pkg.dependencies?.[p]) pkg.dependencies[p] = reactUrls[p];
+if (nextUrl && pkg.dependencies?.next) pkg.dependencies.next = nextUrl;
+pkg.overrides = { ...pkg.overrides, ...reactUrls };
 pkg.name = `react-eco-${template}-${name}`.replace(/[^a-z0-9-]/g, '-');
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
 
