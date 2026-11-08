@@ -5,8 +5,8 @@ import { useFormStatus } from 'react-dom';
 // A counter driven entirely by form actions:
 //  - useActionState(reducer, 0) gives [state, dispatch, isPending]
 //  - <form action={dispatch}> runs the reducer on submit (the default "+" button)
-//  - buttons override it with the `formAction` prop: one passes `dispatch` directly (with name/value),
-//    the other passes an inline function that builds its own FormData
+//  - the "-" and "reset" buttons override it with the `formAction` prop. React drops `name`/`value` from a button whose
+//    formAction is a function, so each passes an inline function that sets `op` on the FormData itself
 async function reducer(count, formData) {
   await new Promise(r => setTimeout(r, 150)); // visible pending state
   const op = formData.get('op');
@@ -20,7 +20,7 @@ function Buttons({ dispatch }) {
   return (
     <p>
       <button className="counter" type="submit" name="op" value="inc" disabled={pending}>+</button>{' '}
-      <button type="submit" name="op" value="dec" formAction={dispatch} disabled={pending}>-</button>{' '}
+      <button type="submit" disabled={pending} formAction={fd => { fd.set('op', 'dec'); dispatch(fd); }}>-</button>{' '}
       <button type="submit" disabled={pending} formAction={() => { const fd = new FormData(); fd.set('op', 'reset'); dispatch(fd); }}>reset</button>{' '}
       {pending && <em>updating…</em>}
     </p>
