@@ -7,6 +7,7 @@ export default function Page() {
       <h1>Next.js + React</h1>
       <p>Server React <code>{React.version}</code></p>
       <Client />
+      <p><a href="/table">1000-row Flight table</a></p>
       <p><a href="/version.json">/version.json</a></p>
     </main>
   );

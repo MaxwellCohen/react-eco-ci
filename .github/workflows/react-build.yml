@@ -28,6 +28,12 @@ on:
       next_url:
         description: Optional Next fork preview URL (pkg.pr.new .../next@<sha>) with vendored React
         required: false
+      next_repo:
+        description: Next.js fork to build with this React vendored (blank = skip; e.g. MaxwellCohen/next.js)
+        required: false
+      next_ref:
+        description: Branch/ref of the Next.js fork
+        default: canary
 
 permissions:
   contents: read
@@ -82,8 +88,52 @@ jobs:
           name: react-urls
           path: react-urls.json
 
-  demos:
+  next-fork:
     needs: publish
+    if: ${{ inputs.next_repo != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    outputs:
+      url: ${{ steps.pub.outputs.url }}
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      NEXT_SKIP_NATIVE_POSTINSTALL: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.next_repo }}
+          ref: ${{ inputs.next_ref }}
+          path: next-src
+      - uses: actions/download-artifact@v4
+        with: { name: react-urls }
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: next-src/.node-version
+          package-manager-cache: false
+      - run: |
+          npm i -g corepack@0.31
+          corepack enable
+      - name: Point Next's vendored React at this build
+        run: node scripts/patch-next-react.mjs next-src react-urls.json
+      - run: pnpm install --no-frozen-lockfile
+        working-directory: next-src
+      - name: Vendor React
+        run: pnpm ncc-compiled
+        working-directory: next-src/packages/next
+      - name: Build Next.js
+        run: pnpm build --filter=next
+        working-directory: next-src
+      - name: Publish next to pkg.pr.new
+        id: pub
+        working-directory: next-src
+        run: |
+          npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json ../next-output.json ./packages/next
+          echo "url=$(jq -r '.packages[] | select(.name=="next") | .url' ../next-output.json)" >> "$GITHUB_OUTPUT"
+
+  demos:
+    needs: [publish, next-fork]
+    if: ${{ !cancelled() && needs.publish.result == 'success' && (needs.next-fork.result == 'success' || needs.next-fork.result == 'skipped') }}
     runs-on: ubuntu-latest
     env:
       # Job-level so the deploy step's `if` can see it (secrets are not allowed in `if`).
@@ -100,9 +150,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Add Next fork URL
-        if: ${{ inputs.next_url != '' }}
+        if: ${{ inputs.next_url != '' || needs.next-fork.outputs.url != '' }}
         env:
-          NEXT_URL: ${{ inputs.next_url }}
+          NEXT_URL: ${{ needs.next-fork.outputs.url || inputs.next_url }}
         run: |
           jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json
           mv tmp.json react-urls.json
