@@ -4,11 +4,11 @@
 
 | Report | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Mobile | 100 | 100 | 96 | 91 |
+| Mobile | 99 | 100 | 96 | 91 |
 
 ## Mobile metrics
 
-Lab: FCP 1.2 s (good); LCP 1.2 s (good); TBT 60 ms (good); CLS 0 (good); SI 1.3 s (good)
+Lab: FCP 1.2 s (good); LCP 1.2 s (good); TBT 140 ms (good); CLS 0 (good); SI 1.3 s (good)
 Baseline features used: 4 widely available, 4 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Mobile · URL https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/table · mobile · performance score 100
-  - Lab: First Contentful Paint 1.2 s (good); Largest Contentful Paint 1.2 s (good); Total Blocking Time 60 ms (good); Cumulative Layout Shift 0 (good); Speed Index 1.3 s (good)
+- Mobile · URL https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/table · mobile · performance score 99
+  - Lab: First Contentful Paint 1.2 s (good); Largest Contentful Paint 1.2 s (good); Total Blocking Time 140 ms (good); Cumulative Layout Shift 0 (good); Speed Index 1.3 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-D3gCE_Fq.js (47.6 KiB unused)
+- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-D3gCE_Fq.js (45.3 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
@@ -55,7 +55,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 48 KiB (`unused-javascript`, Mobile)
+- **[performance] Reduce unused JavaScript** — Est savings of 45 KiB (`unused-javascript`, Mobile)
   - https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-D3gCE_Fq.js
 - **[performance] Reduce unused CSS** — Est savings of 15 KiB (`unused-css-rules`, Mobile)
   - .c0{color:#000000;margin:0px 0px;padding:0px;display:flex;flex-direction:column; … } …

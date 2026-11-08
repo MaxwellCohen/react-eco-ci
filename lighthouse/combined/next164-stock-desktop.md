@@ -1,15 +1,15 @@
-# Web performance report: https://react-eco-fw-on.to-email-max.workers.dev/optin?stream=0&badge=0
+# Web performance report: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/table
 
 ## Scores (0–100)
 
 | Report | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Desktop | 100 | 87 | 96 | 91 |
+| Desktop | 100 | 100 | 96 | 91 |
 
 ## Desktop metrics
 
-Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.7 s (good)
-Baseline features used: 5 widely available, 3 newly available, 2 limited (limited: link-rel-expect, blocking-render)
+Lab: FCP 0.4 s (good); LCP 0.4 s (good); TBT 0 ms (good); CLS 0 (good); SI 0.4 s (good)
+Baseline features used: 5 widely available, 4 newly available, 1 limited (limited: referencetarget)
 CSP: No CSP found in enforcement mode (High)
 
 ## Speed-up prompt
@@ -20,8 +20,8 @@ Personalized from this report's findings. Follow it, or hand it to a coding agen
 You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CLS, INP) and Lighthouse performance score using the PageSpeed Insights findings below. First identify the meta framework in use (e.g. Next.js, Nuxt, SvelteKit, Astro, Remix/React Router, TanStack Start, SolidStart, Qwik) and apply each fix with that framework's native APIs. Only work on the focus areas listed — they were selected from the report data. Work in small, separately measurable changes.
 
 ## Report data
-- Desktop · URL https://react-eco-fw-on.to-email-max.workers.dev/optin?stream=0&badge=0 · desktop · performance score 100
-  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.7 s (good)
+- Desktop · URL https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/table · desktop · performance score 100
+  - Lab: First Contentful Paint 0.4 s (good); Largest Contentful Paint 0.4 s (good); Total Blocking Time 0 ms (good); Cumulative Layout Shift 0 (good); Speed Index 0.4 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -31,7 +31,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## 2. Render-blocking CSS and scripts
 Evidence from the report:
-- Unused CSS: inline <style>/<script> (17.1 KiB unused)
+- Unused CSS: inline <style>/<script> (14.4 KiB unused)
 
 What to do:
 - Keep only shared tokens and base styles global; co-locate feature styles with their routes/components so each page ships only the CSS it uses.
@@ -40,12 +40,15 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (42.4 KiB unused)
+- Unused JS: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js (30.6 KiB unused)
+- Unused JS: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/0m3mby5pxg4oz.js (25.8 KiB unused)
+- Legacy polyfills: https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js (13.9 KiB)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
 - Lazy-load anything not needed for first paint: search, menus, dialogs, lightboxes, editors, video players. Mount dialogs on first open, wrapped in Suspense/loading and error boundaries.
 - Verify lazy chunks are NOT modulepreloaded on the initial page.
+- Update the browserslist/build target to modern browsers so polyfills for Baseline features are not shipped.
 
 ## 4. Lock in the gains
 - Add bundle budgets enforced in CI (gzip bytes) for render-blocking CSS, total CSS, initial JS, and module preload count. Deferred downloads still count.
@@ -55,14 +58,15 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 42 KiB (`unused-javascript`, Desktop)
-  - https://react-eco-fw-on.to-email-max.workers.dev/client.js
-- **[performance] Reduce unused CSS** — Est savings of 17 KiB (`unused-css-rules`, Desktop)
+- **[performance] Reduce unused JavaScript** — Est savings of 56 KiB (`unused-javascript`, Desktop)
+  - https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js
+  - https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/0m3mby5pxg4oz.js
+- **[performance] Reduce unused CSS** — Est savings of 14 KiB (`unused-css-rules`, Desktop)
   - .c0{color:#000000;margin:0px 0px;padding:0px;display:flex;flex-direction:column; … } …
-- **[accessibility] Touch targets do not have sufficient size or spacing.** (`target-size`, Desktop)
-  - body > header.site-header > nav > a `<a href="/">`
-- **[accessibility] Document does not have a main landmark.** (`landmark-one-main`, Desktop)
-  - html `<html lang="en">`
+- **[performance] Page prevented back/forward cache restoration** — 2 failure reasons (`bf-cache`, Desktop)
+- **[performance] Legacy JavaScript** — Est savings of 14 KiB (`legacy-javascript-insight`, Desktop)
+  - https://react-eco-next-1930da7c-next164-stock.to-email-max.workers.dev/_next/static/chunks/23e6jep2anmtk.js
 - **[best-practices] Browser errors were logged to the console** (`errors-in-console`, Desktop)
   - Failed to load resource: the server responded with a status of 404 ()
+- **[best-practices] Missing source maps for large first-party JavaScript** (`valid-source-maps`, Desktop)
 - **[seo] Document does not have a meta description** (`meta-description`, Desktop)

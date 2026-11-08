@@ -8,7 +8,7 @@
 
 ## Mobile metrics
 
-Lab: FCP 1.3 s (good); LCP 1.3 s (good); TBT 110 ms (good); CLS 0 (good); SI 2.0 s (good)
+Lab: FCP 1.3 s (good); LCP 1.3 s (good); TBT 90 ms (good); CLS 0 (good); SI 1.9 s (good)
 Baseline features used: 5 widely available, 4 newly available, 2 limited (limited: link-rel-expect, blocking-render)
 CSP: No CSP found in enforcement mode (High)
 
@@ -21,7 +21,7 @@ You are a web performance engineer. Improve this site's Core Web Vitals (LCP, CL
 
 ## Report data
 - Mobile · URL https://react-eco-fw-on.to-email-max.workers.dev/plain?badge=0 · mobile · performance score 99
-  - Lab: First Contentful Paint 1.3 s (good); Largest Contentful Paint 1.3 s (good); Total Blocking Time 110 ms (good); Cumulative Layout Shift 0 (good); Speed Index 2.0 s (good)
+  - Lab: First Contentful Paint 1.3 s (good); Largest Contentful Paint 1.3 s (good); Total Blocking Time 90 ms (good); Cumulative Layout Shift 0 (good); Speed Index 1.9 s (good)
 
 ## 1. Measure correctly before changing anything
 - Before measuring, ask me which target to test: a local production build of the repo (build, then run the preview/start server), the staging environment URL, or the live production URL. Wait for my answer and do not assume.
@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (41.4 KiB unused)
+- Unused JS: https://react-eco-fw-on.to-email-max.workers.dev/client.js (39.8 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
@@ -55,7 +55,7 @@ What to do:
 
 ## Issues (most impactful first)
 
-- **[performance] Reduce unused JavaScript** — Est savings of 41 KiB (`unused-javascript`, Mobile)
+- **[performance] Reduce unused JavaScript** — Est savings of 40 KiB (`unused-javascript`, Mobile)
   - https://react-eco-fw-on.to-email-max.workers.dev/client.js
 - **[performance] Reduce unused CSS** — Est savings of 18 KiB (`unused-css-rules`, Mobile)
   - .c0{color:#000000;margin:0px 0px;padding:0px;display:flex;flex-direction:column; … } …

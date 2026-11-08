@@ -40,7 +40,7 @@ What to do:
 
 ## 3. JavaScript size and main-thread work
 Evidence from the report:
-- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-D3gCE_Fq.js (44.8 KiB unused)
+- Unused JS: https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/assets/index-D3gCE_Fq.js (45.3 KiB unused)
 
 What to do:
 - Find large modules imported into every page (manifests, content indexes, icon sets, utility bundles). Pass each route only the data it renders and strip unused fields.
