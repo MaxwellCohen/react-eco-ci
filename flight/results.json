@@ -1,0 +1,36 @@
+{
+  "generated": "2026-11-08T15:20:35.060Z",
+  "all": [
+    {
+      "meta": {
+        "variant": "off",
+        "repo": "MaxwellCohen/react",
+        "ref": "rsc/5-html-first-flight",
+        "sha": "1930da7cf8e9f7dd7326a90224aab4b71fd4c21d",
+        "flags": [],
+        "e2eExit": 1,
+        "inprocExit": 0
+      },
+      "e2e": [],
+      "inproc": "PageApp fizz (no RSC) floor          median 14.8 ms  p10 13.0  html 1068303\nPageApp baseline flight              median 25.3 ms  p10 24.4  html 1695835\nPageApp html-first                   median 25.5 ms  p10 24.7  html 1695835\nPageApp html-first LIVE              median 25.2 ms  p10 24.2  html 1695835\nfizz same markup (no RSC)            median 14.3 ms  p10 13.7  html 686871\nlean rows                            median 21.5 ms  p10 20.7  html 901413\nlean rows, elide                     median 21.7 ms  p10 20.9  html 901413\nstatic rows (prune tr), elide        median 21.7 ms  p10 21.0  html 901413\nstatic tbody (prune tbody), elide    median 21.7 ms  p10 21.1  html 901413\nstatic rows LIVE                     median 21.7 ms  p10 21.0  html 901413\nstatic tbody LIVE                    median 21.6 ms  p10 21.0  html 901413\n"
+    },
+    {
+      "meta": {
+        "variant": "on",
+        "repo": "MaxwellCohen/react",
+        "ref": "rsc/5-html-first-flight",
+        "sha": "1930da7cf8e9f7dd7326a90224aab4b71fd4c21d",
+        "flags": [
+          "enableFlightHostElision",
+          "enableFlightLazyClientParser",
+          "enableFlightPayloadDedupe",
+          "enableFlightHtmlFirst"
+        ],
+        "e2eExit": 1,
+        "inprocExit": 0
+      },
+      "e2e": [],
+      "inproc": "PageApp fizz (no RSC) floor          median 17.7 ms  p10 16.3  html 1068303\nPageApp baseline flight              median 31.3 ms  p10 29.8  html 1695833\nPageApp html-first                   median 26.5 ms  p10 25.5  html 1083536\nPageApp html-first LIVE              median 21.7 ms  p10 20.9  html 1083325\nfizz same markup (no RSC)            median 17.0 ms  p10 15.9  html 686871\nlean rows                            median 26.5 ms  p10 25.5  html 901412\nlean rows, elide                     median 27.0 ms  p10 25.6  html 900950\nstatic rows (prune tr), elide        median 22.2 ms  p10 21.4  html 687385\nstatic tbody (prune tbody), elide    median 22.2 ms  p10 21.6  html 687385\nstatic rows LIVE                     median 19.5 ms  p10 18.2  html 687180\nstatic tbody LIVE                    median 19.8 ms  p10 18.9  html 687180\n"
+    }
+  ]
+}

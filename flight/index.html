@@ -1,0 +1,26 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Flight SSR results</title>
+<style>body{font:15px/1.5 system-ui;max-width:1100px;margin:24px auto;padding:0 16px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #8884;padding:4px 8px;text-align:right}td:nth-child(-n+2),th:nth-child(-n+2){text-align:left}.PASS{color:#1a9f55;font-weight:700}.FAIL{color:#d33;font-weight:700}pre{background:#8881;padding:10px;overflow:auto;font-size:12px}</style>
+<h1>Flight SSR: flags off vs on</h1><p>Generated 2026-11-08T15:20Z in CI, real Chromium. Raw: <a href="results.json">results.json</a>, <a href="report.md">report.md</a></p>
+<ul><li><b>off</b>: MaxwellCohen/react@rsc/5-html-first-flight (<code>1930da7c</code>) &middot; flags: none</li><li><b>on</b>: MaxwellCohen/react@rsc/5-html-first-flight (<code>1930da7c</code>) &middot; flags: enableFlightHostElision, enableFlightLazyClientParser, enableFlightPayloadDedupe, enableFlightHtmlFirst</li></ul>
+<table><tr><th>variant</th><th>page kind</th><th>HTML bytes</th><th>HTML gzip</th><th>inlined Flight</th><th>hydrated (ms, median)</th><th>rows adopted</th><th>style/ld adopted</th><th>recoverable errs</th><th>console problems</th><th>nav ok</th><th>hydration check</th></tr><tr><td>off</td><td>(no e2e output)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="FAIL">FAIL</td></tr><tr><td>on</td><td>(no e2e output)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="FAIL">FAIL</td></tr></table>
+<h2>In-process render (off)</h2><pre>PageApp fizz (no RSC) floor          median 14.8 ms  p10 13.0  html 1068303
+PageApp baseline flight              median 25.3 ms  p10 24.4  html 1695835
+PageApp html-first                   median 25.5 ms  p10 24.7  html 1695835
+PageApp html-first LIVE              median 25.2 ms  p10 24.2  html 1695835
+fizz same markup (no RSC)            median 14.3 ms  p10 13.7  html 686871
+lean rows                            median 21.5 ms  p10 20.7  html 901413
+lean rows, elide                     median 21.7 ms  p10 20.9  html 901413
+static rows (prune tr), elide        median 21.7 ms  p10 21.0  html 901413
+static tbody (prune tbody), elide    median 21.7 ms  p10 21.1  html 901413
+static rows LIVE                     median 21.7 ms  p10 21.0  html 901413
+static tbody LIVE                    median 21.6 ms  p10 21.0  html 901413</pre><h2>In-process render (on)</h2><pre>PageApp fizz (no RSC) floor          median 17.7 ms  p10 16.3  html 1068303
+PageApp baseline flight              median 31.3 ms  p10 29.8  html 1695833
+PageApp html-first                   median 26.5 ms  p10 25.5  html 1083536
+PageApp html-first LIVE              median 21.7 ms  p10 20.9  html 1083325
+fizz same markup (no RSC)            median 17.0 ms  p10 15.9  html 686871
+lean rows                            median 26.5 ms  p10 25.5  html 901412
+lean rows, elide                     median 27.0 ms  p10 25.6  html 900950
+static rows (prune tr), elide        median 22.2 ms  p10 21.4  html 687385
+static tbody (prune tbody), elide    median 22.2 ms  p10 21.6  html 687385
+static rows LIVE                     median 19.5 ms  p10 18.2  html 687180
+static tbody LIVE                    median 19.8 ms  p10 18.9  html 687180</pre>
