@@ -8,6 +8,7 @@ export default async function HomePage() {
       <h1>Waku + React</h1>
       <p>Server React <code>{React.version}</code></p>
       <Counter />
+      <p><a href="/table">1000-row Flight table</a></p>
     </main>
   );
 }

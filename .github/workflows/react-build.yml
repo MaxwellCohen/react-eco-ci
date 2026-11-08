@@ -16,6 +16,15 @@ on:
         default: experimental
         type: choice
         options: [experimental, stable]
+      flags:
+        description: Comma-separated ReactFeatureFlags to force true (e.g. enableFlightHostElision,enableFlightHtmlFirst)
+        required: false
+      suffix:
+        description: Appended to the label (and Worker names) so flag variants of one commit do not collide
+        required: false
+      templates:
+        description: JSON list of demo templates to build and deploy
+        default: '["vite","next","waku","perf"]'
       next_url:
         description: Optional Next fork preview URL (pkg.pr.new .../next@<sha>) with vendored React
         required: false
@@ -39,7 +48,16 @@ jobs:
           path: react-src
       - id: meta
         working-directory: react-src
-        run: echo "label=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
+        env:
+          SUFFIX: ${{ inputs.suffix }}
+        run: echo "label=$(git rev-parse --short=8 HEAD)${SUFFIX:+-$SUFFIX}" >> "$GITHUB_OUTPUT"
+      - name: Force feature flags
+        if: ${{ inputs.flags != '' }}
+        env:
+          FLAGS: ${{ inputs.flags }}
+        run: |
+          node scripts/force-flags.mjs react-src "$FLAGS"
+          git -C react-src diff --stat
       - uses: actions/setup-node@v4
         with:
           node-version-file: react-src/.nvmrc
@@ -74,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        template: [vite, next, waku, perf]
+        template: ${{ fromJson(inputs.templates) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
