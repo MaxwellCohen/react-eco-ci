@@ -7,8 +7,9 @@ It builds React, publishes `react`, `react-dom`, `scheduler`, `react-is`, `react
 Needs `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets; otherwise deploy is skipped.
 The package URLs are in the `react-urls` artifact. Note: pkg.pr.new keys by this repo's commit, so re-running for a different React commit on the same repo commit replaces the previous packages (the deployed demos keep working only until their next install).
 
-**Local** — `cd <react> && yarn build -r=experimental`, then write `react-urls.json` mapping package → `file:/abs/path/to/build/oss-experimental/<pkg>` and run
+**Local** — `cd <react> && yarn install && yarn --cwd compiler install`, then `yarn build -r=experimental`, then write `react-urls.json` mapping package → `file:/abs/path/to/build/oss-experimental/<pkg>` and run
 `node scripts/build-variant.mjs <vite|next|waku> <label>` → `.build/<template>-<label>`.
+The compiler install is required: `yarn build` compiles `eslint-plugin-react-hooks` against compiler sources, which fails without its `@types`.
 
 Each demo shows `React.version` (and `/version.json`).
 **Next.js caveat:** App Router uses Next's vendored React, so the override doesn't change it; the demo prints server and client versions so you can tell.
