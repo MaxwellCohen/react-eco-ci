@@ -36,12 +36,14 @@ function check() {
   setTimeout(() => {
     const interactive = btn.textContent !== before;
     const ok = window.__hydratedAt !== undefined && adopted === was.length && was.length > 0 && recoverable.length === 0 && interactive;
+    window.__hydrationResult = { ok, adopted, rows: was.length, recoverable, interactive, hydratedAt: window.__hydratedAt };
+    // ?badge=0 skips the visual badge (it would otherwise become the LCP element in Lighthouse runs).
+    if (location.search.includes('badge=0')) return;
     const el = document.createElement('div');
     el.id = 'hydration-badge';
     el.style.cssText = `position:fixed;right:12px;bottom:12px;z-index:99;padding:10px 14px;border-radius:8px;font:13px/1.4 system-ui;color:#fff;background:${ok ? '#15803d' : '#b91c1c'};box-shadow:0 2px 8px #0005`;
     el.innerHTML = `<b>Hydration ${ok ? 'PASS' : 'FAIL'}</b><br>rows adopted: ${adopted}/${was.length}<br>recoverable errors: ${recoverable.length}<br>click self-test: ${interactive ? 'ok' : 'FAILED'}<br>hydrated at: ${Math.round(window.__hydratedAt || 0)} ms`;
     document.body.appendChild(el);
-    window.__hydrationResult = { ok, adopted, rows: was.length, recoverable, interactive, hydratedAt: window.__hydratedAt };
   }, 100);
 }
 addEventListener('load', () => setTimeout(check, 300));
