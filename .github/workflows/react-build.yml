@@ -1,0 +1,78 @@
+name: react-build
+# Builds React at any commit from any repo, publishes it to pkg.pr.new (from THIS repo),
+# then builds + deploys the Vite/Next/Waku demos against it.
+# Install the GitHub App on this repo first: https://github.com/apps/pkg-pr-new
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: React repo (owner/name)
+        default: facebook/react
+      ref:
+        description: Commit SHA, branch or tag
+        required: true
+      channel:
+        description: Release channel
+        default: experimental
+        type: choice
+        options: [experimental, stable]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      label: ${{ steps.meta.outputs.label }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          path: react-src
+      - id: meta
+        working-directory: react-src
+        run: echo "label=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: react-src/.nvmrc
+          cache: yarn
+          cache-dependency-path: react-src/yarn.lock
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 11 }
+      - run: yarn install --frozen-lockfile
+        working-directory: react-src
+      - run: yarn build -r=${{ inputs.channel }}
+        working-directory: react-src
+      - name: Publish to pkg.pr.new
+        run: node scripts/publish-react.mjs react-src/build/oss-${{ inputs.channel }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: react-urls
+          path: react-urls.json
+
+  demos:
+    needs: publish
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: [vite, next, waku]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: react-urls }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/build-variant.mjs ${{ matrix.template }} ${{ needs.publish.outputs.label }}
+      - name: Deploy to Cloudflare
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        working-directory: .build/${{ matrix.template }}-${{ needs.publish.outputs.label }}
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
