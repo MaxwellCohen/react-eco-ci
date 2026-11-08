@@ -8,8 +8,8 @@ import Row from './Row.jsx';
 const modules = { Counter: { default: Counter }, Row: { default: Row } };
 self.__modules = modules;
 
-const saved = { rows: null };
-document.addEventListener('readystatechange', () => { if (document.readyState === 'interactive' && !saved.rows) saved.rows = Array.from(document.querySelectorAll('tr')); });
+// This script is deferred, so the server DOM is fully parsed: snapshot its rows before hydration touches anything.
+const saved = { rows: Array.from(document.querySelectorAll('tr')) };
 const recoverable = [];
 
 function Shell({ response }) {
