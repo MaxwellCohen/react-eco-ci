@@ -1,0 +1,43 @@
+name: lighthouse
+# Runs Lighthouse (mobile + desktop, median of N) on deployed URLs, has the web-perf-report site analyze
+# each median run, and publishes a comparison to GitHub Pages under /lighthouse/<name>/.
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: Output folder name under /lighthouse/
+        default: waku
+      runs:
+        description: Runs per page/device
+        default: '3'
+      targets:
+        description: Space-separated label=url pairs
+        required: true
+permissions:
+  contents: write
+jobs:
+  lighthouse:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Run Lighthouse
+        env:
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          set -o pipefail
+          node scripts/run-lighthouse.mjs site/lighthouse/${{ inputs.name }} ${{ inputs.runs }} $TARGETS | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Publish to GitHub Pages (gh-pages)
+        run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git fetch origin gh-pages
+          git checkout gh-pages
+          mkdir -p lighthouse && rm -rf lighthouse/${{ inputs.name }} && cp -R site/lighthouse/${{ inputs.name }} lighthouse/${{ inputs.name }}
+          git add lighthouse && git commit -m "lighthouse ${{ inputs.name }} $(date -u +%FT%TZ)" || echo "nothing to commit"
+          git push origin gh-pages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-${{ inputs.name }}
+          path: site/lighthouse/${{ inputs.name }}
