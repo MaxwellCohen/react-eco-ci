@@ -35,9 +35,11 @@ const pw = join(src, '.pw');
 mkdirSync(pw, { recursive: true });
 writeFileSync(join(pw, 'package.json'), '{"private":true}');
 run('npm', ['install', '--no-audit', '--no-fund', 'playwright'], pw);
-run('npx', ['playwright', 'install', '--with-deps', 'chromium'], pw);
-
 const env = { ...process.env, NODE_ENV: 'production', NODE_PATH: join(pw, 'node_modules') };
+// Install the browser for the exact playwright that e2e/run.js resolves (the repo's own copy wins over ours).
+const cli = execFileSync('node', ['-p', "require.resolve('playwright/cli.js')"], { cwd: fx, env }).toString().trim();
+console.log('playwright cli:', cli);
+run('node', [cli, 'install', '--with-deps', 'chromium'], fx, { NODE_PATH: join(pw, 'node_modules') });
 const e2e = spawnSync('node', ['e2e/run.js', '--rows=1000'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
 writeFileSync(join(res, 'e2e.log'), (e2e.stdout || '') + (e2e.stderr || ''));
 writeFileSync(join(res, 'e2e.jsonl'), (e2e.stdout || '').split('\n').filter(l => l.startsWith('{')).join('\n'));
