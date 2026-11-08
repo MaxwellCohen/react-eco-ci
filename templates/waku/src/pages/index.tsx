@@ -9,6 +9,7 @@ export default async function HomePage() {
       <p>Server React <code>{React.version}</code></p>
       <Counter />
       <p><a href="/table">1000-row Flight table</a></p>
+      <p><a href="/form-counter">Form action counter (useActionState)</a></p>
     </main>
   );
 }

@@ -6,9 +6,11 @@ import { generateProducts, makeCss, makeJsonLd } from './data.js';
 const clientRef = id => registerClientReference(() => { throw new Error(`${id} is a client component`); }, id, 'default');
 const Counter = clientRef('Counter');
 const Row = clientRef('Row');
+const FormCounter = clientRef('FormCounter');
 export const clientManifest = {
   Counter: { id: 'Counter', chunks: [], name: '*' },
   Row: { id: 'Row', chunks: [], name: '*' },
+  FormCounter: { id: 'FormCounter', chunks: [], name: '*' },
 };
 // A slow server component: with streaming, the shell is sent first and this arrives `ms` later.
 async function Reviews({ ms, prune }) {
@@ -69,4 +71,21 @@ const PageOptIn = makePage(unstable_pruneForBrowser);
 export function render(optIn, itemCount, delayMs, options) {
   const Page = optIn ? PageOptIn : PagePlain;
   return renderToReadableStream(<Page itemCount={itemCount} delayMs={delayMs} />, clientManifest, options);
+}
+
+// /form-counter: a tiny page whose only client component is driven by useActionState + form actions.
+function PageCounter() {
+  return (
+    <html lang="en">
+      <head><meta charSet="utf-8" /><title>Form action counter</title></head>
+      <body>
+        <h1>Form action counter</h1>
+        <p><a href="/">home</a></p>
+        <FormCounter />
+      </body>
+    </html>
+  );
+}
+export function renderCounter(options) {
+  return renderToReadableStream(<PageCounter />, clientManifest, options);
 }

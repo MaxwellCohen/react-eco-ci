@@ -8,6 +8,7 @@ export default function Page() {
       <p>Server React <code>{React.version}</code></p>
       <Client />
       <p><a href="/table">1000-row Flight table</a></p>
+      <p><a href="/form-counter">Form action counter (useActionState)</a></p>
       <p><a href="/version.json">/version.json</a></p>
     </main>
   );

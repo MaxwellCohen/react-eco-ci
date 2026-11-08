@@ -4,8 +4,9 @@ import { hydrateRoot } from 'react-dom/client';
 import { createFromReadableStream } from 'react-server-dom-webpack/client.browser';
 import Counter from './Counter.jsx';
 import Row from './Row.jsx';
+import FormCounter from './FormCounter.jsx';
 
-const modules = { Counter: { default: Counter }, Row: { default: Row } };
+const modules = { Counter: { default: Counter }, Row: { default: Row }, FormCounter: { default: FormCounter } };
 self.__modules = modules;
 
 // Early hydration: this script is a bootstrap <script async> that may run while the document is still streaming, so
@@ -41,12 +42,13 @@ function check() {
   if (window.__hydratedAt === undefined || h.streamEndedAt === undefined || document.readyState !== 'complete') return setTimeout(check, 100);
   const now = Array.from(document.querySelectorAll('tr'));
   const adopted = [...originals].filter(r => r.isConnected).length;
-  const btn = document.querySelector('button.counter');
-  const before = btn.textContent; btn.click();
+  const btn = document.querySelector('form button.counter') || document.querySelector('button.counter');
+  const out = document.getElementById('count');
+  const before = out ? out.textContent : btn.textContent; btn.click();
   setTimeout(() => {
-    const interactive = btn.textContent !== before;
+    const interactive = (out ? out.textContent : btn.textContent) !== before;
     const early = h.startedWhileLoading && t0 < h.streamEndedAt;
-    const ok = adopted === originals.size && originals.size > 0 && now.length === originals.size && recoverable.length === 0 && interactive;
+    const ok = (originals.size === 0 || (adopted === originals.size && now.length === originals.size)) && recoverable.length === 0 && interactive;
     window.__hydrationResult = { ok, adopted, rows: originals.size, rowsNow: now.length, recoverable, interactive, hydratedAt: window.__hydratedAt, startedAt: t0, streamEndedAt: h.streamEndedAt, startedWhileLoading: h.startedWhileLoading, early };
     // ?badge=0 skips the visual badge (it would otherwise become the LCP element in Lighthouse runs).
     if (location.search.includes('badge=0')) return;
@@ -55,6 +57,6 @@ function check() {
     el.style.cssText = `position:fixed;right:12px;bottom:12px;z-index:99;padding:10px 14px;border-radius:8px;font:13px/1.4 system-ui;color:#fff;background:${ok ? '#15803d' : '#b91c1c'};box-shadow:0 2px 8px #0005`;
     el.innerHTML = `<b>Hydration ${ok ? 'PASS' : 'FAIL'}</b><br>rows adopted: ${adopted}/${originals.size}<br>recoverable errors: ${recoverable.length}<br>click self-test: ${interactive ? 'ok' : 'FAILED'}<br>started at ${Math.round(t0)} ms ${h.startedWhileLoading ? '(document still loading)' : '(document already loaded)'}<br>stream ended at ${Math.round(h.streamEndedAt)} ms &rarr; ${early ? '<b>EARLY hydration</b>' : 'late hydration'}<br>hydrated at ${Math.round(window.__hydratedAt)} ms`;
     document.body.appendChild(el);
-  }, 100);
+  }, 400);
 }
 check();
