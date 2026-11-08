@@ -1,5 +1,9 @@
 import * as React from 'react';
 import { RowCounter } from '../components/row-counter';
+import { makeCss, makeJsonLd } from '../blobs';
+
+const css = makeCss();
+const jsonLd = makeJsonLd();
 
 const ROWS = 1000;
 
@@ -15,6 +19,8 @@ export default async function TablePage() {
   return (
     <main>
       <title>Waku Flight table</title>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <h1>Waku + Flight: {ROWS} rows</h1>
       <p>Server React <code>{React.version}</code>. View source to compare the inlined Flight payload.</p>
       <table>
