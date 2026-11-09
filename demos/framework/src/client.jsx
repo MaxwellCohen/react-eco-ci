@@ -53,8 +53,9 @@ function check() {
   const btn = document.querySelector('form button.counter') || document.querySelector('button.counter');
   const out = document.getElementById('count');
   const before = out ? out.textContent : btn.textContent; btn.click();
-  setTimeout(() => {
-    const interactive = (out ? out.textContent : btn.textContent) !== before;
+  // Actions are async (and a cold Worker can be slow): poll for the output instead of using a fixed window.
+  const clickedAt = performance.now();
+  const finish = interactive => {
     const early = h.startedWhileLoading && t0 < h.streamEndedAt;
     const ok = (originals.size === 0 || (adopted === originals.size && now.length === originals.size)) && recoverable.length === 0 && interactive;
     window.__hydrationResult = { ok, adopted, rows: originals.size, rowsNow: now.length, recoverable, interactive, hydratedAt: window.__hydratedAt, startedAt: t0, streamEndedAt: h.streamEndedAt, startedWhileLoading: h.startedWhileLoading, early };
@@ -65,6 +66,12 @@ function check() {
     el.style.cssText = `position:fixed;right:12px;bottom:12px;z-index:99;padding:10px 14px;border-radius:8px;font:13px/1.4 system-ui;color:#fff;background:${ok ? '#15803d' : '#b91c1c'};box-shadow:0 2px 8px #0005`;
     el.innerHTML = `<b>Hydration ${ok ? 'PASS' : 'FAIL'}</b><br>rows adopted: ${adopted}/${originals.size}<br>recoverable errors: ${recoverable.length}<br>click self-test: ${interactive ? 'ok' : 'FAILED'}<br>started at ${Math.round(t0)} ms ${h.startedWhileLoading ? '(document still loading)' : '(document already loaded)'}<br>stream ended at ${Math.round(h.streamEndedAt)} ms &rarr; ${early ? '<b>EARLY hydration</b>' : 'late hydration'}<br>hydrated at ${Math.round(window.__hydratedAt)} ms`;
     document.body.appendChild(el);
-  }, 400);
+  };
+  const poll = () => {
+    const interactive = (out ? out.textContent : btn.textContent) !== before;
+    if (!interactive && performance.now() - clickedAt < 1500) return setTimeout(poll, 50);
+    finish(interactive);
+  };
+  setTimeout(poll, 50);
 }
 check();
