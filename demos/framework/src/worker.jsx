@@ -4,14 +4,14 @@
 import * as React from 'react';
 import { renderToReadableStream } from 'react-dom/server';
 import { createFromReadableStream } from 'react-server-dom-webpack/client.edge';
-import { render, renderCounter, clientManifest } from '../dist/rsc.mjs';
+import { render, renderCounter, handleAction, callAction, serverModules, clientManifest } from '../dist/rsc.mjs';
 import Counter from './Counter.jsx';
 import Row from './Row.jsx';
 import FormCounter from './FormCounter.jsx';
 import version from './version.json';
 
 const modules = { Counter: { default: Counter }, Row: { default: Row }, FormCounter: { default: FormCounter } };
-globalThis.__webpack_require__ = id => modules[id];
+globalThis.__webpack_require__ = id => modules[id] || serverModules[id];
 globalThis.__webpack_chunk_load__ = () => Promise.resolve();
 const ssrManifest = {
   moduleMap: Object.fromEntries(Object.keys(modules).map(id => [id, { '*': { id, chunks: [], name: '*' } }])),
@@ -64,13 +64,13 @@ async function renderPage(optIn, rows, delayMs) {
   const fDec = new TextDecoder();
   const scripts = (await inline).map(c => `<script>(self.__FLIGHT_DATA||=[]).push(${JSON.stringify(fDec.decode(c, { stream: true }))})</script>`).join('');
   const trailer = '</body></html>';
-  const doc = (html.endsWith(trailer) ? html.slice(0, -trailer.length) : html) + scripts + '<script src="/client.js" defer></script>' + trailer;
+  const doc = (html.endsWith(trailer) ? html.slice(0, -trailer.length) : html) + scripts + '<script>(self.__FLIGHT_DATA||=[]).push(null)</script><script type="module" async src="/app.js"></script>' + trailer;
   return { doc, flightBytes: scripts.length };
 }
 
 // Streaming: send the Fizz shell as soon as it is ready, then interleave Fizz chunks and inlined Flight data as they
 // arrive. HTML is buffered within a tick so a <script> is never injected mid-tag.
-async function streamPage(optIn, rows, delayMs, early = true, counterPage = false) {
+async function streamPage(optIn, rows, delayMs, early = true, counterPage = false, formState = null) {
   const elided = optIn ? new Map() : null;
   const options = optIn ? { onElidedValue: (id, v) => elided.set(id, resolveLive(v)) } : undefined;
   const flight = await (counterPage ? renderCounter(optIn, delayMs, options) : render(optIn, rows, delayMs, options));
@@ -78,7 +78,7 @@ async function streamPage(optIn, rows, delayMs, early = true, counterPage = fals
   const response = createFromReadableStream(forSsr, { serverConsumerManifest: ssrManifest, ...(elided ? { elidedRows: elided } : {}) });
   function Root() { return React.use(response); }
   // Early: Fizz emits <script async src> right after the shell, so the client boots (and hydrates) while the stream is still open.
-  const fizz = await renderToReadableStream(React.createElement(Root), early ? { bootstrapScripts: ['/client.js'] } : undefined);
+  const fizz = await renderToReadableStream(React.createElement(Root), { ...(early ? { bootstrapModules: ['/app.js'] } : {}), ...(formState ? { formState } : {}) });
   const trailer = '</body></html>';
   const { readable, writable } = new TransformStream();
   const w = writable.getWriter();
@@ -89,6 +89,7 @@ async function streamPage(optIn, rows, delayMs, early = true, counterPage = fals
   };
   const schedule = () => { if (!timer) timer = setTimeout(() => { timer = null; chain = chain.then(flush); }, 0); };
   const htmlDec = new TextDecoder(), fDec = new TextDecoder();
+  if (formState) scripts += `<script>self.__FORM_STATE__=${JSON.stringify(formState).replace(/</g, '\\u003c')}</script>`;
   const htmlDone = (async () => {
     const r = fizz.getReader();
     for (;;) {
@@ -113,7 +114,7 @@ async function streamPage(optIn, rows, delayMs, early = true, counterPage = fals
       if (timer) clearTimeout(timer), (timer = null);
       await chain; await flush();
       // null tells the client's Flight stream that the server is done; late hydration loads the script only now.
-      await w.write(enc.encode('<script>(self.__FLIGHT_DATA||=[]).push(null)</script>' + (early ? '' : '<script src="/client.js" async></script>') + trailer));
+      await w.write(enc.encode('<script>(self.__FLIGHT_DATA||=[]).push(null)</script>' + (early ? '' : '<script type="module" async src="/app.js"></script>') + trailer));
       await w.close();
     } catch (e) { await w.abort(e); }
   })();
@@ -129,7 +130,7 @@ const index = () => `<!doctype html><meta charset=utf-8><meta name=viewport cont
 <li><b>Framework does NOT opt in</b>: <a href="/plain">/plain</a> &middot; <a href="/stats.json?mode=plain">stats</a> &middot; <a href="view-source:/plain">view-source</a></li>
 <li><b>Framework opts in</b> (<code>onElidedValue</code> + <code>unstable_pruneForBrowser</code>): <a href="/optin">/optin</a> &middot; <a href="/stats.json?mode=optin">stats</a> &middot; <a href="view-source:/optin">view-source</a></li>
 </ul>
-<p><b>Form actions:</b> <a href="/form-counter">/form-counter</a> is a counter built on <code>useActionState</code>, <code>&lt;form action&gt;</code> and <code>formAction</code> button props, on a page with elidable CSS/JSON-LD and pruned rows. Opted in by default: <a href="/form-counter">/form-counter</a> &middot; <a href="/form-counter?delay=1500">with a late section</a> &middot; <a href="/form-counter?mode=plain">no opt-in</a>.</p>
+<p><b>Form actions:</b> <a href="/form-counter">/form-counter</a> is a counter built on <code>useActionState</code>, <code>&lt;form action&gt;</code> and <code>formAction</code> button props, on a page with elidable CSS/JSON-LD and pruned rows. Opted in by default: <a href="/form-counter">/form-counter</a> &middot; <a href="/form-counter?delay=1500">with a late section</a> &middot; <a href="/form-counter?mode=plain">no opt-in</a>. The reply encoder is its own chunk (<code>/chunks/reply-*.js</code>) loaded on the first action, not with the initial client (<code>enableFlightLazyClientParser</code>).</p>
 <p><b>Early hydration:</b> the client script boots right after the shell (a bootstrap <code>&lt;script async&gt;</code>, like Next.js) and hydrates while the document is still streaming; the Flight stream stays open until the server says it is done. <code>?hydrate=late</code> loads the script only after the document ends. The badge reports whether hydration started before the stream finished.</p>
 <p><b>Streaming:</b> pages stream Fizz HTML with the Flight data inlined as it arrives. Add <code>?delay=1500</code> to make a Suspense section (&ldquo;Reviews&rdquo;) arrive late, and <code>?stream=0</code> to buffer the whole document instead. Try <a href="/optin?delay=1500">/optin?delay=1500</a> or <a href="/plain?delay=1500">/plain?delay=1500</a>.</p>
 <p>Each page shows a live <b>hydration check</b> badge (bottom-right): rows adopted from the server DOM, recoverable errors, and a click self-test.</p>`;
@@ -150,6 +151,13 @@ const handler = {
     if (url.pathname === '/') return new Response(index(), { headers: { 'content-type': 'text/html; charset=utf-8' } });
     const rows = Math.min(+(q.get('rows') || 1000), 5000);
     const delay = Math.min(+(q.get('delay') || 0), 5000);
+    if (url.pathname === '/form-counter' && req.method === 'POST') {
+      const id = req.headers.get('x-rsc-action');
+      if (id) return new Response(await callAction(id, await req.formData().catch(() => req.text())), { headers: { 'content-type': 'text/x-component' } });
+      // No-JS postback (or JS not yet hydrated): run the action, re-render the page with the resulting form state.
+      const formState = await handleAction(await req.formData());
+      return new Response(await streamPage(q.get('mode') !== 'plain', 0, delay, false, true, formState), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    }
     if (url.pathname === '/form-counter') {
       // Opt-in is the default here (?mode=plain turns it off); ?delay=N adds a late Suspense section; ?hydrate=late loads the client after the stream.
       return new Response(await streamPage(q.get('mode') !== 'plain', 0, delay, q.get('hydrate') !== 'late', true), { headers: { 'content-type': 'text/html; charset=utf-8' } });

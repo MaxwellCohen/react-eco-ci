@@ -1,7 +1,7 @@
 // Browser bootstrap: hydrate the whole document from the inlined Flight data, then self-check hydration.
 import { use, useEffect } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { createFromReadableStream } from 'react-server-dom-webpack/client.browser';
+import { createFromReadableStream, encodeReply } from 'react-server-dom-webpack/client.browser';
 import Counter from './Counter.jsx';
 import Row from './Row.jsx';
 import FormCounter from './FormCounter.jsx';
@@ -35,7 +35,15 @@ const stream = new ReadableStream({
     self.__FLIGHT_DATA = { push };
   },
 });
-hydrateRoot(document, <Shell response={createFromReadableStream(stream)} />, { onRecoverableError: e => recoverable.push(String(e && e.message).slice(0, 200)) });
+// With enableFlightLazyClientParser the reply encoder and the typed-array parser extension are split out of the
+// browser client: the framework supplies a literal import() so its bundler can emit them as separate chunks.
+const loadReplyEncoder = () => import('./reply.js');
+const loadParserExtension = () => import('./parser.js');
+async function callServer(id, args) {
+  const res = await fetch(location.pathname + location.search, { method: 'POST', headers: { 'x-rsc-action': id }, body: await encodeReply(args, { unstable_loadReplyEncoder: loadReplyEncoder }) });
+  return createFromReadableStream(res.body, { callServer, unstable_loadParserExtension: loadParserExtension });
+}
+hydrateRoot(document, <Shell response={createFromReadableStream(stream, { callServer, unstable_loadParserExtension: loadParserExtension })} />, { formState: self.__FORM_STATE__ ?? null, onRecoverableError: e => recoverable.push(String(e && e.message).slice(0, 200)) });
 
 function check() {
   const h = window.__hydration;

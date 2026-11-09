@@ -1,7 +1,43 @@
 // RSC environment (bundled with the `react-server` condition). Exposes the page and the Flight render.
-import { renderToReadableStream, registerClientReference, unstable_pruneForBrowser } from 'react-server-dom-webpack/server.edge';
+import { renderToReadableStream, registerClientReference, registerServerReference, decodeAction, decodeFormState, decodeReply, unstable_pruneForBrowser } from 'react-server-dom-webpack/server.edge';
 import { Suspense } from 'react';
 import { generateProducts, makeCss, makeJsonLd } from './data.js';
+
+// Server action for the counter. Being a real server reference is what lets <form action> + useActionState work without JS:
+// Fizz emits $ACTION_REF_* fields, the browser POSTs them, and handleAction() below runs it and returns the form state.
+async function counterAction(count, formData) {
+  await new Promise(r => setTimeout(r, 150));
+  const op = formData.get('op');
+  const step = Number(formData.get('step') || 1);
+  if (op === 'reset') return 0;
+  return op === 'dec' ? count - step : count + step;
+}
+// Per-button variant for <button formAction>: `op` is a bound argument, so no-JS submits can tell the buttons apart
+// (a function formAction drops the button's own name/value).
+async function counterOp(op, count, formData) {
+  formData.set('op', op);
+  return counterAction(count, formData);
+}
+registerServerReference(counterAction, 'counter', 'counterAction');
+registerServerReference(counterOp, 'counter', 'counterOp');
+export const serverModules = { counter: { counterAction, counterOp } };
+globalThis.__webpack_chunk_load__ = () => Promise.resolve();
+const serverManifest = { counter: { id: 'counter', chunks: [], name: '*' } };
+// No-JS postback: run the submitted action, return the state for Fizz/hydrateRoot `formState`.
+export async function handleAction(formData) {
+  const action = await decodeAction(formData, serverManifest);
+  if (!action) return null;
+  const fs = await decodeFormState(await action(), formData, serverManifest);
+  // A formAction button posts counterOp; Fizz only reuses the state if it matches useActionState's own action signature.
+  if (fs && fs[2] === 'counter#counterOp') { fs[2] = 'counter#counterAction'; fs[3] = 0; }
+  return fs;
+}
+// With-JS call (callServer): decode the encoded args, run the action, return a Flight stream of the result.
+export async function callAction(id, body) {
+  const args = await decodeReply(body, serverManifest);
+  const [mod, name] = id.split('#');
+  return renderToReadableStream(await serverModules[mod][name](...args), serverManifest);
+}
 
 const clientRef = id => registerClientReference(() => { throw new Error(`${id} is a client component`); }, id, 'default');
 const Counter = clientRef('Counter');
@@ -90,7 +126,7 @@ function makeCounterPage(prune) {
         <body>
           <h1>Form action counter</h1>
           <p><a href="/">home</a></p>
-          <FormCounter />
+          <FormCounter action={counterAction} opAction={counterOp} />
           <Suspense fallback={null}>
             <table className="product-table"><tbody>{rows}</tbody></table>
           </Suspense>
