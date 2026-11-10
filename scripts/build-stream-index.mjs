@@ -47,7 +47,7 @@ console.log(vs.length ? vs.join(', ') : '(no variants)');
 function META_COUNT() {
   try {
     const t = readFileSync('demos/streaming/src/scenarios.js', 'utf8');
-    const block = t.match(/export const META = \[([\s\S]*?)\];/);
+    const block = t.match(/const META = \[([\s\S]*?)\];/);
     const m = block?.[1].match(/^\s*\{id:/gm);
     return m ? m.length : '?';
   } catch {
