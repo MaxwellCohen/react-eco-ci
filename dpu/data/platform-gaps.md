@@ -23,7 +23,7 @@ starting points, not worked-out proposals.
 | 5 | A patch cannot wait for, or place, its styles | Render-blocking `<link>` before the patch, script hoists `<style>` | Cascade order differs without script |
 | 6 | A patch with no matching range stays in the document | Script removes the leftover `<template>` | Clean-up only |
 | 7 | The range name cannot be looked up, and old browsers see a comment | A second marker per boundary | About +3 to +5 gzip bytes per boundary |
-| 8 | Native apply gets slower than a script batch at high counts | None | Implementation, not spec |
+| 8 | Many small native patches are expensive in Chromium | None | Implementation bug, not spec |
 | 9 | Chromium only | Script fallback, which CSP can block | Fallback is required |
 
 ## 1. A patch cannot be held, batched or scheduled
@@ -32,21 +32,15 @@ starting points, not worked-out proposals.
 API to delay it, group it with other patches, or align it to a frame.
 
 **Why it matters.** React throttles Suspense reveals on purpose (about 300 ms since the last reveal,
-first paint for the first one) so content does not pop in one boundary at a time. Unthrottled native
-patching reveals sooner but costs more main-thread time than today's throttled `$RC`:
+first paint for the first one) so content does not pop in one boundary at a time. Native apply has
+no client schedule: each patch commits as it parses. A server-side hold would batch, but it delays
+bytes, which React will not do.
 
-| Median TaskDuration (ms) | 60 | 500 | 2,000 |
-|---|---|---|---|
-| Classic `$RC`, 300 ms throttle | 50.1 | 117 | 176 |
-| Classic `$RC`, 16 ms throttle | 83.8 | 171 | 288 |
-| Native `<template for>`, no hold | 78.6 | 278 | 591 |
-
-Native minus classic@300, bootstrap 95% CI: +28.5 (not significant) at 60, +161 at 500, +414 at 2,000.
-Median patch lag: 26 to 27 ms native against 162 to 166 ms for classic@300.
-
-When the server holds completed boundaries for the same 300 ms and sends them as one group, native
-wins instead (28.9 vs 47.1 ms at 60, 64.6 vs 124 at 500). So the cost is in the cadence, not in the
-mechanism. A server-side hold is not acceptable for React, since it delays bytes.
+The large TaskDuration gap for unthrottled native vs classic@$RC@300 (278 vs 117 ms at 500) is
+**not** the right evidence for this ask. Against classic at a similar cadence (`$RC` @16 ms), layout
+is level and the excess is almost all ScriptDuration (79.7 vs 8.8 ms at 500) — that looks like a
+Chromium cost for many small patches (see §8). Batching is still needed for reveal UX parity, and
+so React can keep one schedule with or without script.
 
 **Workaround.** `$RP()` runs once after the shell and replaces every `<?start name>` processing
 instruction with a comment of the same text. With no range to target, the browser leaves each
@@ -137,9 +131,11 @@ measured +2.8 to +5.5 gzip bytes per boundary against its current format, most o
 **Possible ask.** A lookup API (name to range), so one marker serves the browser, the fallback and
 hydration.
 
-## 8. Native apply gets slower than a script batch at high counts
+## 8. Many small native patches are expensive in Chromium
 
-Implementation note for Chromium, not a spec gap. Same 300 ms policy, median TaskDuration:
+Implementation / performance bug for Chromium, not a spec gap.
+
+Same 300 ms policy, median TaskDuration:
 
 | | 60 | 500 | 2,000 |
 |---|---|---|---|
@@ -148,6 +144,16 @@ Implementation note for Chromium, not a spec gap. Same 300 ms policy, median Tas
 
 Native is level with script up to 500 and twice as slow at 2,000. At a 16 ms window, native is
 +59 ms against classic at 2,000 while the script path is level.
+
+No-hold (every patch commits immediately), at 500 boundaries:
+
+| | TaskDuration | ScriptDuration | LayoutDuration |
+|---|---|---|---|
+| Classic `$RC` @16 ms | 171 | 8.81 | 29.8 |
+| Native, no hold | 278 | 79.7 | 30.7 |
+
+Layout matches; ScriptDuration does not. Treat the old “+138% when native is not batched” headline
+as a Chromium signal, not as proof that the format needs a batch API to be fast.
 
 ## 9. Chromium only
 

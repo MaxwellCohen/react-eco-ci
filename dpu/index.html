@@ -83,7 +83,7 @@ nav.toc a:hover{text-decoration:underline}
 <div class="stats">
 <div class="stat"><b>−37% to −55%</b><span>main-thread, script-applied <code>&lt;template for&gt;</code> vs <code>$RC</code>, 60 to 2,000 boundaries</span></div>
 <div class="stat"><b>−39% / −48%</b><span>main-thread, native apply, at 60 / 500 boundaries</span></div>
-<div class="stat neg"><b>+138%</b><span>main-thread at 500 when native patches are not batched</span></div>
+<div class="stat neg"><b>~2×</b><span>native vs script-applied at 2,000 boundaries, same policy — Chromium cost (<a href="#g8">gap 8</a>)</span></div>
 </div>
 
 <nav class="toc" aria-label="Sections">
@@ -122,7 +122,7 @@ nav.toc a:hover{text-decoration:underline}
 <div class="note"><strong>How to read these rows.</strong> They come from a benchmark build where the <em>server</em> holds completed boundaries for 300&nbsp;ms and sends them as one group. The React PR does not hold on the server. Its head batches on the client instead, which makes it a script-applied path. That exact build has not been run through this benchmark yet; the script-applied row is the closest measurement.</div>
 
 <h3>React Fizz, native patching with no batching</h3>
-<p>The server flushes each boundary as it completes and the browser applies it at once.</p>
+<p>The server flushes each boundary as it completes and the browser applies it at once. React still wants a client-side throttle for reveal UX (<a href="#g1">gap 1</a>); this table is about what Chromium does when every patch commits immediately.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th><th class="n">Patch lag</th></tr></thead>
 <tbody>
@@ -132,8 +132,8 @@ nav.toc a:hover{text-decoration:underline}
 <tr><td>Script-applied, no hold</td><td class="n bad">106</td><td class="n bad">261</td><td class="n bad">566</td><td class="n good">26–27</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. Native minus classic@300: +28.5 (not significant), +161, +414. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>.</p>
-<p>Unbatched patches show content about 135&nbsp;ms sooner and cost 2.4× the main-thread time at 500 boundaries. The saving in the first table comes from applying patches in groups, and the platform has no way to ask for that (<a href="#g1">gap 1</a>).</p>
+<p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>.</p>
+<p>Against classic at a similar cadence (<code>$RC</code> @16&nbsp;ms), layout is about the same (30.7 vs 29.8&nbsp;ms at 500), but native <strong>ScriptDuration</strong> jumps to 79.7&nbsp;ms vs 8.8&nbsp;ms. That spike, and native running ~2× a script batch at 2,000 under the same 300&nbsp;ms policy, look like Chromium implementation cost for many small patches (<a href="#g8">gap 8</a>) — not evidence that batching is what makes <code>&lt;template for&gt;</code> fast.</p>
 
 <h3>Bytes</h3>
 <div class="tablewrap"><table>
@@ -177,7 +177,7 @@ nav.toc a:hover{text-decoration:underline}
 <h3><span>1</span>A patch cannot be held, batched or scheduled</h3>
 <dl>
 <dt>Today</dt><dd>The browser applies a patch while parsing it. No attribute, event or API can delay it or group it with others.</dd>
-<dt>Cost</dt><dd>React throttles reveals on purpose. Unbatched native patches cost +161&nbsp;ms at 500 boundaries and +414&nbsp;ms at 2,000 against classic. The only other way to batch is a server-side hold, which delays bytes.</dd>
+<dt>Cost</dt><dd>React throttles reveals on purpose (~300&nbsp;ms) so content does not pop in one boundary at a time. Without a client schedule, native apply is immediate and unthrottled. A server-side hold would batch, but it delays bytes, which React will not do.</dd>
 <dt>Workaround</dt><dd><code>$RP()</code> rewrites every <code>&lt;?start name&gt;</code> into a comment after the shell, so the browser has nothing to patch, then applies queued templates after the throttle.</dd>
 <dt>Ask</dt><dd>A way to apply patches together: a group that commits at its end, a frame-aligned commit, or a cancellable event before apply.</dd>
 </dl>
@@ -239,10 +239,10 @@ nav.toc a:hover{text-decoration:underline}
 </div>
 
 <div class="gap" id="g8">
-<h3><span>8</span>Native apply is slower than a script batch at high counts</h3>
+<h3><span>8</span>Many small native patches are expensive in Chromium</h3>
 <dl>
-<dt>Today</dt><dd>At the same policy, native and script are level up to 500 boundaries. At 2,000, native takes 222&nbsp;ms and script 113&nbsp;ms.</dd>
-<dt>Ask</dt><dd>An implementation issue for Chromium, not a spec change.</dd>
+<dt>Today</dt><dd>Same 300&nbsp;ms policy: native and script are level up to 500 boundaries; at 2,000, native takes 222&nbsp;ms and script 113&nbsp;ms. With no hold, at 500 boundaries layout matches classic <code>$RC</code> @16&nbsp;ms, but native ScriptDuration is 79.7&nbsp;ms against 8.8&nbsp;ms.</dd>
+<dt>Ask</dt><dd>Chromium performance bug / implementation work, not a spec change. Libraries should not treat that cost as a reason to avoid the wire format.</dd>
 </dl>
 </div>
 
