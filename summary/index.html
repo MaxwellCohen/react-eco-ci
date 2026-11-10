@@ -45,7 +45,7 @@ summary{cursor:pointer;font-weight:600}
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
-<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightHtmlFirst</code>, and have the framework opt in. Compared with <b>stock React main</b> (same tip, flag off):</p>
+<p> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> or a similar feature of, turn on <code>enableFlightHtmlFirst</code>, and having the framework opt into it. Compared with <b>stock React main</b> (same tip, flag off):</p>
 <ul>
 <li><b>~43% smaller</b> gzip HTML downloads across 41 pages (sum)</li>
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
@@ -74,7 +74,7 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>Raw HTML</td><td class="n">14,556,166</td><td class="n">7,250,850</td><td class="n">−50.2%</td></tr>
 <tr><td>Inlined Flight</td><td class="n">9,281,206</td><td class="n">1,975,890</td><td class="n">−78.7%</td></tr>
 </tbody></table></div>
-<p class="cap">Per-page numbers: <a href="../examples/">examples index</a>.</p>
+<p class="cap">Per-page numbers: <a href="../examples/">examples index</a>. Benefit tracks how much static server markup sits in host position; all-client pages gain nothing (see <code>everything-client</code> at 0%).</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Example</th><th class="n">gzip</th><th class="n">inlined Flight</th></tr></thead>
 <tbody>
@@ -100,12 +100,10 @@ summary{cursor:pointer;font-weight:600}
 </ul>
 
 <section class="honest">
-<h2>Honest limits</h2>
-<ul>
-<li>Framework must opt in; the flag alone is not enough.</li>
-<li>First full-Flight navigation remounts elided regions (same class of remount as client-rendering a boundary).</li>
-<li>Benefit tracks how much static server markup sits in host position; all-client pages gain nothing.</li>
-</ul>
+<h2>How it works</h2>
+<p>Today an RSC initial response ships the same static server markup twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With <code>enableFlightHtmlFirst</code>, React withholds static Server Component host trees that sit in <em>host position</em> (direct host children, including inside Suspense and as Client Component <code>children</code>) from the browser Flight stream. Non-<code>children</code> props stay in Flight so client components keep full props and hydrate normally.</p>
+<p>Elision only runs when the framework opts in. React needs a side channel: the server passes <code>onElidedRow</code> (JSON) or <code>onElidedValue</code> (live node for in-process SSR) so SSR still receives the markup and emits it as HTML; the client passes <code>elidedRows</code> so hydration adopts those DOM nodes instead of expecting them in the inlined payload. Optional <code>onElidedContentMissing</code> recovers if a stub would otherwise mount without server DOM (deferred mounts, mismatch remounts). The flag alone does nothing — without that handoff, withholding content would mean blank HTML or broken hydration.</p>
+<p>Initial load only: navigation/refetch responses are ordinary full Flight, so the first client navigation remounts elided regions (same class of remount as client-rendering a boundary).</p>
 </section>
 
 <h2>Ask</h2>
