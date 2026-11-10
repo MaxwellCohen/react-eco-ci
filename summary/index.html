@@ -49,7 +49,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li><b>~43% smaller</b> gzip HTML downloads across 41 pages (sum)</li>
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
-<li><b>~3×</b> server requests/sec on a Waku host-row page (framework patched)</li>
+<li><b>~3×</b> server requests/sec on a patched framework host-row page (measured in Waku)</li>
 </ul>
 <p>And <b>no impact on user experience or developer experience</b>: same components, same hydration behaviour for correct pages, same APIs for authors. That is what the correctness corpus is for — 41/41 pages pass in Chromium, Firefox, and WebKit after the position, Suspense, and children rules landed.</p>
 </div>
@@ -58,7 +58,7 @@ summary{cursor:pointer;font-weight:600}
 <div class="stat"><b>−43%</b><span>gzip download vs stock main</span></div>
 <div class="stat"><b>−79%</b><span>inlined Flight vs stock main</span></div>
 <div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>~3×</b><span>Waku host-page throughput</span></div>
+<div class="stat"><b>~3×</b><span>framework host-page throughput</span></div>
 </div>
 
 <h2>What changes</h2>
@@ -87,8 +87,9 @@ summary{cursor:pointer;font-weight:600}
 </tbody></table></div>
 
 <h2>Throughput vs stock</h2>
-<p>With the flag on and Waku opted in (host-row 1000-row page): <b>3.19×</b> requests/sec vs stock React (about <b>+219%</b>), TTFB about half. Client-row pages save bytes but timing stays within noise. Flags on without framework opt-in do not move gzip and are not the proposal.</p>
-<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.36×</b> less work (~<b>+36%</b> render throughput proxy) on a shared laptop — directional only; prefer the Waku side-by-side numbers for server capacity.</p>
+<p>With the flag on and a framework opted in (host-row 1000-row page): <b>3.19×</b> requests/sec vs stock React (about <b>+219%</b>), TTFB about half. Client-row pages save bytes but timing stays within noise. Flags on without framework opt-in do not move gzip and are not the proposal.</p>
+<p class="cap">Waku is the measurement vehicle here — chosen because it is easy to patch and has strong RSC support — not because the win is Waku-specific. Any framework that wires <code>onElidedRow</code> / <code>elidedRows</code> (and optional recovery) should see the same class of result.</p>
+<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.36×</b> less work (~<b>+36%</b> render throughput proxy) on a shared laptop — directional only; prefer the framework side-by-side numbers for server capacity.</p>
 
 <h2>No UX / DX impact (correctness)</h2>
 <ul>
@@ -110,13 +111,15 @@ summary{cursor:pointer;font-weight:600}
 <h2>Ask</h2>
 <ol>
 <li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, Suspense + children, no dedupe.</li>
-<li>Ship a Waku (or other) opt-in so production gets the throughput number, not only the byte number.</li>
+<li>Ship a framework opt-in (Waku was the patching prototype) so production gets the throughput number, not only the byte number.</li>
 </ol>
 
 <h2>Links</h2>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> — one-flag HTML-first (based on <code>facebook/react</code> main)</li>
 <li><a href="../examples/">Scenario examples</a> — each page linked to source</li>
+<li><a href="https://html-first-react.pages.dev/summary/">Live summary</a> on Cloudflare Pages</li>
+<li><a href="https://html-first-react.pages.dev/examples/">Live examples</a> on Cloudflare Pages</li>
 <li>Earlier drafts (history only): <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a>–<a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a></li>
 </ul>
 
@@ -124,7 +127,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>Baseline: React tip with <code>enableFlightHtmlFirst</code> off (stock behaviour for this feature), built from PR #24 rebased onto <code>facebook/react</code> main.</li>
 <li>Treatment: same tip, flag on. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
-<li>Waku throughput: stock React vs flag+patched Waku, 5 rotated rounds, host-row page (see waku-htmlfirst-bench RESULTS).</li>
+<li>Framework throughput exemplar: stock React vs flag+patched Waku (picked for easy patching + solid RSC), 5 rotated rounds, host-row page (see waku-htmlfirst-bench RESULTS). Not Waku-limited.</li>
 <li>Browsers: Playwright Chromium, Firefox, WebKit for correctness.</li>
 </ul></details>
 
