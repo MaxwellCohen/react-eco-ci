@@ -63,7 +63,7 @@ nav.toc a:hover{text-decoration:underline}
   <a href="#why">Why</a>
   <a href="#approach">What to ship</a>
   <a href="#evidence">Evidence</a>
-  <a href="#gaps">Gaps</a>
+  <a href="#extend">Extend DPU</a>
   <a href="#links">Links</a>
 </nav>
 
@@ -106,7 +106,7 @@ nav.toc a:hover{text-decoration:underline}
 <ol>
   <li><strong>Emit the platform markers</strong> — <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> and <code>&lt;template for&gt;</code>.</li>
   <li><strong>Use a per-flush script fallback</strong> where native support is missing (the row that wins at 500 and 2,000 above).</li>
-  <li><strong>Keep classic completion for gaps</strong> (SVG/MathML, view-transition reveals, some resume/prerender).</li>
+  <li><strong>Stay on DPU for hard cases too</strong> — SVG/MathML, view-transition reveals, and resume/prerender should get declarative solutions (library fallbacks and/or platform fixes), not a permanent second protocol.</li>
 </ol>
 <pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
 &lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
@@ -137,11 +137,13 @@ nav.toc a:hover{text-decoration:underline}
 </tbody>
 </table></div>
 
-<h2 id="gaps">Gaps (classic path still needed)</h2>
+<h2 id="extend">Extend DPU — do not keep a parallel classic path</h2>
+<p>Today’s experiments often fall back to <code>$RC</code> for a few cases. The goal is the opposite: cover them with <code>&lt;template for&gt;</code> (and the script fallback) so libraries do not permanently ship two streaming protocols.</p>
 <ul>
-  <li>SVG / MathML native patching can land the wrong namespace.</li>
-  <li>View-transition reveals still need a classic completion.</li>
-  <li>Some late-style / SRI carry-through still needs library care.</li>
+  <li><strong>SVG / MathML:</strong> native patching can land the wrong namespace today — fix in the platform and/or a DPU-aware fallback that preserves foreign namespaces, not a return to hidden-node <code>$RC</code> for every SVG boundary.</li>
+  <li><strong>View-transition reveals:</strong> teach the declarative path (or a thin DPU-side helper) to participate in <code>startViewTransition</code> instead of routing those boundaries off DPU.</li>
+  <li><strong>Resume / prerender:</strong> resume should rehydrate the same markers and templates, not a separate classic instruction stream.</li>
+  <li><strong>Late styles / SRI:</strong> carry attributes through the declarative patch path so stylesheet boundaries stay on DPU.</li>
 </ul>
 
 <h2 id="links">Links</h2>
