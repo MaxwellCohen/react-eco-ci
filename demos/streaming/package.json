@@ -3,10 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/worker.jsx --bundle --format=esm --platform=neutral --conditions=workerd,worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/worker.js",
+    "build": "esbuild src/worker.jsx --bundle --format=esm --platform=neutral --conditions=worker,browser,import --main-fields=module,main --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/worker.js && esbuild src/client.js --bundle --format=iife --platform=browser --minify --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/client/client.js && cp src/polyfill.js dist/client/polyfill.js",
     "dev": "npm run build && wrangler dev",
     "deploy": "wrangler deploy"
   },
-  "dependencies": { "react": "*", "react-dom": "*", "scheduler": "*" },
-  "devDependencies": { "esbuild": "latest", "wrangler": "latest" }
+  "dependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "scheduler": "*"
+  },
+  "devDependencies": {
+    "esbuild": "latest",
+    "wrangler": "latest"
+  }
 }

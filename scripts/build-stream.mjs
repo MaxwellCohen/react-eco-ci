@@ -28,7 +28,7 @@ for (const f of v.flags) {
 writeFileSync(flagFile, flags);
 
 run('yarn', ['install', '--frozen-lockfile'], src);
-run('yarn', ['build', 'react/index,react-dom/index,react-dom/client,react-dom/src/server/react-dom-server.node,react-dom/src/server/react-dom-server.browser,react-dom/src/server/react-dom-server.edge,react-dom/src/server/ReactDOMLegacyServerNode,react-dom/src/server/ReactDOMLegacyServerBrowser,scheduler', '--type=NODE_PROD'], src, { RELEASE_CHANNEL: 'experimental' });
+run('yarn', ['build', 'react/index,react/jsx-runtime,react/jsx-dev-runtime,react-dom/index,react-dom/client,react-dom/src/server/react-dom-server.node,react-dom/src/server/react-dom-server.browser,react-dom/src/server/react-dom-server.edge,react-dom/src/server/ReactDOMLegacyServerNode,react-dom/src/server/ReactDOMLegacyServerBrowser,scheduler', '--type=NODE_PROD'], src, { RELEASE_CHANNEL: 'experimental' });
 
 const files = {};
 for (const p of ['react', 'react-dom', 'scheduler']) {
