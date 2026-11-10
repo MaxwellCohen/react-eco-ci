@@ -29,9 +29,9 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 <tr><td>preact-render-to-string PR #490 (React-style init script)</td><td><a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a> (open)</td></tr>
 <tr><td>Preact comparison repo, full report</td><td><a href="https://github.com/MaxwellCohen/preact-eco-ci">MaxwellCohen/preact-eco-ci</a>, <a href="data/preact-REPORT.md">REPORT.md</a>, <a href="data/preact-DATA.md">DATA.md</a></td></tr>
 <tr><td>Preact live pages per variant</td><td><a href="https://preact-eco-index.to-email-max.workers.dev">landing page</a></td></tr>
-<tr><td>React Fizz branch (<code>enableFizzDeclarativePatching</code>)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/declarative-patching">fizz/declarative-patching</a> (commit 522abbf0cf; fixture 71111fb9b4). <span class="mut">There's no upstream React PR yet.</span></td></tr>
-<tr><td>React Fizz branch (<code>$RC</code> script fallback)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/4-script-fallback">fizz/4-script-fallback</a></td></tr>
-<tr><td>React cross-browser raw results</td><td><a href="data/results.md">results.md</a>, <a href="data/compare.json">compare.json</a>, <a href="data/react-bench-firefox.json">Firefox</a>, <a href="data/react-bench-webkit.json">WebKit</a>, <a href="data/react-bench-chromium.json">Chromium</a>, <a href="data/react-harness/">harness</a></td></tr>
+<tr><td>React Fizz branches (<code>enableFizzDeclarativePatching</code>)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/1-declarative-patching">1-declarative-patching</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/2-hydration-stylesheet-fixes">2-hydration-stylesheet-fixes</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/3-suspense-batching">3-suspense-batching</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/4-script-fallback">4-script-fallback</a>. <span class="mut">There's no upstream React PR yet.</span></td></tr>
+<tr><td>React results page and raw data</td><td><a href="react/">React results</a>, <a href="react/runs.html">all runs</a>, <a href="react/data/">raw data and harness</a></td></tr>
+<tr><td>Preact all-runs page</td><td><a href="https://preact-eco-index.to-email-max.workers.dev/runs">runs</a></td></tr>
 <tr><td>Preact raw timing</td><td><a href="data/preact-bench-firefox.json">Firefox</a>, <a href="data/preact-bench-webkit.json">WebKit</a>, <a href="data/preact-bench-chromium.json">Chromium</a></td></tr>
 <tr><td>React Flight/Fizz Lighthouse and size pages</td><td><a href="https://maxwellcohen.github.io/react-eco-ci/">react-eco-ci</a></td></tr>
 </table>
@@ -51,39 +51,17 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 </table></div>
 <p>Both PRs pass every check, including <code>foreignObject</code>, and no boundary is lost in any browser. Timing is within noise of <code>main</code> everywhere, and Firefox patches faster with either PR than with <code>main</code>. (An earlier head of #474, <code>6a02913</code>, hung on <code>foreignObject</code> and could drop the last boundary in Firefox and WebKit. Both are fixed in the current head, and nothing here uses the old one.) On size, <code>main</code> compresses a bit better because it writes the boundary id three times where the DPU variants write it four. Each extra copy costs about 2.9 gzip bytes. The <a href="data/preact-REPORT.md">full report</a> has the details.</p>
 
-<h2>React Fizz: declarative patching in Firefox and WebKit</h2>
-<p class="mut">These runs use the <code>flight-ssr-bench</code> fixture at React commit 71111fb9b4 (branch <code>fizz/declarative-patching</code>). I ported the 26 Preact checks, added 2 React-specific ones (<code>x-css-precedence</code>, <code>x-style-precedence</code>), and kept an isolated <code>foreignObject</code> page. Browsers were Chromium 156.0.8078.4, Firefox 157.0 and WebKit 27.2 from Playwright. The variants are: <strong>baseline</strong> (<code>$RC</code>), <strong>decl-native</strong> (Chromium DPU), <strong>decl-$RP</strong> (DPU markup, <code>$RP</code> script fallback), <strong>decl+polyfill</strong> (template-for polyfill). To test the fallbacks in Chromium, I turned native DPU off with <code>--disable-blink-features=DocumentPatching</code>.</p>
-<h3>Correctness (checks passed)</h3>
+<h2>React Fizz: declarative patching in Chromium, Firefox and WebKit</h2>
+<p>Full React results, the same table layout as the Preact one, are on the <a href="react/"><b>React results page</b></a> (with <a href="react/runs.html">every individual run</a> and <a href="react/data/">raw data</a>). Same 26 checks plus 2 React-specific ones, React branch <code>fizz/4-script-fallback</code> plus a batching fix, Chromium 156, Firefox 157, WebKit 27.2, five interleaved runs.</p>
 <div class="tw"><table>
-<tr><th>Browser</th><th>Variant</th><th>Stream only (<code>hydrate=off</code>)</th><th>After hydration (<code>hydrate=late</code>)</th></tr>
-<tr><td rowspan="4">Chromium</td><td>baseline</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl-native</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl-$RP (native off)</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl+polyfill (native off)</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td rowspan="3">Firefox</td><td>baseline</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl-$RP</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl+polyfill</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td rowspan="3">WebKit</td><td>baseline</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl-$RP</td><td class="ok">28/28</td><td>27/28</td></tr>
-<tr><td>decl+polyfill</td><td class="ok">28/28</td><td>27/28</td></tr>
+<tr><th></th><th>baseline (<code>$RC</code>)</th><th>DPU + <code>$RP</code> fallback</th><th>DPU + polyfill</th></tr>
+<tr><td>Correct DOM, stream only (C · F · W)</td><td>28/28 each</td><td>28/28 each</td><td>28/28 each</td></tr>
+<tr><td>After hydration</td><td colspan="3">27/28 in every cell. <code>nested-template</code> also fails on the baseline, so DPU isn't the cause.</td></tr>
+<tr><td>Median patch lag, 60 boundaries: Chromium / Firefox / WebKit (ms)</td><td>124 / 170 / 175</td><td>3 / 3 / 2</td><td>3 / 3 / 3</td></tr>
+<tr><td>Same before the batching fix</td><td>140 / 170 / 172</td><td>178 / 179 / 125</td><td>123 / 180 / 127</td></tr>
+<tr><td>Per boundary raw / gzip (B, est.)</td><td>132.0 / 15.5</td><td>115.0 / 16.1</td><td>115.5 / 16.0</td></tr>
 </table></div>
-<p>The only failure after hydration is <code>nested-template</code> (an inert <code>&lt;template&gt;</code> inside streamed content). It fails the same way on the baseline in all three browsers, so DPU didn't introduce it. <code>foreignObject</code> works everywhere, and no cell had page errors, leftover <code>template[for]</code> elements or leftover fallbacks.</p>
-
-<h3>Timing: many-boundaries (60), medians over 5 interleaved runs (ms)</h3>
-<div class="tw"><table>
-<tr><th>Browser</th><th>Variant</th><th>Patch lag median</th><th>Lag p95</th><th>Last visible</th><th>Longest stall</th></tr>
-<tr><td rowspan="4">Chromium 156</td><td>baseline</td><td class="n">125</td><td class="n">296</td><td class="n">1543</td><td class="n">9</td></tr>
-<tr><td>decl-native</td><td class="n">178</td><td class="n">302</td><td class="n">1824</td><td class="n">9</td></tr>
-<tr><td>decl-$RP (native off)</td><td class="n">178</td><td class="n">302</td><td class="n">1824</td><td class="n">9</td></tr>
-<tr><td>decl+polyfill (native off)</td><td class="n">178</td><td class="n">303</td><td class="n">1821</td><td class="n">9</td></tr>
-<tr><td rowspan="3">Firefox 157</td><td>baseline</td><td class="n">168</td><td class="n">303</td><td class="n">1546</td><td class="n">13</td></tr>
-<tr><td>decl-$RP</td><td class="n">124</td><td class="n">301</td><td class="n">1528</td><td class="n">5</td></tr>
-<tr><td>decl+polyfill</td><td class="n">125</td><td class="n">303</td><td class="n">1824</td><td class="n">10</td></tr>
-<tr><td rowspan="3">WebKit 27.2</td><td>baseline</td><td class="n">123</td><td class="n">297</td><td class="n">1820</td><td class="n">5</td></tr>
-<tr><td>decl-$RP</td><td class="n">123</td><td class="n">302</td><td class="n">1531</td><td class="n">5</td></tr>
-<tr><td>decl+polyfill</td><td class="n">124</td><td class="n">303</td><td class="n">1534</td><td class="n">5</td></tr>
-</table></div>
-<div class="note">Most of the 120 to 180 ms lag comes from Fizz's default batching window (<code>unstable_declarativeBatchMs</code>), not from DPU. With <code>batchMs=0</code>, every variant, including <code>$RP</code> and the polyfill, drops to 1 to 3 ms in all three browsers (Firefox: 2 ms for both; WebKit: 1 and 2 ms). So the <code>$RP</code> fallback and the polyfill cost nothing measurable beyond batching. Differences of around 300 ms in "last visible" just reflect which batch landed last. Results for the 16 and 100 boundary pages are in <a href="data/results.md">results.md</a>.</div>
+<div class="note"><strong>The batching fix.</strong> Fizz held completed boundaries for up to 300 ms by default, which gave 120 to 180 ms median lag and about 300 ms at p95. The default hold is now one animation frame (16 ms), and an explicit <code>unstable_declarativeBatchMs</code> still works as a throttle window. With that, every DPU variant is at 2 to 4 ms median lag in all three browsers. The fix is a local commit and is not pushed yet.</div>
 
 <h2>Script vs MutationObserver</h2>
 <p>The two ways to finish a streamed boundary in browsers without native DPU. <strong>MutationObserver:</strong> one observer in an init script watches for <code>&lt;template for&gt;</code> elements and applies each as it arrives (Preact PR #474, and the template-for polyfill used in the React runs). <strong>Script:</strong> each chunk carries its own tiny <code>&lt;script&gt;</code> that applies it directly, the way Fizz's <code>$RC</code>/<code>$RP</code> works (Preact PR #490, and the <code>$RP</code> fallback in React).</p>
@@ -100,15 +78,15 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 <tr><td>Per boundary raw / gzip / brotli (B)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
 <tr><td>60 / 100 boundary page, gzip (B)</td><td>6839 / 7367</td><td>7062 / 7680</td><td>7154 / 7851</td></tr>
 </table></div>
-<h3>React: <code>$RP</code> script fallback vs polyfill (observer), 60 boundaries, median patch lag (ms)</h3>
+<h3>React: <code>$RP</code> script fallback vs polyfill (observer), median patch lag in ms, 16 / 60 / 100 boundaries</h3>
 <div class="tw"><table>
-<tr><th>Browser</th><th>Script (<code>$RP</code>), default batching</th><th>Observer (polyfill), default batching</th><th>Script, <code>batchMs=0</code></th><th>Observer, <code>batchMs=0</code></th></tr>
-<tr><td>Chromium (native off)</td><td class="n">178</td><td class="n">178</td><td class="n">2</td><td class="n">1</td></tr>
-<tr><td>Firefox</td><td class="n">124</td><td class="n">125</td><td class="n">2</td><td class="n">2</td></tr>
-<tr><td>WebKit</td><td class="n">123</td><td class="n">124</td><td class="n">1</td><td class="n">2</td></tr>
+<tr><th>Browser</th><th>Script (<code>$RP</code>)</th><th>Observer (polyfill)</th></tr>
+<tr><td>Chromium (native off)</td><td class="n">3 / 3 / 3</td><td class="n">3 / 3 / 4</td></tr>
+<tr><td>Firefox</td><td class="n">3 / 3 / 2</td><td class="n">4 / 3 / 4</td></tr>
+<tr><td>WebKit</td><td class="n">3 / 2 / 3</td><td class="n">3 / 3 / 3</td></tr>
 </table></div>
-<p><strong>What the numbers say.</strong> Speed: no meaningful difference. Differences under about 16 ms are noise, and in React the two are within 1 ms of each other. The script is slightly lower in Firefox in the Preact runs (about 10 ms), which is the only gap that stands out. Size: the script costs more per boundary (about +24 raw and +2.7 gzip bytes over the observer, because every chunk carries its own call) but much less up front (about 300 bytes less once per page). The crossover is early: in raw bytes the observer page is smaller from about 13 boundaries up, and the 60 and 100 boundary pages are 92 and 171 bytes smaller gzipped. Interactivity: when client JS loads after the stream, the observer got the counter clickable sooner in Firefox (81 vs 121 ms); I haven't looked at the spread across runs, so treat that as a hint.</p>
-<p><strong>What differs by design.</strong> The observer is one mechanism for the whole page, and chunks are plain markup. The script makes control flow explicit and lets the harness see per chunk whether the browser had already applied the template natively (we use that in the React runs: the <code>$RP</code> call count and "ids that still had a template" columns in <a href="data/results.md">results.md</a>). The Preact script variant defines a <code>window.$RC</code> global, which might collide with React's on a page that mixes the two. I haven't tested that.</p>
+<p><strong>What the numbers say.</strong> Speed: no meaningful difference. Differences under about 16 ms are noise, and in React the two are within 2 ms of each other. The script is slightly lower in Firefox in the Preact runs (about 10 ms), which is the only gap that stands out. Size: the script costs more per boundary (about +24 raw and +2.7 gzip bytes over the observer, because every chunk carries its own call) but much less up front (about 300 bytes less once per page). The crossover is early: in raw bytes the observer page is smaller from about 13 boundaries up, and the 60 and 100 boundary pages are 92 and 171 bytes smaller gzipped. Interactivity: when client JS loads after the stream, the observer got the counter clickable sooner in Firefox (81 vs 121 ms); I haven't looked at the spread across runs, so treat that as a hint.</p>
+<p><strong>What differs by design.</strong> The observer is one mechanism for the whole page, and chunks are plain markup. The script makes control flow explicit and lets the harness see per chunk whether the browser had already applied the template natively (we use that in the React runs: the <code>$RP</code> call count and "ids that still had a template" columns in <a href="react/data/after4/results.md">results.md</a>). The Preact script variant defines a <code>window.$RC</code> global, which might collide with React's on a page that mixes the two. I haven't tested that.</p>
 
 <h2>Method and limitations</h2>
 <ul>
