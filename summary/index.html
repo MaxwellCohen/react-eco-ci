@@ -51,7 +51,7 @@ summary{cursor:pointer;font-weight:600}
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
 <li><b>~3×</b> server requests/sec on a Waku host-row page (framework patched)</li>
 </ul>
-<p>And <b>no impact on user experience or developer experience</b>: same components, same hydration behaviour for correct pages, same APIs for authors. That is what the correctness corpus is for — 40/41 pages pass in Chromium, Firefox, and WebKit after the position, Suspense, and children rules landed.</p>
+<p>And <b>no impact on user experience or developer experience</b>: same components, same hydration behaviour for correct pages, same APIs for authors. That is what the correctness corpus is for — 41/41 pages pass in Chromium, Firefox, and WebKit after the position, Suspense, and children rules landed.</p>
 </div>
 
 <div class="stats">
@@ -94,7 +94,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>Same public component model: authors do not mark trees or change JSX for the win.</li>
 <li>Hydration adopts server DOM for elided regions; interactive client islands keep working.</li>
-<li>41-page corpus in Chromium, Firefox, and WebKit: <b>40/41</b> pass. Remaining expected failure is DOM <em>string</em> serialization after remount on navigation — not a paint/content bug.</li>
+<li>41-page corpus in Chromium, Firefox, and WebKit: <b>41/41</b> pass (DOM compare now canonicalizes zero-length CSS units so remount <code>0px</code> matches server <code>0</code>).</li>
 <li>Deferred mounts (modal, ClientOnly) and Suspense client-render recover via <code>onElidedContentMissing</code> without blanking the page.</li>
 </ul>
 
