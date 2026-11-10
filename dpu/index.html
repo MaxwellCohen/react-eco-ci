@@ -126,7 +126,7 @@ nav.toc a:hover{text-decoration:underline}
 </tr>
 <tr>
   <td>React fork PR</td>
-  <td>One implementation of the shape above — <code>$RP</code> for unsupported browsers; SVG/MathML/VT/resume still temporarily on <code>$RC</code> (extend with script / DPU-side fallback next)</td>
+  <td>One implementation of the shape above — <code>$RP</code> covers unsupported browsers, SVG/MathML (outerHTML), VT (script-path <code>startViewTransition</code>), resume, and external runtime</td>
   <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
 </tr>
 <tr>
@@ -137,13 +137,14 @@ nav.toc a:hover{text-decoration:underline}
 </tbody>
 </table></div>
 
-<h2 id="extend">Known gaps — cover with JS / script fallback</h2>
-<p>Do not keep a permanent classic path for these. Keep emitting <code>&lt;template for&gt;</code> + markers, and extend the <strong>script / JS fallback</strong> (and platform fixes where needed) so one protocol covers them.</p>
+<h2 id="extend">Script fallback covers the hard cases</h2>
+<p>React’s <code>$RP</code> (like Preact’s <code>$PRS</code>) keeps one protocol: same markers + script fallback. Native DPU still cannot enter <code>startViewTransition</code>; the script path can.</p>
 <ul>
-  <li><strong>SVG / MathML:</strong> native patching can land the wrong namespace — a DPU-aware script fallback that preserves foreign namespaces (or a platform fix), not hidden-node <code>$RC</code>.</li>
-  <li><strong>View-transition reveals:</strong> teach <code>$RP</code> / a thin DPU-side helper to participate in <code>startViewTransition</code>.</li>
-  <li><strong>Resume / prerender:</strong> rehydrate the same markers and templates on resume; script fallback applies if native did not.</li>
-  <li><strong>Late styles / SRI:</strong> carry attributes through the declarative patch path (and the script fallback) so stylesheet boundaries stay on DPU.</li>
+  <li><strong>SVG / MathML:</strong> <code>$RP</code> reparses with <code>outerHTML = outerHTML</code> in the parent namespace (even after native apply).</li>
+  <li><strong>View-transition reveals:</strong> script-path swaps wrap in <code>startViewTransition</code> when the API exists.</li>
+  <li><strong>Resume / prerender:</strong> <code>declarativePatching</code> round-trips on resumable state.</li>
+  <li><strong>External runtime:</strong> bundle defines <code>$RP</code>; data streaming uses <code>data-rpi</code>.</li>
+  <li><strong>Late styles / SRI:</strong> still open — carry attributes through the declarative patch path.</li>
 </ul>
 
 <h2 id="links">Links</h2>
