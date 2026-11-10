@@ -35,9 +35,9 @@ code{font-size:.88em}
 <div class="stat"><b>−43%</b><span>gzip HTML download (41 pages, sum)</span></div>
 <div class="stat"><b>−79%</b><span>inlined Flight (JS payload)</span></div>
 <div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>~3×*</b><span>host-page req/s (older Waku run; remeasure)</span></div>
+<div class="stat"><b>≈1.02×</b><span>Waku host req/s on tip (noise)</span></div>
 </div>
-<p>Baseline is <b>stock React main</b> (same tip, flag off) — not other experimental stacks. Each name opens a <b>live Cloudflare Workers demo</b> (HTML-first on, full corpus size). Gzip column is flag-on vs stock. The ~3× throughput figure comes from a patched Waku host-row page — Waku was chosen because it is easy to patch and has strong RSC support; the mechanism is not Waku-specific.</p>
+<p>Baseline is <b>stock React main</b> (same tip, flag off) — not other experimental stacks. Each name opens a <b>live Cloudflare Workers demo</b> (HTML-first on, full corpus size). Gzip column is flag-on vs stock. Fresh Waku tip throughput is ≈1.02× (no win): host markup is not elided under Waku’s tree after host-position rules. Corpus byte wins still require static hosts in host position.</p>
 <ul class="links">
 <li><a href="https://react-eco-html-first.to-email-max.workers.dev/">Live demos index</a> (Cloudflare Workers; <code>all</code> = flag on, <code>off</code> = stock)</li>
 <li><a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag/fixtures/flight-ssr-bench">Fixture directory</a> on PR #24 (<code>rsc/html-first-one-flag</code> @ <code>c31090aa6e</code>)</li>

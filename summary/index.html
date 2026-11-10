@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HTML-first React: Results Summary</title>
-<meta name="description" content="Merge PR #24 and turn on enableFlightHtmlFirst: ~43% smaller downloads vs stock React main for in-process Flight→SSR, with authors keeping the same components.">
+<meta name="description" content="Merge PR #24 and turn on enableFlightHtmlFirst: ~43% smaller downloads vs stock React main on the scenario corpus; Waku tip throughput is unchanged until host-position elision applies.">
 <style>
 :root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00}
 @media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a}}
@@ -49,7 +49,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li><b>~43% smaller</b> gzip HTML downloads across 41 pages (sum)</li>
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
-<li><b>~3×*</b> server requests/sec on a host-row page measured in Waku on an <em>older</em> tip — remeasure before treating as current</li>
+<li><b>No Waku throughput win on tip</b> (fresh host-row ≈ <b>1.02×</b>, within noise) — Flight not shrinking under Waku’s tree today</li>
 </ul>
 <p>Authors keep the same components and APIs. Correct pages hydrate and interact like stock. The correctness corpus at this tip is <b>40/41</b> in Chromium: <code>head-hoistables</code> fails a strict head-DOM compare because zero-optin registry SSR does not flush Flight <code>:HL</code> preload hints the same way the explicit side channel does — unique resources and body content still match.</p>
 </div>
@@ -58,7 +58,7 @@ summary{cursor:pointer;font-weight:600}
 <div class="stat"><b>−43%</b><span>gzip download vs stock main</span></div>
 <div class="stat"><b>−79%</b><span>inlined Flight vs stock main</span></div>
 <div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>~3×*</b><span>host-page throughput (older run)</span></div>
+<div class="stat"><b>≈1.02×</b><span>Waku host-page req/s (tip, noise)</span></div>
 </div>
 
 <h2>What changes</h2>
@@ -87,9 +87,9 @@ summary{cursor:pointer;font-weight:600}
 </tbody></table></div>
 
 <h2>Throughput vs stock</h2>
-<p>An older Waku host-row measurement (React <code>6ed2e62d21</code>, multi-flag + explicit opt-in) showed about <b>3.19×</b> requests/sec vs stock (~<b>+219%</b>), TTFB about half. That stack is <b>not</b> this tip’s zero-optin design — remeasure before quoting as current. Client-row pages save bytes but timing stays within noise.</p>
-<p class="cap">Waku is the measurement vehicle — chosen for strong RSC support — not because the win is Waku-specific. Any in-process Flight→SSR host with a flagged React build should see the same class of result; out-of-process sinks can still use <code>onElidedRow</code> / <code>elidedRows</code>.</p>
-<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.29×</b> less work (~<b>+29%</b> render throughput proxy) on a shared laptop — directional only; prefer a fresh framework side-by-side for server capacity.</p>
+<p>Fresh Waku host-row bench on tip <code>3ae8a1410b</code> + zero-optin Waku <code>908ab031</code> (5 rotated rounds): throughput <b>1.02×</b> (0.95–1.07) vs stock, TTFB ≈ noise. Inlined Flight stays ~824 KB — host rows / CSS / JSON-LD are <b>not elided</b> under Waku’s elements-map after host-position scoping. An older <b>3.19×</b> on React <code>6ed2e62d21</code> (multi-flag + explicit opt-in) does <b>not</b> reproduce and must not be quoted as current.</p>
+<p class="cap">Byte wins in the 41-scenario corpus still hold when static hosts sit in host position. Frameworks whose RSC trees keep static markup out of host position will see little Flight shrinkage until composition matches the elision rules (or elision is widened).</p>
+<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.29×</b> less work (~<b>+29%</b> render throughput proxy) on a shared laptop — directional only.</p>
 
 <h2>Correctness (UX / DX)</h2>
 <ul>
@@ -109,7 +109,7 @@ summary{cursor:pointer;font-weight:600}
 <ol>
 <li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, Suspense + children, zero framework opt-in for in-process SSR.</li>
 <li>Ship a React build with the flag on; frameworks only need <code>onElidedRow: false</code> on SPA navigation responses (and optional recovery).</li>
-<li>Follow-ups: flush <code>:HL</code> under the registry path (restore 41/41), redeploy live demos from tip, remeasure Waku throughput.</li>
+<li>Follow-ups: flush <code>:HL</code> under the registry path (restore 41/41), redeploy live demos from tip, restore Waku host-position elision so throughput can move.</li>
 </ol>
 
 <h2>Links</h2>
@@ -126,7 +126,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>Baseline: React tip with <code>enableFlightHtmlFirst</code> off (stock behaviour for this feature), built from PR #24 rebased onto <code>facebook/react</code> main.</li>
 <li>Treatment: same tip, flag on, zero-optin registry. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
-<li>Framework throughput exemplar (historical): stock React vs flag-on Waku at React <code>6ed2e62d21</code> with explicit opt-in — not re-run on <code>c31090aa6e</code>.</li>
+<li>Framework throughput: tip rerun 10 Nov 2026 @ React <code>3ae8a1410b</code> + Waku <code>908ab031</code> → <b>1.02×</b> host-row (no elision under Waku tree). Historical 3.19× @ <code>6ed2e62d21</code> only.</li>
 <li>Browsers: Playwright Chromium verified at tip (40/41); Firefox/WebKit green on earlier tips — re-run after <code>:HL</code> fix.</li>
 <li>Fresh metrics 10 Nov 2026 @ <code>c31090aa6e</code>: gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
 </ul></details>
