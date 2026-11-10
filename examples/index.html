@@ -29,7 +29,7 @@ code{font-size:.88em}
 <p class="sub"><a href="../summary/">← Summary</a> · vs stock React main · 41 scenarios · tip <code>c31090aa6e</code> · live size <code>full</code></p>
 <h1>HTML-first scenario examples</h1>
 <div class="answer">
-<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightHtmlFirst</code>, and opt the framework in. Versus stock React main (flag off): about <b>43% smaller</b> gzip downloads across this corpus and about <b>79% less</b> inlined Flight. Authors keep the same components; visible hydration/interaction matches stock for correct pages. Corpus at this tip: <b>40/41</b> in Chromium (<code>head-hoistables</code> is a head-DOM hint-flush gap under zero-optin, not missing content).</p>
+<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> and turn on <code>enableFlightHtmlFirst</code> (no framework side channel for in-process SSR). Versus stock React main (flag off): about <b>43% smaller</b> gzip downloads across this corpus and about <b>79% less</b> inlined Flight. Authors keep the same components; visible hydration/interaction matches stock for correct pages. Corpus at this tip: <b>40/41</b> in Chromium (<code>head-hoistables</code> is a head-DOM hint-flush gap under zero-optin, not missing content).</p>
 </div>
 <div class="stats">
 <div class="stat"><b>−43%</b><span>gzip HTML download (41 pages, sum)</span></div>
