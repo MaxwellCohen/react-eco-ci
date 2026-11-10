@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>template for — a case for streaming libraries</title>
+<title>template for — a performance case for streaming libraries</title>
 <style>
-:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00}
-@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a}}
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
@@ -43,68 +43,47 @@ nav.toc a:hover{text-decoration:underline}
 </head>
 <body>
 <main>
-<p class="sub">Declarative partial updates &middot; <code>&lt;template for&gt;</code> &middot; 10 November 2026</p>
-<h1>template for: a case for streaming libraries</h1>
+<p class="sub">Declarative partial updates &middot; <code>&lt;template for&gt;</code> &middot; Chromium 156 &middot; 10 November 2026</p>
+<h1>template for: a performance win for streaming SSR</h1>
 
 <div class="answer">
-<p>Libraries that stream Suspense (or equivalent) results into already-parsed HTML should use the platform wire format — <code>&lt;template for&gt;</code>, <code>&lt;?start&gt;</code>, <code>&lt;?end&gt;</code> — with a small script fallback where native support is missing.</p>
-<p>Chrome 150 ships it. The WHATWG change is merged. Mozilla and WebKit positions are positive. The linked demos and PRs are <b>worked examples</b> of that approach, not a requirement to copy one API or flush policy.</p>
+<p>At the same reveal policy React ships today (~300&nbsp;ms), streaming with <code>&lt;template for&gt;</code> uses <b>less main-thread time</b> than classic Fizz <code>$RC</code> — about <b>39%</b> less at 60 boundaries and <b>48%</b> less at 500. A small script fallback matches that win in browsers without native support.</p>
+<p>Libraries should emit the platform markers and keep a script fallback. The demos and fork PRs below are worked examples of that shape, not the only API.</p>
 </div>
 
 <div class="stats">
-<div class="stat"><b>−39%</b><span>main-thread vs classic at 60 boundaries (equal 300&nbsp;ms policy)</span></div>
-<div class="stat"><b>−48%</b><span>main-thread at 500 boundaries (same policy)</span></div>
-<div class="stat"><b>Chrome 150</b><span>native out-of-order streaming</span></div>
+<div class="stat"><b>−39%</b><span>main-thread at 60 boundaries vs classic <code>$RC</code></span></div>
+<div class="stat"><b>−48%</b><span>main-thread at 500 boundaries</span></div>
+<div class="stat"><b>−55%</b><span>main-thread at 2,000 with script fallback</span></div>
+<div class="stat"><b>Equal policy</b><span>same ~300&nbsp;ms reveal window as shipping classic</span></div>
 </div>
 
 <nav class="toc" aria-label="Sections">
-  <a href="#approach">Library approach</a>
-  <a href="#why">Why it is good</a>
-  <a href="#numbers">Numbers</a>
-  <a href="#choices">Library choices</a>
+  <a href="#numbers">The win</a>
+  <a href="#why">Why</a>
+  <a href="#approach">What to ship</a>
   <a href="#evidence">Evidence</a>
-  <a href="#gaps">Known gaps</a>
+  <a href="#gaps">Gaps</a>
   <a href="#links">Links</a>
 </nav>
 
-<h2 id="approach">What libraries should do</h2>
-<p>Agree on the wire and a fallback. Differ on options, defaults, and scheduling.</p>
-<ol>
-  <li><strong>Emit the platform markers.</strong> Pending ranges: <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code>. Completions: <code>&lt;template for="…"&gt;</code>.</li>
-  <li><strong>Ship a small script fallback</strong> for browsers without native support. Prefer a per-flush call over a page-wide MutationObserver once boundary counts get large — the script path stays cheap at scale in the measurements below.</li>
-  <li><strong>Keep a classic completion for known gaps</strong> (SVG/MathML, view-transition reveals, some prerender/resume). Preferring DPU does not mean every boundary must use it.</li>
-  <li><strong>Gate while experimental</strong> — flag, option, or release channel — so apps can adopt without an overnight default flip.</li>
-</ol>
-<pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
-&lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
-&lt;!-- later --&gt;
-&lt;template for="B:0"&gt;…content…&lt;/template&gt;
-&lt;script&gt;/* library fallback if native DPU did not apply */&lt;/script&gt;</pre>
-
-<h2 id="why">Why it is good</h2>
-<h3>Platform work instead of a private protocol</h3>
-<p>Out-of-order HTML patching is now a browser feature. Libraries that emit the markers get native application in Chrome today, a clear fallback story elsewhere, and a seat at the table for remaining gaps (foreign namespaces, declarative batching, patch scope).</p>
-<h3>Real correctness wins</h3>
-<p>On Preact stream-only checks across Chromium, Firefox and WebKit, <code>main</code> passed 23/26. Template-for branches passed <b>26/26</b>, including table rows, SVG and MathML, with timing within noise of <code>main</code>.</p>
-<h3>Less main-thread work at shipping-like policy</h3>
-<p>When the reveal window matches a classic ~300&nbsp;ms policy, native DPU and a script fallback both cut Chromium main-thread task time versus classic <code>$RC</code> — about <b>39%</b> at 60 boundaries and <b>48%</b> at 500. That is the comparison that matches how React ships today.</p>
-<h3>One HTML dialect across libraries</h3>
-<p>Fizz-style completion scripts and island morph protocols both reinvent the same job. Converging on <code>&lt;template for&gt;</code> makes interop, tooling, and browser investment easier even when JS fallbacks differ.</p>
-
-<h2 id="numbers">Numbers (React Fizz, Chromium 156)</h2>
-<p>20 interleaved runs per cell, no hydration. Equal <b>300&nbsp;ms</b> reveal policy — the shipping-like comparison.</p>
-
-<h3>Main-thread task time (median ms)</h3>
+<h2 id="numbers">The win (main-thread TaskDuration)</h2>
+<p>Chromium 156, 20 interleaved runs per cell, hydrate off. Every row uses the <b>same 300&nbsp;ms</b> reveal policy — so the delta is the streaming mechanism, not a shorter throttle.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr></thead>
 <tbody>
-<tr><td>Classic <code>$RC</code>, 300&nbsp;ms</td><td class="n">47.1</td><td class="n">124</td><td class="n">251</td></tr>
-<tr><td>Native DPU, 300&nbsp;ms</td><td class="n good">28.9</td><td class="n good">64.6</td><td class="n good">222</td></tr>
-<tr><td>DPU + script fallback, 300&nbsp;ms</td><td class="n good">29.5</td><td class="n good">57.7</td><td class="n good">113</td></tr>
-<tr><td>DPU + MutationObserver, 300&nbsp;ms</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
+<tr><td>Classic <code>$RC</code></td><td class="n">47.1</td><td class="n">124</td><td class="n">251</td></tr>
+<tr><td>Native DPU</td><td class="n good">28.9</td><td class="n good">64.6</td><td class="n good">222</td></tr>
+<tr><td>DPU + script fallback</td><td class="n good">29.5</td><td class="n good">57.7</td><td class="n good">113</td></tr>
+<tr><td>DPU + MutationObserver</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Native DPU and the script fallback win on main-thread cost. Prefer a script fallback over MutationObserver for unsupported browsers — the observer path does not scale.</p>
+<p class="cap">Median ms. Bootstrap 95% CIs for native and script fallback vs classic exclude zero at every N shown. Prefer a <b>script fallback</b> over MutationObserver — the observer path loses the win and blows up at scale.</p>
+
+<details>
+<summary>ScriptDuration and raw tables</summary>
+<p>Script time drops too (e.g. native at 500: 4.8&nbsp;ms vs classic 13.2&nbsp;ms median). Full cells: <a href="data/fair-bench/chromium-cost-1x.md">cost</a>, <a href="data/fair-bench/tables-chromium-cost-1x.md">tables</a>.</p>
+</details>
 
 <h3>Bytes</h3>
 <div class="tablewrap"><table>
@@ -114,86 +93,75 @@ nav.toc a:hover{text-decoration:underline}
 <tr><td>Declarative</td><td class="n">1,000 / 587</td><td class="n">197 / 18.0</td></tr>
 </tbody>
 </table></div>
-<p class="cap">A small fixed init; per-boundary raw tends smaller as counts grow. Gzip stays roughly even.</p>
+<p class="cap">Small fixed init; per-boundary raw trends lower as counts grow. Gzip is roughly even — the headline is main-thread, not download size.</p>
 
-<details>
-<summary>More measurements</summary>
-<p>Patch lag at the same 300&nbsp;ms window is statistically flat vs classic for most cells — the main-thread win above is the headline, not a latency cliff. Raw tables: <a href="data/fair-bench/chromium-cost-1x.md">cost</a>, <a href="data/fair-bench/chromium-timing-1x.md">timing</a>, <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">no-hold cost</a>.</p>
-</details>
+<h2 id="why">Why the platform path is faster</h2>
+<ul>
+  <li><strong>Native apply:</strong> Chrome applies <code>&lt;template for&gt;</code> as it parses. Less library JS running completion scripts for every boundary.</li>
+  <li><strong>Cheaper fallback:</strong> one small script helper for unsupported browsers beats a page-wide MutationObserver once there are hundreds of boundaries.</li>
+  <li><strong>Same policy, less work:</strong> holding the reveal window fixed isolates the mechanism. The main-thread savings above are not from revealing sooner.</li>
+</ul>
 
-<h2 id="choices">Library choices (several valid paths)</h2>
-<p>These stay library-local. The wire format does not force them.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Choice</th><th>Reasonable options</th></tr></thead>
-<tbody>
-<tr><td>Unsupported-browser fallback</td><td>Per-flush script (recommended at scale) · MutationObserver · hybrid</td></tr>
-<tr><td>Reveal / hold policy</td><td>Match today’s throttle · shorter window · flush immediately</td></tr>
-<tr><td>Default on vs opt-in</td><td>Flag off in published builds · explicit option · major-version flip</td></tr>
-<tr><td>Bootstrap naming</td><td><code>$RP</code> · library-prefixed helpers · module-scoped</td></tr>
-<tr><td>When to stay classic</td><td>SVG/MathML · view transitions · resume/prerender · always dual-path</td></tr>
-</tbody>
-</table></div>
+<h2 id="approach">What libraries should ship</h2>
+<ol>
+  <li><strong>Emit the platform markers</strong> — <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> and <code>&lt;template for&gt;</code>.</li>
+  <li><strong>Use a per-flush script fallback</strong> where native support is missing (the row that wins at 500 and 2,000 above).</li>
+  <li><strong>Keep classic completion for gaps</strong> (SVG/MathML, view-transition reveals, some resume/prerender).</li>
+  <li><strong>Gate while experimental</strong> — flag or option — so adoption does not require flipping every app overnight.</li>
+</ol>
+<pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
+&lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
+&lt;!-- later --&gt;
+&lt;template for="B:0"&gt;…content…&lt;/template&gt;
+&lt;script&gt;/* library fallback if native DPU did not apply */&lt;/script&gt;</pre>
+<p class="cap">Options, defaults, and exact flush timing can differ by library. The performance win comes from the markers + script fallback under a shipping-like reveal policy.</p>
 
 <h2 id="evidence">Evidence</h2>
-<p>Reproduce, poke holes, or fork a different shape.</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Artifact</th><th>What it shows</th><th>Link</th></tr></thead>
+<thead><tr><th>Artifact</th><th>Role</th><th>Link</th></tr></thead>
 <tbody>
 <tr>
-  <td>React Fizz streaming test bed</td>
-  <td>Same scenarios on classic vs declarative builds</td>
+  <td>React Fizz test bed</td>
+  <td>Classic vs declarative under the same scenarios</td>
   <td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a> · <a href="https://react-eco-stream-dpu.to-email-max.workers.dev/dpu">dpu</a> · <a href="https://react-eco-stream-baseline.to-email-max.workers.dev/dpu">baseline</a></td>
 </tr>
 <tr>
   <td>React fork PR</td>
-  <td>One experimental shape: flag, script fallback, classic kept for gaps</td>
+  <td>One experimental implementation of the shape above</td>
   <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
 </tr>
 <tr>
-  <td>Preact live variants</td>
-  <td>Multi-browser stream checks; script vs MutationObserver</td>
-  <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a></td>
-</tr>
-<tr>
-  <td>Upstream Preact PRs</td>
-  <td>Parallel approaches (#474 observer-style, #490 script-style)</td>
-  <td><a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a>, <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
-</tr>
-<tr>
-  <td>Preact opt-in fork</td>
-  <td><code>dpu: true</code> on stream APIs; default islands unchanged</td>
-  <td><a href="https://github.com/MaxwellCohen/preact-render-to-string/pull/8">MaxwellCohen/…#8</a></td>
+  <td>Preact demos / PRs</td>
+  <td>Parallel library experiments (script and observer styles)</td>
+  <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
 </tr>
 </tbody>
 </table></div>
 
-<h2 id="gaps">Known gaps (keep a classic path)</h2>
+<h2 id="gaps">Gaps (classic path still needed)</h2>
 <ul>
-  <li><strong>SVG / MathML:</strong> native patching can land the wrong namespace; route those boundaries through a classic completion and file platform feedback.</li>
-  <li><strong>View transitions on reveal:</strong> native patches cannot enter <code>startViewTransition</code> yet.</li>
-  <li><strong>Late styles / SRI:</strong> some attribute carry-through still needs library care on the declarative path.</li>
-  <li><strong>Spec clarity:</strong> foreign-namespace patching, declarative batching, and whether <code>template for</code> is parent-scoped vs document-wide are worth filing.</li>
+  <li>SVG / MathML native patching can land the wrong namespace.</li>
+  <li>View-transition reveals still need a classic completion.</li>
+  <li>Some late-style / SRI carry-through still needs library care.</li>
 </ul>
 
 <h2 id="links">Links</h2>
 <ul class="links">
   <li>Chrome docs: <a href="https://developer.chrome.com/docs/web-platform/declarative-partial-updates">Declarative partial updates</a></li>
   <li>WHATWG: <a href="https://github.com/whatwg/html/pull/11818">html#11818</a></li>
-  <li>Mozilla / WebKit positions: <a href="https://github.com/mozilla/standards-positions/issues/1369">Mozilla #1369</a>, <a href="https://github.com/WebKit/standards-positions/issues/628">WebKit #628</a></li>
-  <li>React streaming demos: <a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a></li>
-  <li>Preact streaming demos: <a href="https://preact-eco-index.to-email-max.workers.dev/">index</a></li>
+  <li>Cost raw: <a href="data/fair-bench/chromium-cost-1x.md">chromium-cost-1x.md</a></li>
 </ul>
 
 <details>
 <summary>Method</summary>
 <ul>
-  <li>Main-thread and byte numbers: Chromium 156 harness, 20 runs/cell, 2026-11-10, equal 300&nbsp;ms policy.</li>
-  <li>Preact correctness: multi-browser worker pages (Chromium, Firefox, WebKit).</li>
-  <li>One machine. Challenge the checks.</li>
+  <li>Chromium 156.0.8078.4, CPU throttle 1×, hydrate=off, 20 runs/cell, interleaved variants.</li>
+  <li>Metric: median main-thread TaskDuration (ms). Differences vs classic at the same 300&nbsp;ms window; bootstrap 95% CIs exclude zero for native and script fallback.</li>
+  <li>One machine. Challenge the harness.</li>
 </ul>
 </details>
 
-<footer>A case for the platform wire format — demos and fork PRs as evidence, not the only path.</footer>
+<footer>A performance case for <code>&lt;template for&gt;</code> streaming — demos and fork PRs as evidence, not the only path.</footer>
 </main>
 </body>
 </html>
