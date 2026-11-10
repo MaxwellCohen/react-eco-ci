@@ -1,98 +1,359 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Streaming DPU: Preact and React results</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>template for — a case for streaming libraries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff;--fg:#1a1a1a;--mut:#5f6368;--line:#dadce0;--acc:#0b57d0;--ok:#137333;--bad:#c5221f;--card:#f6f8fb}
-@media(prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8eaed;--mut:#9aa0a6;--line:#35383d;--acc:#8ab4f8;--ok:#81c995;--bad:#f28b82;--card:#1b1d21}}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
-main{max-width:920px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:1.7rem;margin:.2em 0}h2{margin-top:2.2em;border-bottom:1px solid var(--line);padding-bottom:.2em}h3{margin-top:1.6em}
-a{color:var(--acc)}.mut{color:var(--mut)}.ok{color:var(--ok)}.bad{color:var(--bad);font-weight:600}
-.note{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:1em 0}
-.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.6em 0}
-th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:nowrap}th{background:var(--card)}
-td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
-</style></head><body><main>
-<h1>Declarative Partial Updates for streaming SSR: Preact and React results</h1>
-<p class="mut">How should <code>preact-render-to-string</code> and React Fizz stream Suspense results to the browser? This page collects what we measured for
-<a href="https://developer.chrome.com/blog/declarative-partial-updates">DPU</a> (<code>&lt;template for&gt;</code>, <code>&lt;?start&gt;</code>), tested in Chromium, Firefox and WebKit with Playwright. Everything ran on one machine on one day. Claude (via Claude Code) wrote the test pages, the harness and these notes, working from my direction. The checks encode what I think the right behavior is, so please challenge them.</p>
+:root{
+  --bg:#e7ebf0;
+  --bg2:#dfe5ec;
+  --ink:#12151c;
+  --mute:#4a5568;
+  --line:#b7c0cc;
+  --acc:#0b6e6e;
+  --acc-ink:#fff;
+  --ok:#1b6b3a;
+  --warn:#8a5a00;
+  --bad:#9b1c1c;
+  --panel:#f4f7fa;
+  --glow:rgba(11,110,110,.18);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);background:
+    radial-gradient(1200px 500px at 10% -10%, var(--glow), transparent 55%),
+    linear-gradient(165deg, var(--bg) 0%, var(--bg2) 55%, #d5dde6 100%);
+  font:16px/1.55 "Literata", Georgia, serif;
+  min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+  background-image:repeating-linear-gradient(-18deg, transparent 0 11px, rgba(18,21,28,.035) 11px 12px);
+}
+a{color:var(--acc);text-underline-offset:3px}
+a:hover{color:#084f4f}
+code,pre,.mono{font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:.9em}
+.wrap{position:relative;max-width:980px;margin:0 auto;padding:0 20px 80px}
+.hero{
+  min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:48px 0 56px;gap:18px;
+}
+.brand{
+  font-family:"Sora", system-ui, sans-serif;font-weight:700;letter-spacing:-.04em;
+  font-size:clamp(3rem, 10vw, 6.2rem);line-height:.92;margin:0;
+  animation:rise .7s ease both;
+}
+.brand span{color:var(--acc)}
+.lede{
+  max-width:34em;margin:0;font-size:1.12rem;color:var(--mute);
+  animation:rise .7s .08s ease both;
+}
+.cta{display:flex;flex-wrap:wrap;gap:10px;animation:rise .7s .16s ease both}
+.btn{
+  font-family:"Sora", sans-serif;font-size:.85rem;font-weight:500;
+  text-decoration:none;padding:.72rem 1rem;border:1px solid var(--ink);
+  background:var(--ink);color:var(--panel);border-radius:2px;
+  transition:transform .15s ease, background .15s ease;
+}
+.btn:hover{transform:translateY(-1px);color:var(--panel);background:#000}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(18,21,28,.06);color:var(--ink)}
+.meta{font-family:"IBM Plex Mono", monospace;font-size:.75rem;color:var(--mute);animation:rise .7s .22s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+nav.toc{
+  position:sticky;top:0;z-index:5;display:flex;gap:14px;flex-wrap:wrap;
+  padding:10px 0;margin:0 0 28px;background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  font-family:"Sora", sans-serif;font-size:.78rem;
+}
+nav.toc a{color:var(--mute);text-decoration:none}
+nav.toc a:hover{color:var(--acc)}
+section{padding:28px 0 8px}
+h2{
+  font-family:"Sora", sans-serif;font-size:1.45rem;letter-spacing:-.02em;
+  margin:0 0 .6em;padding-bottom:.35em;border-bottom:1px solid var(--line);
+}
+h3{font-family:"Sora", sans-serif;font-size:1.05rem;margin:1.6em 0 .5em}
+p{max-width:42em}
+.claim{
+  border-left:3px solid var(--acc);padding:.2em 0 .2em 1em;margin:1.2em 0;
+  font-size:1.18rem;max-width:30em;
+}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:1.2em 0}
+.stat{
+  background:var(--panel);border:1px solid var(--line);padding:14px 16px;border-radius:2px;
+  transform:translateY(8px);opacity:0;transition:transform .45s ease, opacity .45s ease;
+}
+.stat.in{transform:none;opacity:1}
+.stat b{display:block;font-family:"Sora", sans-serif;font-size:1.55rem;letter-spacing:-.03em;margin:.15em 0}
+.stat span{color:var(--mute);font-size:.88rem}
+.tw{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{font-family:"Sora", sans-serif;font-weight:500;background:#edf1f5}
+td.n{text-align:right;font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono", monospace;font-size:.84rem}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.note{
+  background:var(--panel);border:1px solid var(--line);padding:12px 14px;margin:1.1em 0;border-radius:2px;
+  max-width:46em;
+}
+pre.wire{
+  background:#12151c;color:#d7dde8;padding:14px 16px;overflow-x:auto;border-radius:2px;
+  font-size:.78rem;line-height:1.45;
+}
+.foot{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:var(--mute);font-size:.9rem}
+ul,ol{max-width:46em}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .stat{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <p class="brand">template <span>for</span></p>
+    <p class="lede">A case for streaming SSR libraries to prefer the platform’s out-of-order HTML patch — and for treating any one fork, PR, or demo as evidence, not the only path.</p>
+    <div class="cta">
+      <a class="btn" href="#approach">Library approach</a>
+      <a class="btn ghost" href="#evidence">Evidence</a>
+      <a class="btn ghost" href="https://developer.chrome.com/docs/web-platform/declarative-partial-updates">Chrome docs</a>
+    </div>
+    <p class="meta">Measured on one machine · Chromium 156 · fair policy comparisons · 2026-11-10</p>
+  </header>
 
-<div class="note"><strong>The short version</strong>
-<ul>
-<li><strong>Preact:</strong> PRs #474 (head <code>e1e62e6</code>) and #490 (head <code>44c96f0</code>) both fix real bugs in <code>main</code> (table rows, SVG and MathML namespaces). With no client JS they pass 26 of 26 checks, where <code>main</code> passes 23. Neither shows a timing cost, and each boundary adds about 3 to 6 gzip bytes.</li>
-<li><strong>React Fizz:</strong> the DPU branch passes all 28 checks without hydration in Chromium (native, the <code>$RP</code> fallback, and the polyfill with native support turned off), Firefox and WebKit. One check, <code>nested-template</code>, fails after hydration, but it fails on the baseline too, so DPU isn't the cause.</li>
-</ul></div>
+  <nav class="toc" aria-label="Sections">
+    <a href="#case">The case</a>
+    <a href="#approach">Library approach</a>
+    <a href="#why">Why now</a>
+    <a href="#choices">Open choices</a>
+    <a href="#numbers">Fair numbers</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#risks">Open risks</a>
+    <a href="#spec">Spec feedback</a>
+    <a href="#links">Links</a>
+  </nav>
 
-<h2>Links</h2>
-<table><tr><th>Item</th><th>Link</th></tr>
-<tr><td>preact-render-to-string PR #474 (template-for streaming)</td><td><a href="https://github.com/preactjs/preact-render-to-string/pull/474">preactjs/preact-render-to-string#474</a> (open)</td></tr>
-<tr><td>preact-render-to-string PR #490 (React-style init script)</td><td><a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a> (open)</td></tr>
-<tr><td>Preact comparison repo, full report</td><td><a href="https://github.com/MaxwellCohen/preact-eco-ci">MaxwellCohen/preact-eco-ci</a>, <a href="data/preact-REPORT.md">REPORT.md</a>, <a href="data/preact-DATA.md">DATA.md</a></td></tr>
-<tr><td>Preact live pages per variant</td><td><a href="https://preact-eco-index.to-email-max.workers.dev">landing page</a></td></tr>
-<tr><td>React Fizz branches (<code>enableFizzDeclarativePatching</code>)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/1-declarative-patching">1-declarative-patching</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/2-hydration-stylesheet-fixes">2-hydration-stylesheet-fixes</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/3-suspense-batching">3-suspense-batching</a>, <a href="https://github.com/MaxwellCohen/react/tree/fizz/4-script-fallback">4-script-fallback</a>. <span class="mut">There's no upstream React PR yet.</span></td></tr>
-<tr><td>React results page and raw data</td><td><a href="react/">React results</a>, <a href="react/runs.html">all runs</a>, <a href="react/data/">raw data and harness</a></td></tr>
-<tr><td>Preact all-runs page</td><td><a href="https://preact-eco-index.to-email-max.workers.dev/runs">runs</a></td></tr>
-<tr><td>Preact raw timing</td><td><a href="data/preact-bench-firefox.json">Firefox</a>, <a href="data/preact-bench-webkit.json">WebKit</a>, <a href="data/preact-bench-chromium.json">Chromium</a></td></tr>
-<tr><td>React Flight/Fizz Lighthouse and size pages</td><td><a href="https://maxwellcohen.github.io/react-eco-ci/">react-eco-ci</a></td></tr>
-</table>
+  <section id="case">
+    <h2>The case</h2>
+    <p class="claim">Libraries that stream Suspense (or equivalent) results into already-parsed HTML should speak the platform wire format — <code>&lt;template for&gt;</code>, <code>&lt;?start&gt;</code>, <code>&lt;?end&gt;</code> — instead of inventing another private script protocol that does the same job.</p>
+    <p>Chrome 150 ships the feature. The WHATWG HTML change is merged. Mozilla and WebKit both hold positive positions. Frameworks that keep shipping only <code>getElementById</code> + inline mutation scripts will look like they are fighting the platform they depend on.</p>
+    <div class="grid">
+      <div class="stat"><b>Chrome 150</b><span>ships out-of-order streaming</span></div>
+      <div class="stat"><b>WHATWG</b><span>PR merged for <code>template for</code></span></div>
+      <div class="stat"><b>Gecko / WebKit</b><span>positive standards positions</span></div>
+    </div>
+    <div class="note">
+      <strong>Scope of this page.</strong> This is an adoption argument and a measurement notebook. The linked PRs and Workers demos are worked examples used to pressure-test the argument. They are not a claim that every library must copy one API shape, one bootstrap global, or one flush policy.
+    </div>
+  </section>
 
-<h2>Preact: main vs PR #474 vs PR #490</h2>
-<p class="mut">Five runs per cell, interleaved, on deployed Cloudflare Workers. Patch lag is how long after the server sent a chunk the content became visible; the three numbers are medians for 16, 60 and 100 boundaries. Chromium used native DPU. Firefox and WebKit used the polyfill.</p>
-<div class="tw"><table>
-<tr><th></th><th>main</th><th>#474</th><th>#490</th></tr>
-<tr><td>Correct DOM, stream only (26 checks × 3 browsers)</td><td class="bad">23/26</td><td class="ok">26/26</td><td class="ok">26/26</td></tr>
-<tr><td>Failing on main</td><td colspan="3"><code>table-rows</code>, <code>svg-namespace</code>, <code>mathml-namespace</code></td></tr>
-<tr><td>Patch lag Chromium (ms)</td><td>-2 / 0 / 7</td><td>-2 / 0 / 0</td><td>0 / 1 / 5</td></tr>
-<tr><td>Patch lag Firefox (ms)</td><td>25 / 22 / 28</td><td>11 / 12 / 17</td><td>-2 / 1 / 6</td></tr>
-<tr><td>Patch lag WebKit (ms)</td><td>-4 / 4 / 10</td><td>-3 / -3 / 6</td><td>1 / 1 / 11</td></tr>
-<tr><td>Longest stall, any cell (ms, single outliers)</td><td>956</td><td>158</td><td>46</td></tr>
-<tr><td>Fixed overhead, first boundary (raw B)</td><td>1319</td><td>1190</td><td>883</td></tr>
-<tr><td>Per boundary raw / gzip / brotli (B, est.)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
-</table></div>
-<p>Both PRs pass every check, including <code>foreignObject</code>, and no boundary is lost in any browser. Timing is within noise of <code>main</code> everywhere, and Firefox patches faster with either PR than with <code>main</code>. (An earlier head of #474, <code>6a02913</code>, hung on <code>foreignObject</code> and could drop the last boundary in Firefox and WebKit. Both are fixed in the current head, and nothing here uses the old one.) On size, <code>main</code> compresses a bit better because it writes the boundary id three times where the DPU variants write it four. Each extra copy costs about 2.9 gzip bytes. The <a href="data/preact-REPORT.md">full report</a> has the details.</p>
+  <section id="approach">
+    <h2>What libraries should do</h2>
+    <p>The useful agreement is at the <em>wire and fallback</em> layer. Everything above that — option names, defaults, batching, hydration hooks — can and should differ by library.</p>
+    <ol>
+      <li><strong>Emit the platform markers when streaming out-of-order HTML.</strong> Pending ranges use <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code>. Completions use <code>&lt;template for="…"&gt;</code>. That is the durable contract with the browser.</li>
+      <li><strong>Ship a small script fallback for browsers without native support.</strong> Prefer an explicit per-chunk (or per-flush) call over a page-wide MutationObserver polyfill once boundary counts get large. Observer polyfills do not scale in the measurements below.</li>
+      <li><strong>Keep a classic path for known gaps.</strong> SVG/MathML namespace patching, view-transition reveals, and some prerender/resume paths still need a library-owned completion today. Falling back is fine; pretending the platform covers everything is not.</li>
+      <li><strong>Gate the new path while it is experimental.</strong> Flag, option, or release channel — libraries should be able to ship without flipping every app overnight.</li>
+      <li><strong>Compare policies fairly.</strong> Do not advertise a latency win that comes only from shortening a deliberate reveal throttle. Hold the window constant when claiming a mechanism advantage.</li>
+      <li><strong>Do not treat one reference implementation as normative.</strong> A React <code>$RP</code> helper, a Preact island observer, a no-server-hold flush, or a 300&nbsp;ms hold can all be compatible with the same wire format. Pick what fits the library’s streaming model; keep the HTML markers.</li>
+    </ol>
+    <pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
+&lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
+&lt;!-- later --&gt;
+&lt;template for="B:0"&gt;…content…&lt;/template&gt;
+&lt;script&gt;/* library fallback if native DPU did not apply */&lt;/script&gt;</pre>
+  </section>
 
-<h2>React Fizz: declarative patching in Chromium, Firefox and WebKit</h2>
-<p>Full React results, the same table layout as the Preact one, are on the <a href="react/"><b>React results page</b></a> (with <a href="react/runs.html">every individual run</a> and <a href="react/data/">raw data</a>). Same 26 checks plus 2 React-specific ones, React branch <code>fizz/4-script-fallback</code> plus a batching fix, Chromium 156, Firefox 157, WebKit 27.2, five interleaved runs.</p>
-<div class="tw"><table>
-<tr><th></th><th>baseline (<code>$RC</code>)</th><th>DPU + <code>$RP</code> fallback</th><th>DPU + polyfill</th></tr>
-<tr><td>Correct DOM, stream only (C · F · W)</td><td>28/28 each</td><td>28/28 each</td><td>28/28 each</td></tr>
-<tr><td>After hydration</td><td colspan="3">27/28 in every cell. <code>nested-template</code> also fails on the baseline, so DPU isn't the cause.</td></tr>
-<tr><td>Median patch lag, 60 boundaries: Chromium / Firefox / WebKit (ms)</td><td>124 / 170 / 175</td><td>3 / 3 / 2</td><td>3 / 3 / 3</td></tr>
-<tr><td>Same before the batching fix</td><td>140 / 170 / 172</td><td>178 / 179 / 125</td><td>123 / 180 / 127</td></tr>
-<tr><td>Per boundary raw / gzip (B, est.)</td><td>132.0 / 15.5</td><td>115.0 / 16.1</td><td>115.5 / 16.0</td></tr>
-</table></div>
-<div class="note"><strong>The batching fix.</strong> Fizz held completed boundaries for up to 300 ms by default, which gave 120 to 180 ms median lag and about 300 ms at p95. The default hold is now one animation frame (16 ms), and an explicit <code>unstable_declarativeBatchMs</code> still works as a throttle window. With that, every DPU variant is at 2 to 4 ms median lag in all three browsers. The fix is a local commit and is not pushed yet.</div>
+  <section id="why">
+    <h2>Why this is worth doing</h2>
+    <h3>1. Platform alignment while feedback still matters</h3>
+    <p>Inline scripts that mutate already-parsed DOM are exactly what the platform is standardising away from. Libraries that emit the new markers now can file concrete gaps (foreign namespaces, declarative batching, patch scope) instead of arriving after the format freezes around other ecosystems.</p>
+    <h3>2. Correctness wins show up before “free speed”</h3>
+    <p>On Preact stream-only checks across Chromium, Firefox and WebKit, <code>main</code> passed 23/26. Template-for branches passed 26/26, including table rows, SVG and MathML. Timing stayed within noise of <code>main</code>. That is a stronger early argument than a latency headline.</p>
+    <h3>3. One shared HTML dialect beats N private protocols</h3>
+    <p>Classic Fizz-style completion scripts and island morph protocols both reinvent out-of-order HTML. The platform now has a name for that job. Interop, tooling, and browser investment all get easier if libraries converge on the markers even when their JS fallbacks differ.</p>
+    <h3>4. Honesty about performance</h3>
+    <p>An earlier “3&nbsp;ms vs 124&nbsp;ms” patch-lag comparison mixed declarative streaming with a shorter reveal policy than shipping classic <code>$RC</code>’s ~300&nbsp;ms client throttle. That is a policy change, not a mechanism win. Fair tables below hold the window constant — and separately show a no-hold arm for people who want that design.</p>
+  </section>
 
-<h2>Script vs MutationObserver</h2>
-<p>The two ways to finish a streamed boundary in browsers without native DPU. <strong>MutationObserver:</strong> one observer in an init script watches for <code>&lt;template for&gt;</code> elements and applies each as it arrives (Preact PR #474, and the template-for polyfill used in the React runs). <strong>Script:</strong> each chunk carries its own tiny <code>&lt;script&gt;</code> that applies it directly, the way Fizz's <code>$RC</code>/<code>$RP</code> works (Preact PR #490, and the <code>$RP</code> fallback in React).</p>
-<h3>Preact: #474 (observer) vs #490 (script), medians</h3>
-<div class="tw"><table>
-<tr><th></th><th>main</th><th>#474 observer</th><th>#490 script</th></tr>
-<tr><td>Patch lag Chromium, 16 / 60 / 100 boundaries (ms)</td><td>-2 / 0 / 7</td><td>-2 / 0 / 0</td><td>0 / 1 / 5</td></tr>
-<tr><td>Patch lag Firefox (ms)</td><td>25 / 22 / 28</td><td>11 / 12 / 17</td><td>-2 / 1 / 6</td></tr>
-<tr><td>Patch lag WebKit (ms)</td><td>-4 / 4 / 10</td><td>-3 / -3 / 6</td><td>1 / 1 / 11</td></tr>
-<tr><td>Patched to interactive, client script after stream (C / F / W, ms)</td><td>103 / 102 / 106</td><td>90 / 81 / 114</td><td>106 / 121 / 104</td></tr>
-<tr><td>Same, client script mid-stream</td><td>12 / 12 / 14</td><td>11 / 15 / 15</td><td>16 / 13 / 14</td></tr>
-<tr><td>Longest stall in any cell (ms, single outliers)</td><td>956</td><td>158</td><td>46</td></tr>
-<tr><td>Fixed cost, first boundary (raw B)</td><td>1319</td><td>1190</td><td>883</td></tr>
-<tr><td>Per boundary raw / gzip / brotli (B)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
-<tr><td>60 / 100 boundary page, gzip (B)</td><td>6839 / 7367</td><td>7062 / 7680</td><td>7154 / 7851</td></tr>
-</table></div>
-<h3>React: <code>$RP</code> script fallback vs polyfill (observer), median patch lag in ms, 16 / 60 / 100 boundaries</h3>
-<div class="tw"><table>
-<tr><th>Browser</th><th>Script (<code>$RP</code>)</th><th>Observer (polyfill)</th></tr>
-<tr><td>Chromium (native off)</td><td class="n">3 / 3 / 3</td><td class="n">3 / 3 / 4</td></tr>
-<tr><td>Firefox</td><td class="n">3 / 3 / 2</td><td class="n">4 / 3 / 4</td></tr>
-<tr><td>WebKit</td><td class="n">3 / 2 / 3</td><td class="n">3 / 3 / 3</td></tr>
-</table></div>
-<p><strong>What the numbers say.</strong> Speed: no meaningful difference. Differences under about 16 ms are noise, and in React the two are within 2 ms of each other. The script is slightly lower in Firefox in the Preact runs (about 10 ms), which is the only gap that stands out. Size: the script costs more per boundary (about +24 raw and +2.7 gzip bytes over the observer, because every chunk carries its own call) but much less up front (about 300 bytes less once per page). The crossover is early: in raw bytes the observer page is smaller from about 13 boundaries up, and the 60 and 100 boundary pages are 92 and 171 bytes smaller gzipped. Interactivity: when client JS loads after the stream, the observer got the counter clickable sooner in Firefox (81 vs 121 ms); I haven't looked at the spread across runs, so treat that as a hint.</p>
-<p><strong>What differs by design.</strong> The observer is one mechanism for the whole page, and chunks are plain markup. The script makes control flow explicit and lets the harness see per chunk whether the browser had already applied the template natively (we use that in the React runs: the <code>$RP</code> call count and "ids that still had a template" columns in <a href="react/data/after4/results.md">results.md</a>). The Preact script variant defines a <code>window.$RC</code> global, which might collide with React's on a page that mixes the two. I haven't tested that.</p>
+  <section id="choices">
+    <h2>Open choices (several valid paths)</h2>
+    <p>These are product decisions, not wire-format decisions. Different libraries can disagree without abandoning <code>&lt;template for&gt;</code>.</p>
+    <div class="tw"><table>
+      <tr><th>Choice</th><th>Options seen in the wild / experiments</th><th>Notes</th></tr>
+      <tr>
+        <td>Unsupported-browser fallback</td>
+        <td>Per-flush script call · MutationObserver polyfill · hybrid</td>
+        <td>Script stays sane at thousands of boundaries; observer polyfills do not in these runs.</td>
+      </tr>
+      <tr>
+        <td>Server hold / reveal policy</td>
+        <td>Flush immediately · rAF · N&nbsp;ms hold · client-only throttle</td>
+        <td>Native DPU applies as templates parse — there is no native “batch reveals” hook. Holding is a library choice.</td>
+      </tr>
+      <tr>
+        <td>Default on vs opt-in</td>
+        <td>Flag off in published builds · <code>dpu: true</code> · major-version flip</td>
+        <td>Maintainer taste. Opt-in keeps majors calm while the feature is young.</td>
+      </tr>
+      <tr>
+        <td>Bootstrap naming</td>
+        <td><code>$RP</code> · library-prefixed helpers · no global (module)</td>
+        <td>Avoid collisions on mixed pages; the HTML markers matter more than the global name.</td>
+      </tr>
+      <tr>
+        <td>When to stay classic</td>
+        <td>SVG/MathML · view transitions · resume/prerender · always dual-path</td>
+        <td>Falling back is compatible with “prefer DPU,” not a rejection of it.</td>
+      </tr>
+    </table></div>
+  </section>
 
-<h2>Method and limitations</h2>
-<ul>
-<li>Correctness: 26 checks (28 for React). <code>hydrate=off</code> tests the stream and polyfill on their own. <code>late</code> runs after hydration, which can hide a patch that failed.</li>
-<li>Timing: 5 runs with variants interleaved in random order. Patch lag is read from a MutationObserver plus a 16 ms layout scan, so it's only accurate to about 16 ms. Smaller differences are noise.</li>
-<li>One machine. React ran against a local server and Preact against deployed Workers, with no throttling and no real wire compression. I didn't measure low-end CPUs, more than 100 boundaries, bfcache or buffering proxies.</li>
-<li>Two Preact variants in the full report, <code>local-end-stamp</code> and <code>local-react-style</code>, come from commits I haven't pushed.</li>
-</ul>
-</main></body></html>
+  <section id="numbers">
+    <h2>Fair numbers (React Fizz experiments)</h2>
+    <p>Chromium 156, 20 interleaved runs per cell, no hydration. <code>base</code> is classic <code>$RC</code>. <code>nat</code> is native <code>&lt;template for&gt;</code>. <code>rp</code> is a script fallback. Windows labelled on the measured branch are server holds; other designs may omit them.</p>
+
+    <h3>Main-thread task time at equal policy (median ms)</h3>
+    <div class="tw"><table>
+      <tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr>
+      <tr><td>Classic <code>$RC</code>, 300&nbsp;ms</td><td class="n">47.1</td><td class="n">124</td><td class="n">251</td></tr>
+      <tr><td>Native DPU, 300&nbsp;ms</td><td class="n ok">28.9</td><td class="n ok">64.6</td><td class="n ok">222</td></tr>
+      <tr><td>DPU + script fallback, 300&nbsp;ms</td><td class="n ok">29.5</td><td class="n ok">57.7</td><td class="n ok">113</td></tr>
+      <tr><td>DPU + polyfill, 300&nbsp;ms</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
+      <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">97.5</td><td class="n">211</td><td class="n">318</td></tr>
+      <tr><td>Native DPU, 16&nbsp;ms</td><td class="n">105</td><td class="n">212</td><td class="n bad">377</td></tr>
+    </table></div>
+    <div class="note">
+      <strong>Reading.</strong> At a shipping-like 300&nbsp;ms reveal policy, native DPU cuts main-thread time by ~39% at 60 boundaries and ~48% at 500 (bootstrap CIs exclude zero). At a 16&nbsp;ms window — a proxy for “flush almost immediately” — that win disappears, and at 2,000 boundaries native DPU is worse. The MutationObserver polyfill does not scale.
+    </div>
+
+    <h3>Patch lag at equal policy</h3>
+    <p>After clock calibration, median patch lag for native DPU vs classic at the <strong>same</strong> window is statistically flat for most cells. Latency arguments that depend on shortening the window are arguments about throttle policy, not about <code>&lt;template for&gt;</code>.</p>
+
+    <h3>No server hold (one possible design)</h3>
+    <p>Same harness, DPU with <code>batchMs=0</code> interleaved against classic at 300&nbsp;ms and 16&nbsp;ms. Median patch lag (ms):</p>
+    <div class="tw"><table>
+      <tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr>
+      <tr><td>Classic <code>$RC</code>, 300&nbsp;ms (ships today)</td><td class="n">163</td><td class="n">162</td><td class="n">166</td></tr>
+      <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">26.8</td><td class="n">35.3</td><td class="n">38.1</td></tr>
+      <tr><td>Native DPU, no hold</td><td class="n">26.3</td><td class="n">26.7</td><td class="n">27.0</td></tr>
+      <tr><td>DPU + script fallback, no hold</td><td class="n">26.7</td><td class="n">26.3</td><td class="n">27.4</td></tr>
+      <tr><td>DPU + polyfill, no hold</td><td class="n">27.0</td><td class="n">26.9</td><td class="n bad">955</td></tr>
+    </table></div>
+    <div class="note">
+      <strong>Reading.</strong> No-hold DPU matches classic-at-16&nbsp;ms on lag and beats shipping classic-at-300&nbsp;ms by roughly the throttle itself. Expected: native templates apply as they parse. It is <em>not</em> a claim that DPU is faster than a classic path with the same reveal policy.
+    </div>
+
+    <h3>Main-thread cost with no server hold (median ms)</h3>
+    <div class="tw"><table>
+      <tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr>
+      <tr><td>Classic <code>$RC</code>, 300&nbsp;ms (ships today)</td><td class="n">50.1</td><td class="n">117</td><td class="n">176</td></tr>
+      <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">83.8</td><td class="n">171</td><td class="n">288</td></tr>
+      <tr><td>Native DPU, no hold</td><td class="n">78.6</td><td class="n bad">278</td><td class="n bad">591</td></tr>
+      <tr><td>DPU + script fallback, no hold</td><td class="n">106</td><td class="n bad">261</td><td class="n bad">566</td></tr>
+      <tr><td>DPU + polyfill, no hold</td><td class="n">117</td><td class="n bad">371</td><td class="n bad">2,097</td></tr>
+    </table></div>
+    <div class="note">
+      <strong>Reading.</strong> Immediate flush + native DPU is <em>not</em> a free main-thread win vs shipping classic-at-300&nbsp;ms. At 500 and 2,000 boundaries it is clearly more expensive (bootstrap CIs exclude zero). Argue platform alignment and correctness first; treat performance as conditional on policy.
+    </div>
+
+    <h3>Bytes</h3>
+    <div class="tw"><table>
+      <tr><th></th><th class="n">Init (raw/gzip)</th><th class="n">Per boundary @60 (raw/gzip, est.)</th></tr>
+      <tr><td>Classic</td><td class="n">845 / 500</td><td class="n">215 / 17.7</td></tr>
+      <tr><td>Declarative</td><td class="n">1,000 / 587</td><td class="n">197 / 18.0</td></tr>
+    </table></div>
+    <p>Raw payload trends smaller once there are many boundaries. Gzip is roughly even; small pages pay a small fixed-cost tax. Not a reason by itself.</p>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence (illustrative, not exclusive)</h2>
+    <p>Use these to reproduce, poke holes, or fork a different shape. None of them is “the” library API.</p>
+    <div class="tw"><table>
+      <tr><th>Artifact</th><th>What it shows</th><th>Link</th></tr>
+      <tr>
+        <td>React Fizz streaming test bed</td>
+        <td>Same scenarios on classic vs declarative builds; diagnostics, CSP, hydrate controls</td>
+        <td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">react-eco-stream-index</a> · <a href="https://react-eco-stream-dpu.to-email-max.workers.dev/dpu">dpu /dpu</a> · <a href="https://react-eco-stream-baseline.to-email-max.workers.dev/dpu">baseline /dpu</a></td>
+      </tr>
+      <tr>
+        <td>React fork PR</td>
+        <td>One experimental shape: flag off by default, <code>$RP</code> fallback, no server hold, classic kept for gaps</td>
+        <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
+      </tr>
+      <tr>
+        <td>Preact live variants</td>
+        <td>Multi-browser stream checks; observer vs script fallback comparison</td>
+        <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a></td>
+      </tr>
+      <tr>
+        <td>Upstream Preact PRs</td>
+        <td>Template-for streaming (#474) and React-style init script (#490) — parallel approaches</td>
+        <td><a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a>, <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
+      </tr>
+      <tr>
+        <td>Preact opt-in fork</td>
+        <td>Another shape: <code>dpu: true</code> on stream APIs; default islands unchanged</td>
+        <td><a href="https://github.com/MaxwellCohen/preact-render-to-string/pull/8">MaxwellCohen/…#8</a></td>
+      </tr>
+      <tr>
+        <td>Earlier React results dump</td>
+        <td>Per-run tables and harness output (historical; fair-policy tables above supersede latency headlines)</td>
+        <td><a href="../react/">react/</a>, <a href="../react/runs.html">all runs</a></td>
+      </tr>
+    </table></div>
+  </section>
+
+  <section id="risks">
+    <h2>Open risks (stated plainly)</h2>
+    <ul>
+      <li><strong>SVG / MathML:</strong> native patching can produce the wrong namespace / no box. Routing those boundaries through a classic completion is a reasonable library policy and concrete spec feedback.</li>
+      <li><strong>Late styles / stylesheets:</strong> where patches write styles at the boundary, SRI and related attributes may not survive every path yet.</li>
+      <li><strong>Injection:</strong> predictable boundary names can be targeted by attacker HTML. Classic <code>getElementById</code> completions already share that class. DPU can apply with scripts blocked. Patch scope (parent-only vs document-wide) needs a clear answer from the platform.</li>
+      <li><strong>Hydration races:</strong> markers should remain until <code>&lt;/template&gt;</code> arrives; each implementation still needs verification on real Chrome.</li>
+      <li><strong>View transitions on reveal:</strong> native patches cannot enter <code>startViewTransition</code>; those boundaries stay classic unless the platform grows a hook.</li>
+    </ul>
+  </section>
+
+  <section id="spec">
+    <h2>Spec / browser feedback worth filing</h2>
+    <ol>
+      <li>Foreign-namespace patching (SVG/MathML) should produce elements in the right namespace without a serialize/reparse.</li>
+      <li>There is no declarative way to batch or delay reveals; frameworks that care about popcorn CLS have no native lever once the server stops holding.</li>
+      <li>Clarify whether a <code>&lt;template for&gt;</code> only patches descendants of its parent, or any range in the document — the security story depends on it.</li>
+    </ol>
+  </section>
+
+  <section id="links">
+    <h2>Links</h2>
+    <div class="tw"><table>
+      <tr><th>Item</th><th>Link</th></tr>
+      <tr><td>Chrome docs</td><td><a href="https://developer.chrome.com/docs/web-platform/declarative-partial-updates">Declarative partial updates</a></td></tr>
+      <tr><td>WHATWG</td><td><a href="https://github.com/whatwg/html/pull/11818">html#11818</a></td></tr>
+      <tr><td>Mozilla / WebKit positions</td><td><a href="https://github.com/mozilla/standards-positions/issues/1369">Mozilla #1369</a>, <a href="https://github.com/WebKit/standards-positions/issues/628">WebKit #628</a></td></tr>
+      <tr><td>React streaming demos</td><td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a></td></tr>
+      <tr><td>Preact streaming demos</td><td><a href="https://preact-eco-index.to-email-max.workers.dev/">index</a></td></tr>
+      <tr><td>Fair-bench summaries</td><td><a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>, <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">cost</a></td></tr>
+    </table></div>
+  </section>
+
+  <p class="foot">Built as a case for the platform wire format and for library judgment — not as a single PR’s marketing page. Fair React timings and main-thread costs from the 2026-11-10 Chromium harness (20 runs/cell). Preact correctness from the earlier multi-browser worker pages. Challenge the checks; fork a different shape if yours fits better.</p>
+</div>
+<script>
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) if (e.isIntersecting) e.target.classList.add('in');
+}, {threshold: .2});
+document.querySelectorAll('.stat').forEach((el, i) => {
+  el.style.transitionDelay = (i % 3) * 60 + 'ms';
+  io.observe(el);
+});
+</script>
+</body>
+</html>
