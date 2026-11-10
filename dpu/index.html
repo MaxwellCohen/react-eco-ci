@@ -19,9 +19,8 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 
 <div class="note"><strong>The short version</strong>
 <ul>
-<li><strong>Preact:</strong> PRs #474 (head <code>e1e62e6</code>) and #490 (head <code>44c96f0</code>) both fix real bugs in <code>main</code> (table rows, SVG and MathML namespaces). With no client JS they pass 26 of 26 checks, where <code>main</code> passes 23. Neither shows a timing cost, and each boundary adds about 3 to 6 gzip bytes. Strict CSP is the main open problem.</li>
+<li><strong>Preact:</strong> PRs #474 (head <code>e1e62e6</code>) and #490 (head <code>44c96f0</code>) both fix real bugs in <code>main</code> (table rows, SVG and MathML namespaces). With no client JS they pass 26 of 26 checks, where <code>main</code> passes 23. Neither shows a timing cost, and each boundary adds about 3 to 6 gzip bytes.</li>
 <li><strong>React Fizz:</strong> the DPU branch passes all 28 checks without hydration in Chromium (native, the <code>$RP</code> fallback, and the polyfill with native support turned off), Firefox and WebKit. One check, <code>nested-template</code>, fails after hydration, but it fails on the baseline too, so DPU isn't the cause.</li>
-<li><strong>Worth discussing:</strong> strict CSP in browsers without native support (the inline fallback scripts have no nonce), and the extra bytes from writing each boundary id several times.</li>
 </ul></div>
 
 <h2>Links</h2>
@@ -49,7 +48,6 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 <tr><td>Longest stall, any cell (ms, single outliers)</td><td>956</td><td>158</td><td>46</td></tr>
 <tr><td>Fixed overhead, first boundary (raw B)</td><td>1319</td><td>1190</td><td>883</td></tr>
 <tr><td>Per boundary raw / gzip / brotli (B, est.)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
-<tr><td>Strict CSP, templates unapplied (C/F/W)</td><td>0/0/0 (fallbacks stay)</td><td>0 / 112 / 112</td><td>0 / 112 / 112</td></tr>
 </table></div>
 <p>Both PRs pass every check, including <code>foreignObject</code>, and no boundary is lost in any browser. Timing is within noise of <code>main</code> everywhere, and Firefox patches faster with either PR than with <code>main</code>. (An earlier head of #474, <code>6a02913</code>, hung on <code>foreignObject</code> and could drop the last boundary in Firefox and WebKit. Both are fixed in the current head, and nothing here uses the old one.) On size, <code>main</code> compresses a bit better because it writes the boundary id three times where the DPU variants write it four. Each extra copy costs about 2.9 gzip bytes. The <a href="data/preact-REPORT.md">full report</a> has the details.</p>
 
@@ -93,6 +91,5 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 <li>Timing: 5 runs with variants interleaved in random order. Patch lag is read from a MutationObserver plus a 16 ms layout scan, so it's only accurate to about 16 ms. Smaller differences are noise.</li>
 <li>One machine. React ran against a local server and Preact against deployed Workers, with no throttling and no real wire compression. I didn't measure low-end CPUs, more than 100 boundaries, bfcache or buffering proxies.</li>
 <li>Two Preact variants in the full report, <code>local-end-stamp</code> and <code>local-react-style</code>, come from commits I haven't pushed.</li>
-<li>None of the variants solve strict CSP in browsers without native DPU, because the inline fallbacks can't carry a nonce.</li>
 </ul>
 </main></body></html>
