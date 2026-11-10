@@ -90,10 +90,10 @@ nav.toc a:hover{text-decoration:underline}
 <thead><tr><th></th><th class="n">Init (raw/gzip)</th><th class="n">Per boundary @60 (raw/gzip, est.)</th></tr></thead>
 <tbody>
 <tr><td>Classic</td><td class="n">845 / 500</td><td class="n">215 / 17.7</td></tr>
-<tr><td>Declarative</td><td class="n">1,000 / 587</td><td class="n">197 / 18.0</td></tr>
+<tr><td>Declarative</td><td class="n">1,319 / 720</td><td class="n">197 / 18.0</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Small fixed init; per-boundary raw trends lower as counts grow. Gzip is roughly even — the headline is main-thread, not download size.</p>
+<p class="cap">Small fixed init (the declarative figure is the React PR’s <code>$RP</code>, including its SVG/MathML and view-transition handling); per-boundary raw trends lower as counts grow. Gzip is roughly even — the headline is main-thread, not download size.</p>
 
 <h2 id="why">Why the platform path is faster</h2>
 <ul>
@@ -126,7 +126,7 @@ nav.toc a:hover{text-decoration:underline}
 </tr>
 <tr>
   <td>React fork PR</td>
-  <td>One implementation of the shape above — <code>$RP</code> covers unsupported browsers, SVG/MathML (outerHTML), VT (script-path <code>startViewTransition</code>), resume, and external runtime</td>
+  <td>One implementation of the shape above — <code>$RP</code> covers unsupported browsers, SVG/MathML (outerHTML), view transitions (script path), resume, external runtime, and late stylesheets</td>
   <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
 </tr>
 <tr>
@@ -138,14 +138,15 @@ nav.toc a:hover{text-decoration:underline}
 </table></div>
 
 <h2 id="extend">Script fallback covers the hard cases</h2>
-<p>React’s <code>$RP</code> (like Preact’s <code>$PRS</code>) keeps one protocol: same markers + script fallback. Native DPU still cannot enter <code>startViewTransition</code>; the script path can.</p>
+<p>React’s <code>$RP</code> (like Preact’s <code>$PRS</code>) keeps one protocol: same markers + script fallback, for every boundary.</p>
 <ul>
   <li><strong>SVG / MathML:</strong> <code>$RP</code> reparses with <code>outerHTML = outerHTML</code> in the parent namespace (even after native apply).</li>
-  <li><strong>View-transition reveals:</strong> script-path swaps wrap in <code>startViewTransition</code> when the API exists.</li>
-  <li><strong>Resume / prerender:</strong> <code>declarativePatching</code> round-trips on resumable state.</li>
+  <li><strong>View-transition reveals:</strong> a page that uses <code>&lt;ViewTransition&gt;</code> gets <code>$RP(1,…)</code>; a group the script applies runs inside one <code>startViewTransition</code>.</li>
+  <li><strong>Resume / prerender:</strong> the opt-in round-trips on resumable state; postponed boundaries resume with <code>&lt;template for&gt;</code>.</li>
   <li><strong>External runtime:</strong> bundle defines <code>$RP</code>; data streaming uses <code>data-rpi</code>.</li>
-  <li><strong>Late styles / SRI:</strong> still open — carry attributes through the declarative patch path.</li>
+  <li><strong>Late stylesheets:</strong> a render-blocking <code>&lt;link&gt;</code> in front of the patch, with <code>crossorigin</code> / <code>integrity</code> / <code>media</code> kept.</li>
 </ul>
+<p class="cap">Still for the platform or a later step: a patch the browser applies natively is not inside a view transition and per-element transition names are not applied; late <code>&lt;style&gt;</code> rules land at the patch location rather than in precedence order; content inside SVG is parsed as HTML first, so parser rewrites such as <code>&lt;image&gt;</code> → <code>&lt;img&gt;</code> survive the reparse.</p>
 
 <h2 id="links">Links</h2>
 <ul class="links">
@@ -159,6 +160,7 @@ nav.toc a:hover{text-decoration:underline}
 <ul>
   <li>Chromium 156.0.8078.4, CPU throttle 1×, hydrate=off, 20 runs/cell, interleaved variants.</li>
   <li>Metric: median main-thread TaskDuration (ms). Differences vs classic at the same 300&nbsp;ms window; bootstrap 95% CIs exclude zero for native and script fallback.</li>
+  <li>Build: the declarative rows come from a benchmark build that holds completed boundaries for the same 300&nbsp;ms window as classic. The React PR itself has no hold — each flush is its own patch group — and is measured separately: <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">no-hold tables</a>.</li>
   <li>One machine. Challenge the harness.</li>
 </ul>
 </details>

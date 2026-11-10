@@ -5,7 +5,8 @@ a{color:var(--acc)}.mut{color:var(--mut)}h2{margin-top:2em;border-bottom:1px sol
 table{border-collapse:collapse;width:100%;font-size:.9rem;margin:.6em 0}th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;white-space:nowrap}th{background:var(--card)}
 code{font-size:.9em}</style></head><body><main>
 <h1>React Fizz declarative patching: results</h1>
-<p><a href="../">&larr; Summary (Preact and React)</a> &middot; <a href="runs.html"><b>All runs, every measurement</b></a> &middot; <a href="data/">raw data</a></p>
+<p style="border:1px solid var(--line);background:var(--card);padding:8px 12px;border-radius:6px"><b>Archived run.</b> Measured on earlier fork branches (<code>fizz/1…4</code>, with a server-side batching hold) that are now consolidated into <a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a>, which has no hold and keeps SVG/MathML on <code>$RP</code>. “decl+polyfill” here is the MutationObserver variant. Current case and numbers: <a href="../">template for case page</a>.</p>
+<p><a href="../">&larr; Case page</a> &middot; <a href="runs.html"><b>All runs, every measurement</b></a> &middot; <a href="data/">raw data</a></p>
 <p>The React counterpart of the <a href="https://preact-eco-index.to-email-max.workers.dev">Preact results page</a>: the same demo scenarios and checks, run against React Fizz with declarative patching (<code>enableFizzDeclarativePatching</code>). Browsers: Chromium 156 (native DPU turned off for the fallback variants), Firefox 157, WebKit 27.2. Five interleaved runs per cell. Claude (via Claude Code) wrote the harness and these notes from my direction.</p>
 <h2>Variants</h2>
 <div class="tw"><table><thead><tr><th>Variant</th><th>What it is</th><th>Source</th></tr></thead><tbody>
