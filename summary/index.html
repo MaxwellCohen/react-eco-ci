@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML-first React: Results Summary</title>
+<meta name="description" content="Decision summary of the HTML-first Flight and Fizz declarative update experiments: what reproduced, what did not, and what to do next.">
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00;--b:#b9bcc6;--c:#d9a441;--w:#c8553d}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a;--b:#5b5e6b;--c:#a98233;--w:#e0705a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.9rem;line-height:1.2;margin:.2em 0 .3em}
+h2{font-size:1.25rem;margin:2.2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1rem;margin:1.4em 0 .3em}
+p,ul,ol{margin:.5em 0}
+li{margin:.25em 0}
+a{color:var(--acc)}
+.sub{color:var(--mut);margin:0}
+.answer{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:14px 16px;margin:18px 0}
+.answer p{margin:.3em 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat b{display:block;font-size:1.5rem;line-height:1.2}
+.stat span{color:var(--mut);font-size:.85rem}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.honest{background:var(--warn-bg);border:1px solid var(--warn-line);border-left-width:6px;border-radius:8px;padding:6px 16px 12px;margin:2.2em 0 0}
+.honest h2{border:0;margin-top:.6em;padding:0}
+.tablewrap{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chart{width:100%;height:auto;display:block;margin:.4em 0 .2em}
+.chart .lbl{font-size:12px;fill:var(--fg)}.chart .val{font-size:12px;fill:var(--fg);font-weight:600}
+.chart .a{fill:var(--good)}.chart .b{fill:var(--b)}.chart .c{fill:var(--c)}.chart .w{fill:var(--w)}.chart .axis{stroke:var(--mut);stroke-width:1}
+.cap{color:var(--mut);font-size:.85rem;margin:0 0 1em}
+.legend{font-size:.85rem;color:var(--mut)}
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:.7em 0}
+summary{cursor:pointer;font-weight:600}
+.links li{margin:.3em 0}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="sub">Experiment summary for decision makers &middot; measured 2026-11-09</p>
+<h1>HTML-first React: Results Summary</h1>
+
+<div class="answer">
+<p><b>Bottom line.</b> React Server Components pages send their content twice on first load. For the part of a page produced by server code, we can stop doing that. Our test pages get <b>up to 68% smaller</b> over the wire (48% on the 1000-row page), with byte counts that reproduced exactly on a fresh rerun. It only takes effect when a framework opts in; Waku (patched locally) shows -55% / -46% / -33% client gzip on three page shapes.</p>
+<p>A second idea, replacing Fizz's per-boundary scripts with a declarative HTML mechanism (DPU), <b>did not hold up on rerun</b>. We do not recommend it as a general replacement. Details in the <a href="#honesty">honesty section</a>.</p>
+<p><b>Recommendation:</b> pursue the Flight HTML-first work with a framework opt-in, using Waku as the reference integration. Park DPU unless a boundary-heavy use case appears.</p>
+</div>
+
+<div class="stats">
+<div class="stat"><b class="good">-68%</b><span>gzip HTML, host-heavy page (45.4 KB to 14.4 KB)</span></div>
+<div class="stat"><b class="good">-48%</b><span>gzip HTML, 1000-row page (141 KB to 73.6 KB)</span></div>
+<div class="stat"><b class="good">-55%</b><span>Waku host page gzip, with opt-in patch</span></div>
+<div class="stat"><b class="bad">+185%</b><span>DPU main-thread time at 2000 boundaries</span></div>
+</div>
+
+<h2>1. The problem</h2>
+<ul>
+<li>An RSC page is delivered as HTML (Fizz) so the browser can paint, plus an inlined copy of the same content in Flight format so React can hydrate. Static markup (inline CSS, JSON-LD, plain elements) rides along twice and is dead weight the second time.</li>
+<li>Flight is <b>37% to 76%</b> of the document on our stock test pages (Waku: 48% to 54%).</li>
+<li>Separately, Fizz streams each Suspense boundary with its own small inline <code>$RC</code> script. A page with hundreds of boundaries has hundreds of scripts.</li>
+</ul>
+
+<h2>2. The proposal</h2>
+<p><b>The HTML is the source of truth on first load. Flight is for navigation and actions.</b> All flags are default off; nothing changes unless a framework opts in.</p>
+<ol>
+<li><b>Host elision</b>: static host elements rendered by server components are not repeated in the initial Flight payload.</li>
+<li><b>Payload dedupe</b>: long repeated strings and reference paths are sent once.</li>
+<li><b>HTML-first</b>: static <code>&lt;style&gt;</code> and JSON-LD blocks stay out of Flight, and in-process SSR hands the live nodes over instead of re-serialising them. (An earlier iteration also had <code>unstable_pruneForBrowser</code>, an author assertion that a client component's props are unneeded in the browser. The latest commit on PR #21 removed it; client components now always keep full props. The measurements below were taken before that removal, so the "pruned" Waku row reflects the removed variant.)</li>
+<li><b>Fizz DPU</b> (separate track): replace per-boundary scripts with <code>&lt;template for&gt;</code> declarative patching.</li>
+</ol>
+
+<h2>3. Evidence</h2>
+<h3>3a. Flight: bytes before and after (exact, reproduced on rerun)</h3>
+<svg viewBox="0 0 680 184" role="img" aria-label="Document size over the wire (gzip), percent of today. Elision 32 percent, html-first 52 percent, dedupe 93 percent of baseline." class="chart"><title>Document size over the wire (gzip), percent of today</title><text x="182" y="17.4" text-anchor="end" class="lbl">Host-only page: today</text><rect x="190" y="2" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="17.4" class="val">100%</text><text x="182" y="47.4" text-anchor="end" class="lbl">Host-only: elision</text><rect x="190" y="32" width="126.8" height="22" rx="3" class="a"/><text x="322.8" y="47.4" class="val">32%</text><text x="182" y="77.4" text-anchor="end" class="lbl">1000-row page: today</text><rect x="190" y="62" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="77.4" class="val">100%</text><text x="182" y="107.4" text-anchor="end" class="lbl">1000-row page: html-first</text><rect x="190" y="92" width="208.6" height="22" rx="3" class="a"/><text x="404.6" y="107.4" class="val">52%</text><text x="182" y="137.4" text-anchor="end" class="lbl">Client-row table: today</text><rect x="190" y="122" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="137.4" class="val">100%</text><text x="182" y="167.4" text-anchor="end" class="lbl">Client-row table: dedupe</text><rect x="190" y="152" width="370.9" height="22" rx="3" class="a"/><text x="566.9" y="167.4" class="val">93%</text></svg>
+<p class="cap">Gzip document size as a percent of today's. Lower is better.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Page</th><th class="n">HTML before</th><th class="n">HTML after</th><th class="n">gzip before</th><th class="n">gzip after</th><th class="n">Inlined Flight</th></tr></thead>
+<tbody>
+<tr><td>Host-only, elision</td><td class="n">594,098</td><td class="n">140,946</td><td class="n">45,354</td><td class="n">14,373</td><td class="n">453,371 to 219</td></tr>
+<tr><td>1000-row page, html-first</td><td class="n">1,697,955</td><td class="n">1,085,376</td><td class="n">141,142</td><td class="n">73,609</td><td class="n">627,671 to 15,092</td></tr>
+<tr><td>Client-row table, dedupe</td><td class="n">2,383,414</td><td class="n">1,975,460</td><td class="n">135,190</td><td class="n">125,339</td><td class="n">1,651,179 to 1,243,225</td></tr>
+</tbody></table></div>
+<p>The visual-only floor (plain Fizz, no Flight) for the 1000-row page is 1,070,284 B / 69,996 gzip, so html-first lands within about 5% of it. Elision does nothing for client-component rows; only dedupe helps there.</p>
+<p>Speed effects are small: browser hydration median 141.6 to 132.3 ms (-6.6%, distributions overlap, not statistically solid); server render about -17% to -20% on the 1000-row page (within-process ratio).</p>
+
+<h3>3b. Waku: flags alone do nothing, framework opt-in does</h3>
+<svg viewBox="0 0 680 202" role="img" aria-label="Waku client-delivered gzip bytes, percent of flags-off. Flags alone change under 1 percent; with the framework opt-in patch the pages shrink 55, 46 and 33 percent." class="chart"><title>Waku client-delivered gzip bytes, percent of flags-off</title><text x="182" y="13.899999999999999" text-anchor="end" class="lbl">Host rows: stock</text><rect x="190" y="2" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="13.899999999999999" class="val">100%</text><text x="182" y="35.9" text-anchor="end" class="lbl">Host rows: flags only</text><rect x="190" y="24" width="400.2" height="17" rx="3" class="c"/><text x="596.2" y="35.9" class="val">100%</text><text x="182" y="57.9" text-anchor="end" class="lbl">Host rows: + Waku opt-in</text><rect x="190" y="46" width="178.8" height="17" rx="3" class="a"/><text x="374.8" y="57.9" class="val">45%</text><text x="182" y="79.9" text-anchor="end" class="lbl">Pruned rows: stock</text><rect x="190" y="68" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="79.9" class="val">100%</text><text x="182" y="101.9" text-anchor="end" class="lbl">Pruned rows: flags only</text><rect x="190" y="90" width="397.5" height="17" rx="3" class="c"/><text x="593.5" y="101.9" class="val">99%</text><text x="182" y="123.9" text-anchor="end" class="lbl">Pruned rows: + Waku opt-in</text><rect x="190" y="112" width="217.2" height="17" rx="3" class="a"/><text x="413.2" y="123.9" class="val">54%</text><text x="182" y="145.9" text-anchor="end" class="lbl">Client rows: stock</text><rect x="190" y="134" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="145.9" class="val">100%</text><text x="182" y="167.9" text-anchor="end" class="lbl">Client rows: flags only</text><rect x="190" y="156" width="397.5" height="17" rx="3" class="c"/><text x="593.5" y="167.9" class="val">99%</text><text x="182" y="189.9" text-anchor="end" class="lbl">Client rows: + Waku opt-in</text><rect x="190" y="178" width="268.7" height="17" rx="3" class="a"/><text x="464.7" y="189.9" class="val">67%</text></svg>
+<p class="cap">Gzip HTML bytes as a percent of flags-off, 1000-row pages with 244 KB inline CSS. Single sample per cell, bytes only, no timing. Not re-run in the fresh rerun.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Page</th><th class="n">Flags off</th><th class="n">Flags on, no opt-in</th><th class="n">Flags on, patched Waku</th><th class="n">Change</th></tr></thead>
+<tbody>
+<tr><td>Host rows</td><td class="n">130,121</td><td class="n">130,195</td><td class="n">58,153</td><td class="n good">-55%</td></tr>
+<tr><td>Pruned rows</td><td class="n">130,041</td><td class="n">129,231</td><td class="n">70,606</td><td class="n good">-46%</td></tr>
+<tr><td>Client rows (unpruned)</td><td class="n">130,136</td><td class="n">129,327</td><td class="n">87,433</td><td class="n good">-33%</td></tr>
+</tbody></table></div>
+<p>The Waku patch is a small local change that makes Waku pass the elision callbacks and resolve elided rows on the client. It is not published.</p>
+
+<h3>3c. Live demos</h3>
+<ul class="links">
+<li>Framework fixture: <a href="https://react-eco-fw-on.to-email-max.workers.dev/">flags on</a> &middot; <a href="https://react-eco-fw-off.to-email-max.workers.dev/">flags off</a></li>
+<li>Waku (1000-row table): <a href="https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/table">flags on</a> &middot; <a href="https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/table">flags off</a></li>
+<li><a href="https://maxwellcohen.github.io/react-eco-ci/lighthouse/combined/">Combined Lighthouse report</a></li>
+</ul>
+
+<section class="honest" id="honesty">
+<h2>4. What did NOT reproduce (Fizz DPU)</h2>
+<p>We reran everything from scratch. <b>Flight byte counts reproduced to within 0.01% to 0.04%. The Fizz DPU numbers did not.</b> The original claims were too optimistic, and we are retracting them.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Claim</th><th class="n">Earlier</th><th class="n">Rerun</th></tr></thead>
+<tbody>
+<tr><td>Per-boundary saving, raw / gzip</td><td class="n">-9.4% / -10.9%</td><td class="n">-5.6% / -4.0%</td></tr>
+<tr><td>gzip break-even (boundaries)</td><td class="n">~300</td><td class="n">~550</td></tr>
+<tr><td>300-boundary page, gzip</td><td class="n">-26%</td><td class="n">+1.0%</td></tr>
+<tr><td>2000-boundary main-thread time</td><td class="n">+36%</td><td class="n bad">+185% (257 to 733 ms)</td></tr>
+<tr><td>Small page cost, gzip</td><td class="n">+0.8 KB</td><td class="n">+76 B (basic), +90 B (10 boundaries)</td></tr>
+</tbody></table></div>
+<svg viewBox="0 0 680 139" role="img" aria-label="Fizz DPU: gzip HTML size vs script path. Larger than the script path until roughly 550 boundaries." class="chart"><title>Fizz DPU: gzip HTML size vs script path</title><text x="182" y="16.0" text-anchor="end" class="lbl">10 boundaries</text><rect x="390.0" y="2" width="156.0" height="20" rx="3" class="w"/><text x="552.0" y="16.0" class="val" text-anchor="start">+7.8%</text><text x="182" y="43.0" text-anchor="end" class="lbl">90</text><rect x="390.0" y="29" width="52.0" height="20" rx="3" class="w"/><text x="448.0" y="43.0" class="val" text-anchor="start">+2.6%</text><text x="182" y="70.0" text-anchor="end" class="lbl">300</text><rect x="390.0" y="56" width="20.0" height="20" rx="3" class="w"/><text x="416.0" y="70.0" class="val" text-anchor="start">+1.0%</text><text x="182" y="97.0" text-anchor="end" class="lbl">500</text><rect x="390.0" y="83" width="12.0" height="20" rx="3" class="w"/><text x="408.0" y="97.0" class="val" text-anchor="start">+0.6%</text><text x="182" y="124.0" text-anchor="end" class="lbl">2000</text><rect x="318.0" y="110" width="72.0" height="20" rx="3" class="a"/><text x="312.0" y="124.0" class="val" text-anchor="end">-3.6%</text><line x1="390.0" x2="390.0" y1="0" y2="139" class="axis"/></svg>
+<p class="cap">Default 300 ms batching window vs today's script path. Above zero means larger.</p>
+<svg viewBox="0 0 680 139" role="img" aria-label="Fizz DPU: main-thread time vs script path. About equal up to 300 boundaries, +16 percent at 500, +185 percent at 2000." class="chart"><title>Fizz DPU: main-thread time vs script path</title><text x="182" y="16.0" text-anchor="end" class="lbl">10 boundaries</text><rect x="229.1" y="2" width="13.0" height="20" rx="3" class="a"/><text x="223.1" y="16.0" class="val" text-anchor="end">-7.5%</text><text x="182" y="43.0" text-anchor="end" class="lbl">90</text><rect x="242.2" y="29" width="3.8" height="20" rx="3" class="w"/><text x="252.0" y="43.0" class="val" text-anchor="start">+2.2%</text><text x="182" y="70.0" text-anchor="end" class="lbl">300</text><rect x="238.7" y="56" width="3.5" height="20" rx="3" class="a"/><text x="232.7" y="70.0" class="val" text-anchor="end">-2.0%</text><text x="182" y="97.0" text-anchor="end" class="lbl">500</text><rect x="242.2" y="83" width="27.8" height="20" rx="3" class="w"/><text x="276.0" y="97.0" class="val" text-anchor="start">+16.0%</text><text x="182" y="124.0" text-anchor="end" class="lbl">2000</text><rect x="242.2" y="110" width="322.1" height="20" rx="3" class="w"/><text x="570.3" y="124.0" class="val" text-anchor="start">+185.2%</text><line x1="242.2" x2="242.2" y1="0" y2="139" class="axis"/></svg>
+<p class="cap">Median main-thread task time vs script path. Above zero means slower.</p>
+<p><b>Reading:</b> the byte win is modest (about 4% gzip) and appears only above roughly 550 boundaries. Brotli breaks even near 300. The main-thread cost is real and grows with boundary count. Not recommended as a general replacement. A zero-batching variant shows content earlier (LCP about 65 to 95 ms vs 330 to 380 ms) but costs 20+ layouts and up to 2.6x main-thread time.</p>
+<p><b>How much to trust timing:</b> the machine was not fully quiet, the same code drifted 20% to 50% between processes, so only within-process ratios are used. Node 26, Chrome 157 only. Byte counts are exact; timing is noisy.</p>
+</section>
+
+<h2>5. Risks and limits</h2>
+<ul>
+<li><b>Client-component props are the floor.</b> Only server-component output is elided; client components keep full props (the 1000-row client-row page only gets dedupe, -7% gzip).</li>
+<li><b>Elision is static-only.</b> Anything with a client component inside keeps its host skeleton.</li>
+<li><b>Framework opt-in is mandatory.</b> Flags alone change under 1% (Waku measured +0.06% to -0.6%).</li>
+<li><b>Navigation still gets full Flight</b>, and an elided region remounts on the first client navigation. Static prerendered pages are unaffected.</li>
+<li><b>Dedupe reverses an upstream protocol decision</b> and needs React maintainer sign-off.</li>
+<li><b>Pruning was an author assertion</b> (wrong means inert UI). It has been dropped from the current PR for that reason.</li>
+<li><b>Chrome only.</b> No Firefox or WebKit runs. <b>Nothing is merged upstream.</b></li>
+</ul>
+
+<h2>6. Decisions and next steps</h2>
+<ol>
+<li><b>Recommended:</b> continue the Flight HTML-first stack (PRs #12 to #15, #21) and agree a framework opt-in contract, with Waku as the reference integration. Turn the local Waku patch into a proposal for Waku maintainers.</li>
+<li>Get maintainer feedback on payload dedupe, since it changes a protocol decision.</li>
+<li>Park DPU (PR #22). Revisit only for a use case with well over 500 Suspense boundaries per page, and fix the main-thread cost first.</li>
+<li>Before any rollout: re-run Waku with timing, and test Firefox and WebKit.</li>
+</ol>
+
+<h2>7. Links</h2>
+<ul class="links">
+<li>Flight PRs on MaxwellCohen/react: <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a> baseline fixture, <a href="https://github.com/MaxwellCohen/react/pull/13">#13</a> host elision, <a href="https://github.com/MaxwellCohen/react/pull/14">#14</a> lazy client parser, <a href="https://github.com/MaxwellCohen/react/pull/15">#15</a> dedupe, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a> HTML-first</li>
+<li>Fizz DPU: <a href="https://github.com/MaxwellCohen/react/pull/22">#22</a> (single combined PR); earlier pieces <a href="https://github.com/MaxwellCohen/react/pull/16">#16</a>, <a href="https://github.com/MaxwellCohen/react/pull/17">#17</a>, <a href="https://github.com/MaxwellCohen/react/pull/18">#18</a>, <a href="https://github.com/MaxwellCohen/react/pull/19">#19</a></li>
+<li>Combined: <a href="https://github.com/MaxwellCohen/react/pull/20">#20</a></li>
+<li><a href="https://maxwellcohen.github.io/react-eco-ci/">Other reports (CI site)</a></li>
+</ul>
+
+<details><summary>Method and environment</summary>
+<ul>
+<li>Apple M3, 16 GB, macOS 26.6.2, Node v26.13.0 (fixture asks for 20/22), Chrome 157.0.8103.39, headless, Chromium only.</li>
+<li>Flight: branch <code>rsc/5-html-first-flight</code> at 1930da7cf8, four production builds with flags off / elision / elision+dedupe / all. Flags are compile-time, so each is a separate build.</li>
+<li>Fizz: branch <code>fizz/declarative-bench</code> at 71111fb9b4. Script and declarative modes on the same flag-on build; per boundary count, 2 interleaved rounds x 10 fresh loads per variant. Main-thread time is CDP <code>TaskDuration</code>.</li>
+<li>Test page: 244 KB inline CSS, 143 KB JSON-LD, 1000-row table, every 100th row interactive. Hydration verified to adopt the same DOM nodes (1000/1000), zero console problems.</li>
+<li>Byte counts are deterministic apart from 0.01% to 0.03% jitter (Fizz batched bytes vary by a few hundred bytes with timers). Timing drifted 20% to 50% across processes, so only within-process ratios are reported. Throughput comparisons across builds are not reliable and are left out.</li>
+<li>Waku numbers come from an earlier measurement, not re-run: single sample per cell, bytes only.</li>
+<li>Possible reasons the DPU numbers differ from the first run (unverified): different page content or a different build of the branch.</li>
+<li>Not measured: Firefox, WebKit, Waku timing, a flags-off Fizz build for the script path (script mode ran on the flag-on build; it is the unchanged default path).</li>
+</ul></details>
+
+<footer>HTML-first React: Results Summary &middot; static page, no tracking.</footer>
+</main>
+</body>
+</html>
