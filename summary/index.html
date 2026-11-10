@@ -70,9 +70,9 @@ summary{cursor:pointer;font-weight:600}
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Stock (flag off)</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>Gzip download</td><td class="n">1,023,706</td><td class="n">586,353</td><td class="n">−42.7%</td></tr>
-<tr><td>Raw HTML</td><td class="n">14,555,860</td><td class="n">7,250,697</td><td class="n">−50.2%</td></tr>
-<tr><td>Inlined Flight</td><td class="n">9,280,900</td><td class="n">1,975,737</td><td class="n">−78.7%</td></tr>
+<tr><td>Gzip download</td><td class="n">1,023,743</td><td class="n">586,375</td><td class="n">−42.7%</td></tr>
+<tr><td>Raw HTML</td><td class="n">14,556,166</td><td class="n">7,250,850</td><td class="n">−50.2%</td></tr>
+<tr><td>Inlined Flight</td><td class="n">9,281,206</td><td class="n">1,975,890</td><td class="n">−78.7%</td></tr>
 </tbody></table></div>
 <p class="cap">Per-page numbers: <a href="../examples/">examples index</a>.</p>
 <div class="tablewrap"><table>
@@ -89,7 +89,7 @@ summary{cursor:pointer;font-weight:600}
 <h2>Throughput vs stock</h2>
 <p>With the flag on and a framework opted in (host-row 1000-row page): <b>3.19×</b> requests/sec vs stock React (about <b>+219%</b>), TTFB about half. Client-row pages save bytes but timing stays within noise. Flags on without framework opt-in do not move gzip and are not the proposal.</p>
 <p class="cap">Waku is the measurement vehicle here — chosen because it is easy to patch and has strong RSC support — not because the win is Waku-specific. Any framework that wires <code>onElidedRow</code> / <code>elidedRows</code> (and optional recovery) should see the same class of result.</p>
-<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.36×</b> less work (~<b>+36%</b> render throughput proxy) on a shared laptop — directional only; prefer the framework side-by-side numbers for server capacity.</p>
+<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.30×</b> less work (~<b>+30%</b> render throughput proxy) on a shared laptop — directional only; prefer the framework side-by-side numbers for server capacity.</p>
 
 <h2>No UX / DX impact (correctness)</h2>
 <ul>
@@ -129,6 +129,7 @@ summary{cursor:pointer;font-weight:600}
 <li>Treatment: same tip, flag on. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
 <li>Framework throughput exemplar: stock React vs flag+patched Waku (picked for easy patching + solid RSC), 5 rotated rounds, host-row page (see waku-htmlfirst-bench RESULTS). Not Waku-limited.</li>
 <li>Browsers: Playwright Chromium, Firefox, WebKit for correctness.</li>
+<li>Fresh rerun 10 Nov 2026: metrics N=15 full size; correctness <b>41/41 PASS</b> in Chromium, Firefox, and WebKit (exit 0).</li>
 </ul></details>
 
 <footer>HTML-first React: Results Summary &middot; static page, no tracking.</footer>
