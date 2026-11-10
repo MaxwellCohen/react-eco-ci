@@ -158,7 +158,7 @@ ul,ol{max-width:46em}
     <p>The useful agreement is at the <em>wire and fallback</em> layer. Everything above that — option names, defaults, batching, hydration hooks — can and should differ by library.</p>
     <ol>
       <li><strong>Emit the platform markers when streaming out-of-order HTML.</strong> Pending ranges use <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code>. Completions use <code>&lt;template for="…"&gt;</code>. That is the durable contract with the browser.</li>
-      <li><strong>Ship a small script fallback for browsers without native support.</strong> Prefer an explicit per-chunk (or per-flush) call over a page-wide MutationObserver polyfill once boundary counts get large. Observer polyfills do not scale in the measurements below.</li>
+      <li><strong>Ship a small script fallback for browsers without native support.</strong> Prefer an explicit per-chunk (or per-flush) call over a page-wide MutationObserver once boundary counts get large. MutationObserver fallbacks do not scale in the measurements below.</li>
       <li><strong>Keep a classic path for known gaps.</strong> SVG/MathML namespace patching, view-transition reveals, and some prerender/resume paths still need a library-owned completion today. Falling back is fine; pretending the platform covers everything is not.</li>
       <li><strong>Gate the new path while it is experimental.</strong> Flag, option, or release channel — libraries should be able to ship without flipping every app overnight.</li>
       <li><strong>Compare policies fairly.</strong> Do not advertise a latency win that comes only from shortening a deliberate reveal throttle. Hold the window constant when claiming a mechanism advantage.</li>
@@ -190,8 +190,8 @@ ul,ol{max-width:46em}
       <tr><th>Choice</th><th>Options seen in the wild / experiments</th><th>Notes</th></tr>
       <tr>
         <td>Unsupported-browser fallback</td>
-        <td>Per-flush script call · MutationObserver polyfill · hybrid</td>
-        <td>Script stays sane at thousands of boundaries; observer polyfills do not in these runs.</td>
+        <td>Per-flush script call · MutationObserver · hybrid</td>
+        <td>Script stays sane at thousands of boundaries; MutationObserver does not in these runs.</td>
       </tr>
       <tr>
         <td>Server hold / reveal policy</td>
@@ -226,12 +226,12 @@ ul,ol{max-width:46em}
       <tr><td>Classic <code>$RC</code>, 300&nbsp;ms</td><td class="n">47.1</td><td class="n">124</td><td class="n">251</td></tr>
       <tr><td>Native DPU, 300&nbsp;ms</td><td class="n ok">28.9</td><td class="n ok">64.6</td><td class="n ok">222</td></tr>
       <tr><td>DPU + script fallback, 300&nbsp;ms</td><td class="n ok">29.5</td><td class="n ok">57.7</td><td class="n ok">113</td></tr>
-      <tr><td>DPU + polyfill, 300&nbsp;ms</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
+      <tr><td>DPU + MutationObserver, 300&nbsp;ms</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
       <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">97.5</td><td class="n">211</td><td class="n">318</td></tr>
       <tr><td>Native DPU, 16&nbsp;ms</td><td class="n">105</td><td class="n">212</td><td class="n bad">377</td></tr>
     </table></div>
     <div class="note">
-      <strong>Reading.</strong> At a shipping-like 300&nbsp;ms reveal policy, native DPU cuts main-thread time by ~39% at 60 boundaries and ~48% at 500 (bootstrap CIs exclude zero). At a 16&nbsp;ms window — a proxy for “flush almost immediately” — that win disappears, and at 2,000 boundaries native DPU is worse. The MutationObserver polyfill does not scale.
+      <strong>Reading.</strong> At a shipping-like 300&nbsp;ms reveal policy, native DPU cuts main-thread time by ~39% at 60 boundaries and ~48% at 500 (bootstrap CIs exclude zero). At a 16&nbsp;ms window — a proxy for “flush almost immediately” — that win disappears, and at 2,000 boundaries native DPU is worse. The MutationObserver path does not scale.
     </div>
 
     <h3>Patch lag at equal policy</h3>
@@ -245,7 +245,7 @@ ul,ol{max-width:46em}
       <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">26.8</td><td class="n">35.3</td><td class="n">38.1</td></tr>
       <tr><td>Native DPU, no hold</td><td class="n">26.3</td><td class="n">26.7</td><td class="n">27.0</td></tr>
       <tr><td>DPU + script fallback, no hold</td><td class="n">26.7</td><td class="n">26.3</td><td class="n">27.4</td></tr>
-      <tr><td>DPU + polyfill, no hold</td><td class="n">27.0</td><td class="n">26.9</td><td class="n bad">955</td></tr>
+      <tr><td>DPU + MutationObserver, no hold</td><td class="n">27.0</td><td class="n">26.9</td><td class="n bad">955</td></tr>
     </table></div>
     <div class="note">
       <strong>Reading.</strong> No-hold DPU matches classic-at-16&nbsp;ms on lag and beats shipping classic-at-300&nbsp;ms by roughly the throttle itself. Expected: native templates apply as they parse. It is <em>not</em> a claim that DPU is faster than a classic path with the same reveal policy.
@@ -258,7 +258,7 @@ ul,ol{max-width:46em}
       <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">83.8</td><td class="n">171</td><td class="n">288</td></tr>
       <tr><td>Native DPU, no hold</td><td class="n">78.6</td><td class="n bad">278</td><td class="n bad">591</td></tr>
       <tr><td>DPU + script fallback, no hold</td><td class="n">106</td><td class="n bad">261</td><td class="n bad">566</td></tr>
-      <tr><td>DPU + polyfill, no hold</td><td class="n">117</td><td class="n bad">371</td><td class="n bad">2,097</td></tr>
+      <tr><td>DPU + MutationObserver, no hold</td><td class="n">117</td><td class="n bad">371</td><td class="n bad">2,097</td></tr>
     </table></div>
     <div class="note">
       <strong>Reading.</strong> Immediate flush + native DPU is <em>not</em> a free main-thread win vs shipping classic-at-300&nbsp;ms. At 500 and 2,000 boundaries it is clearly more expensive (bootstrap CIs exclude zero). Argue platform alignment and correctness first; treat performance as conditional on policy.
