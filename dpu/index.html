@@ -181,6 +181,33 @@ pre.wire{
     <h3>Patch lag at equal policy</h3>
     <p>After clock calibration, median patch lag for native DPU vs classic at the <strong>same</strong> window is statistically flat for most cells. Latency arguments that depend on shortening the window are arguments about React’s throttle, not about <code>&lt;template for&gt;</code>.</p>
 
+    <h3>No server hold (the proposed React design)</h3>
+    <p>Same harness, DPU with <code>batchMs=0</code> interleaved against classic at 300&nbsp;ms and 16&nbsp;ms. Median patch lag (ms):</p>
+    <div class="tw"><table>
+      <tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr>
+      <tr><td>Classic <code>$RC</code>, 300&nbsp;ms (ships today)</td><td class="n">163</td><td class="n">162</td><td class="n">166</td></tr>
+      <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">26.8</td><td class="n">35.3</td><td class="n">38.1</td></tr>
+      <tr><td>Native DPU, no hold</td><td class="n">26.3</td><td class="n">26.7</td><td class="n">27.0</td></tr>
+      <tr><td>DPU + <code>$RP</code>, no hold</td><td class="n">26.7</td><td class="n">26.3</td><td class="n">27.4</td></tr>
+      <tr><td>DPU + polyfill, no hold</td><td class="n">27.0</td><td class="n">26.9</td><td class="n bad">955</td></tr>
+    </table></div>
+    <div class="note">
+      <strong>Reading.</strong> No-hold DPU matches classic-at-16&nbsp;ms on lag and beats shipping classic-at-300&nbsp;ms by roughly the throttle itself. That is expected: native templates apply as they parse. It is <em>not</em> a claim that DPU is faster than a classic path with the same reveal policy. The polyfill collapses at 2,000 boundaries.
+    </div>
+
+    <h3>Main-thread cost with no server hold (median ms)</h3>
+    <div class="tw"><table>
+      <tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr>
+      <tr><td>Classic <code>$RC</code>, 300&nbsp;ms (ships today)</td><td class="n">50.1</td><td class="n">117</td><td class="n">176</td></tr>
+      <tr><td>Classic <code>$RC</code>, 16&nbsp;ms</td><td class="n">83.8</td><td class="n">171</td><td class="n">288</td></tr>
+      <tr><td>Native DPU, no hold</td><td class="n">78.6</td><td class="n bad">278</td><td class="n bad">591</td></tr>
+      <tr><td>DPU + <code>$RP</code>, no hold</td><td class="n">106</td><td class="n bad">261</td><td class="n bad">566</td></tr>
+      <tr><td>DPU + polyfill, no hold</td><td class="n">117</td><td class="n bad">371</td><td class="n bad">2,097</td></tr>
+    </table></div>
+    <div class="note">
+      <strong>Reading.</strong> For the simple design (flush immediately, no server hold), native DPU is <em>not</em> cheaper on the main thread than shipping React. At 500 and 2,000 boundaries it is clearly more expensive than classic-at-300&nbsp;ms (bootstrap CIs exclude zero). The earlier main-thread win required a 300&nbsp;ms server hold that this proposal deliberately removes. Argue platform alignment and Preact correctness; do not argue a free performance win for the minimal React shape.
+    </div>
+
     <h3>Bytes</h3>
     <div class="tw"><table>
       <tr><th></th><th class="n">Init (raw/gzip)</th><th class="n">Per boundary @60 (raw/gzip, est.)</th></tr>
@@ -214,7 +241,7 @@ pre.wire{
     <h2>Costs of the simple design</h2>
     <ul>
       <li><strong>No client throttle with native support.</strong> The browser applies a template as it parses it. There is no hook to batch reveals. Unsupported browsers could throttle in <code>$RP</code>; leaving that out keeps both paths aligned and simpler.</li>
-      <li><strong>Main-thread win at 300&nbsp;ms does not automatically transfer</strong> to the no-hold design. Treat “faster” as conditional until the no-hold arm is published alongside this page.</li>
+      <li><strong>Main-thread cost rises without a hold.</strong> No-hold native DPU is about +161&nbsp;ms / +414&nbsp;ms vs classic-at-300&nbsp;ms at 500 / 2,000 boundaries. The earlier main-thread win needed the server hold this design deletes.</li>
       <li><strong>Polyfills are a trap at scale</strong> (1.7&nbsp;s main-thread at 2,000 boundaries). Ship a script fallback, not a MutationObserver polyfill, for React.</li>
       <li><strong>Gzip is not a win on small pages.</strong> Argue platform + correctness first.</li>
     </ul>
@@ -254,7 +281,7 @@ pre.wire{
     </table></div>
   </section>
 
-  <p class="foot">Built as a case, not a results dump. Fair React timings and main-thread costs from the 2026-11-10 Chromium harness (20 runs/cell). Preact correctness from the earlier multi-browser worker pages. Challenge the checks.</p>
+  <p class="foot">Built as a case, not a results dump. Fair React timings and main-thread costs from the 2026-11-10 Chromium harness (20 runs/cell), including the no-hold arm that matches the proposed React PR. Preact correctness from the earlier multi-browser worker pages. Challenge the checks.</p>
 </div>
 <script>
 const io = new IntersectionObserver((entries) => {
