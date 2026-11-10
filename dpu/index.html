@@ -3,25 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>template for — a performance case for streaming libraries</title>
+<title>template for — the case and the gaps</title>
 <style>
-:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e}
-@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80}}
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn:#e3b341}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+main{max-width:800px;margin:0 auto;padding:24px 16px 64px}
 h1{font-size:1.9rem;line-height:1.2;margin:.2em 0 .3em}
 h2{font-size:1.25rem;margin:2.2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
-h3{font-size:1rem;margin:1.4em 0 .3em}
+h3{font-size:1rem;margin:1.6em 0 .3em}
 p,ul,ol{margin:.5em 0}
-li{margin:.25em 0}
+li{margin:.3em 0}
 a{color:var(--acc)}
 .sub{color:var(--mut);margin:0}
-.answer{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:14px 16px;margin:18px 0}
-.answer p{margin:.3em 0}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:18px 0}
+.box{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:12px 16px}
+.box.lack{border-left-color:var(--warn)}
+.box h3{margin:0 0 .3em;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.box ul{margin:.2em 0;padding-left:1.1em}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.stat b{display:block;font-size:1.5rem;line-height:1.2;color:var(--good)}
+.stat b{display:block;font-size:1.45rem;line-height:1.2;color:var(--good)}
+.stat.neg b{color:var(--bad)}
 .stat span{color:var(--mut);font-size:.85rem}
 .tablewrap{overflow-x:auto;margin:.6em 0}
 table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
@@ -30,7 +34,14 @@ th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .good{color:var(--good)}.bad{color:var(--bad)}
 .cap{color:var(--mut);font-size:.85rem;margin:0 0 1em}
-.links li{margin:.3em 0}
+.note{background:color-mix(in srgb,var(--warn) 10%,var(--card));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-radius:8px;padding:10px 14px;margin:1em 0;font-size:.95rem}
+.gap{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:.8em 0}
+.gap h3{margin:0 0 .4em;font-size:1.02rem}
+.gap h3 span{color:var(--mut);font-weight:600;margin-right:.4em}
+.gap dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:.3em .9em}
+.gap dt{color:var(--mut);font-size:.85rem;padding-top:.12em}
+.gap dd{margin:0}
+@media (max-width:520px){.gap dl{grid-template-columns:1fr}.gap dd{margin-bottom:.4em}}
 code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
 pre.wire{background:color-mix(in srgb,var(--fg) 92%,transparent);color:var(--bg);padding:12px 14px;overflow-x:auto;border-radius:8px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;margin:1em 0}
 footer{color:var(--mut);font-size:.85rem;margin-top:3em}
@@ -44,128 +55,256 @@ nav.toc a:hover{text-decoration:underline}
 <body>
 <main>
 <p class="sub">Declarative partial updates &middot; <code>&lt;template for&gt;</code> &middot; Chromium 156 &middot; 10 November 2026</p>
-<h1>template for: a performance win for streaming SSR</h1>
+<h1>template for in streaming SSR: the case, and what is missing</h1>
 
-<div class="answer">
-<p>At the same reveal policy React ships today (~300&nbsp;ms), streaming with <code>&lt;template for&gt;</code> uses <b>less main-thread time</b> than classic Fizz <code>$RC</code> — about <b>39%</b> less at 60 boundaries and <b>48%</b> less at 500. A small script fallback matches that win in browsers without native support.</p>
-<p>Libraries should emit the platform markers and keep a script fallback. The demos and fork PRs below are worked examples of that shape, not the only API.</p>
+<p>React and Preact stream late Suspense content as hidden HTML plus a script that moves it into place. <code>&lt;template for&gt;</code> lets the browser do that move. This page sums up what we measured in both libraries, why the wire format is worth adopting, and which jobs still need script because the platform does not cover them.</p>
+
+<div class="verdict">
+<div class="box">
+<h3>Why adopt</h3>
+<ul>
+  <li>Content streams in <b>without script</b> in browsers that support it.</li>
+  <li><b>37–55% less main-thread time</b> than React’s <code>$RC</code> at the same reveal policy.</li>
+  <li>Bytes, patch timing and correctness are level or better.</li>
+  <li>One standard wire format instead of one per library.</li>
+</ul>
+</div>
+<div class="box lack">
+<h3>What is lacking</h3>
+<ul>
+  <li>A native patch <b>cannot be batched or delayed</b>, so React has to switch native patching off when scripts run.</li>
+  <li>View transitions, SVG/MathML, style ordering and hydration state still need script.</li>
+  <li>Chromium only. Everything else needs a script fallback.</li>
+  <li>The React PR’s current head has not been benchmarked yet.</li>
+</ul>
+</div>
 </div>
 
 <div class="stats">
-<div class="stat"><b>−39%</b><span>main-thread at 60 boundaries vs classic <code>$RC</code></span></div>
-<div class="stat"><b>−48%</b><span>main-thread at 500 boundaries</span></div>
-<div class="stat"><b>−55%</b><span>main-thread at 2,000 with script fallback</span></div>
-<div class="stat"><b>Equal policy</b><span>same ~300&nbsp;ms reveal window as shipping classic</span></div>
+<div class="stat"><b>−37% to −55%</b><span>main-thread, script-applied <code>&lt;template for&gt;</code> vs <code>$RC</code>, 60 to 2,000 boundaries</span></div>
+<div class="stat"><b>−39% / −48%</b><span>main-thread, native apply, at 60 / 500 boundaries</span></div>
+<div class="stat neg"><b>+138%</b><span>main-thread at 500 when native patches are not batched</span></div>
 </div>
 
 <nav class="toc" aria-label="Sections">
-  <a href="#numbers">The win</a>
-  <a href="#why">Why</a>
-  <a href="#approach">What to ship</a>
+  <a href="#why">Why adopt</a>
+  <a href="#numbers">Results</a>
+  <a href="#lacking">What is lacking</a>
+  <a href="#gaps">Platform gaps</a>
+  <a href="#ship">What to ship</a>
   <a href="#evidence">Evidence</a>
-  <a href="#extend">Extend DPU</a>
-  <a href="#links">Links</a>
 </nav>
 
-<h2 id="numbers">The win (main-thread TaskDuration)</h2>
-<p>Chromium 156, 20 interleaved runs per cell, hydrate off. Every row uses the <b>same 300&nbsp;ms</b> reveal policy — so the delta is the streaming mechanism, not a shorter throttle.</p>
+<h2 id="why">Why adopt</h2>
+<ol>
+  <li><strong>It works before, and without, script.</strong> The browser applies a patch as it parses it. With a strict CSP that blocks the library’s inline scripts, the Preact test page still completed in Chromium; today’s format leaves every fallback on screen.</li>
+  <li><strong>It costs less main-thread time at React’s reveal policy.</strong> With reveals grouped in the same ~300&nbsp;ms window React uses today, a small script helper applying <code>&lt;template for&gt;</code> content used 37% less at 60 boundaries, 53% less at 500 and 55% less at 2,000. Native apply used 39% and 48% less at 60 and 500.</li>
+  <li><strong>It does not cost bytes or time to content.</strong> Whole documents are 6–8% smaller raw and within about 1% after gzip from 500 boundaries up. Patch lag is statistically level at the same policy.</li>
+  <li><strong>It fixed real bugs in Preact.</strong> The <code>&lt;template for&gt;</code> PRs pass 26 of 26 DOM checks in three browsers. Preact <code>main</code> passes 23 (table rows, SVG and MathML fail).</li>
+  <li><strong>It is a platform format.</strong> Libraries that emit the same markers get faster as browsers do, and each gap closed in the platform is script a library can delete.</li>
+</ol>
+
+<h2 id="numbers">Results</h2>
+
+<h3>React Fizz, same reveal policy (300&nbsp;ms)</h3>
+<p>Main-thread TaskDuration, median ms. Chromium 156, 20 interleaved runs per cell, hydrate off. All rows group reveals in the same 300&nbsp;ms window, so the difference is the mechanism.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr></thead>
 <tbody>
 <tr><td>Classic <code>$RC</code></td><td class="n">47.1</td><td class="n">124</td><td class="n">251</td></tr>
-<tr><td>Native DPU</td><td class="n good">28.9</td><td class="n good">64.6</td><td class="n good">222</td></tr>
-<tr><td>DPU + script fallback</td><td class="n good">29.5</td><td class="n good">57.7</td><td class="n good">113</td></tr>
-<tr><td>DPU + MutationObserver</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
+<tr><td><code>&lt;template for&gt;</code>, native apply</td><td class="n good">28.9</td><td class="n good">64.6</td><td class="n good">222</td></tr>
+<tr><td><code>&lt;template for&gt;</code>, script-applied (<code>$RP</code>)</td><td class="n good">29.5</td><td class="n good">57.7</td><td class="n good">113</td></tr>
+<tr><td><code>&lt;template for&gt;</code>, MutationObserver polyfill</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Median ms. Bootstrap 95% CIs for native and script fallback vs classic exclude zero at every N shown. Prefer a <b>script fallback</b> over MutationObserver — the observer path loses the win and blows up at scale.</p>
+<p class="cap">Bootstrap 95% CIs for native and script-applied vs classic exclude zero in every column. ScriptDuration drops as well (native at 500: 4.8 vs 13.2&nbsp;ms). <a href="data/fair-bench/chromium-cost-1x.md">Full tables</a>.</p>
 
-<details>
-<summary>ScriptDuration and raw tables</summary>
-<p>Script time drops too (e.g. native at 500: 4.8&nbsp;ms vs classic 13.2&nbsp;ms median). Full cells: <a href="data/fair-bench/chromium-cost-1x.md">cost</a>, <a href="data/fair-bench/tables-chromium-cost-1x.md">tables</a>.</p>
-</details>
+<div class="note"><strong>How to read these rows.</strong> They come from a benchmark build where the <em>server</em> holds completed boundaries for 300&nbsp;ms and sends them as one group. The React PR does not hold on the server. Its head batches on the client instead, which makes it a script-applied path. That exact build has not been run through this benchmark yet; the script-applied row is the closest measurement.</div>
+
+<h3>React Fizz, native patching with no batching</h3>
+<p>The server flushes each boundary as it completes and the browser applies it at once.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Variant</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th><th class="n">Patch lag</th></tr></thead>
+<tbody>
+<tr><td>Classic <code>$RC</code>, 300&nbsp;ms throttle</td><td class="n">50.1</td><td class="n">117</td><td class="n">176</td><td class="n">162–166</td></tr>
+<tr><td>Classic <code>$RC</code>, 16&nbsp;ms throttle</td><td class="n">83.8</td><td class="n">171</td><td class="n">288</td><td class="n">27–38</td></tr>
+<tr><td>Native, no hold</td><td class="n">78.6</td><td class="n bad">278</td><td class="n bad">591</td><td class="n good">26–27</td></tr>
+<tr><td>Script-applied, no hold</td><td class="n bad">106</td><td class="n bad">261</td><td class="n bad">566</td><td class="n good">26–27</td></tr>
+</tbody>
+</table></div>
+<p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. Native minus classic@300: +28.5 (not significant), +161, +414. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>.</p>
+<p>Unbatched patches show content about 135&nbsp;ms sooner and cost 2.4× the main-thread time at 500 boundaries. The saving in the first table comes from applying patches in groups, and the platform has no way to ask for that (<a href="#g1">gap 1</a>).</p>
 
 <h3>Bytes</h3>
 <div class="tablewrap"><table>
-<thead><tr><th></th><th class="n">Init (raw/gzip)</th><th class="n">Per boundary @60 (raw/gzip, est.)</th></tr></thead>
+<thead><tr><th>Whole document</th><th class="n">60</th><th class="n">500</th><th class="n">2,000</th></tr></thead>
 <tbody>
-<tr><td>Classic</td><td class="n">845 / 500</td><td class="n">215 / 17.7</td></tr>
-<tr><td>Declarative</td><td class="n">1,319 / 720</td><td class="n">197 / 18.0</td></tr>
+<tr><td>Classic, raw / gzip</td><td class="n">14,048 / 1,876</td><td class="n">110,424 / 10,121</td><td class="n">443,924 / 38,212</td></tr>
+<tr><td>Declarative, raw / gzip</td><td class="n">13,154 / 1,984</td><td class="n">101,610 / 10,250</td><td class="n">408,110 / 37,972</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Small fixed init (the declarative figure is the React PR’s <code>$RP</code>, including its SVG/MathML and view-transition handling); per-boundary raw trends lower as counts grow. Gzip is roughly even — the headline is main-thread, not download size.</p>
+<p class="cap">Benchmark build. Runtime sent once: classic <code>$RC</code>+<code>$RV</code> 845 / 500 B (raw / gzip); the PR’s <code>$RP</code> was 1,319 / 720 B before its client batching was added and needs re-measuring. The MutationObserver polyfill is 2,533 / 1,112 B.</p>
 
-<h2 id="why">Why the platform path is faster</h2>
+<h3>Preact</h3>
+<p>preact-render-to-string <code>main</code> against two <code>&lt;template for&gt;</code> PRs: #474 (MutationObserver) and #490 (script per chunk). Three browsers, deployed Workers, 5 interleaved runs per cell.</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th class="n">main</th><th class="n">#474</th><th class="n">#490</th></tr></thead>
+<tbody>
+<tr><td>Correct DOM, stream only (26 checks × 3 browsers)</td><td class="n bad">23/26</td><td class="n good">26/26</td><td class="n good">26/26</td></tr>
+<tr><td>Patch lag, Firefox, 16 / 60 / 100 boundaries (ms)</td><td class="n">25 / 22 / 28</td><td class="n">11 / 12 / 17</td><td class="n good">−2 / 1 / 6</td></tr>
+<tr><td>Patch lag, Chromium (ms)</td><td class="n">−2 / 0 / 7</td><td class="n">−2 / 0 / 0</td><td class="n">0 / 1 / 5</td></tr>
+<tr><td>Fixed overhead, first boundary (raw B)</td><td class="n">1,319</td><td class="n">1,190</td><td class="n good">883</td></tr>
+<tr><td>Per boundary, gzip (B, est.)</td><td class="n">14.6</td><td class="n">17.4</td><td class="n">20.1</td></tr>
+<tr><td>Strict CSP, templates left unapplied (Chromium / Firefox / WebKit)</td><td class="n">fallbacks stay</td><td class="n">0 / 112 / 112</td><td class="n">0 / 112 / 112</td></tr>
+</tbody>
+</table></div>
+<p class="cap">Timing differences are within noise except Firefox patch lag. The extra gzip bytes per boundary are mostly a repeated id (<a href="#g7">gap 7</a>). <a href="data/preact-REPORT.md">Report</a> · <a href="data/preact-DATA.md">data</a>.</p>
+
+<h2 id="lacking">What is lacking</h2>
 <ul>
-  <li><strong>Native apply:</strong> Chrome applies <code>&lt;template for&gt;</code> as it parses. Less library JS running completion scripts for every boundary.</li>
-  <li><strong>Cheaper fallback:</strong> one small script helper for unsupported browsers beats a page-wide MutationObserver once there are hundreds of boundaries.</li>
-  <li><strong>Same policy, less work:</strong> holding the reveal window fixed isolates the mechanism. The main-thread savings above are not from revealing sooner.</li>
+  <li><strong>The native path is off whenever scripts run (React).</strong> To keep React’s reveal throttle without holding bytes on the server, the PR disarms native patching and applies in script. Native patching only happens with scripts disabled or blocked, and then it is unthrottled.</li>
+  <li><strong>The PR head is unmeasured.</strong> Client-side batching landed after the benchmark runs. A rerun on that build, and a fresh <code>$RP</code> size, are still owed.</li>
+  <li><strong>The React diff is not small.</strong> PR #25 is +2,650 / −33 across 33 files, behind a flag that is off in every build. Most of the runtime code covers the platform gaps below.</li>
+  <li><strong>Chromium only.</strong> Firefox and WebKit need the script fallback, and a strict CSP without a nonce blocks it.</li>
+  <li><strong>A MutationObserver polyfill is not a fallback at scale.</strong> It costs 2× classic at 500 boundaries and 6.7× at 2,000.</li>
+  <li><strong>Thin evidence in places.</strong> One machine. Main-thread cost was measured in Chromium only, with hydration off. Not measured: slow CPUs, throttled networks, real wire compression, intermediate visual states.</li>
 </ul>
 
-<h2 id="approach">What libraries should ship</h2>
+<h2 id="gaps">Platform gaps: notes for web standards</h2>
+<p>Each item is something a streaming library needs that <code>&lt;template for&gt;</code> does not do natively, as observed in Chromium 156, with the script React or Preact uses instead. The same notes as a plain file to paste into an issue: <a href="data/platform-gaps.md">platform-gaps.md</a>.</p>
+
+<div class="gap" id="g1">
+<h3><span>1</span>A patch cannot be held, batched or scheduled</h3>
+<dl>
+<dt>Today</dt><dd>The browser applies a patch while parsing it. No attribute, event or API can delay it or group it with others.</dd>
+<dt>Cost</dt><dd>React throttles reveals on purpose. Unbatched native patches cost +161&nbsp;ms at 500 boundaries and +414&nbsp;ms at 2,000 against classic. The only other way to batch is a server-side hold, which delays bytes.</dd>
+<dt>Workaround</dt><dd><code>$RP()</code> rewrites every <code>&lt;?start name&gt;</code> into a comment after the shell, so the browser has nothing to patch, then applies queued templates after the throttle.</dd>
+<dt>Ask</dt><dd>A way to apply patches together: a group that commits at its end, a frame-aligned commit, or a cancellable event before apply.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g2">
+<h3><span>2</span>No signal that a patch was applied</h3>
+<dl>
+<dt>Today</dt><dd>No event fires when a range is patched.</dd>
+<dt>Cost</dt><dd>The library must mark the boundary complete and retry hydration at that moment.</dd>
+<dt>Workaround</dt><dd>React’s client watches the markers with a MutationObserver. The server still sends a script after each flushed group.</dd>
+<dt>Ask</dt><dd>A <code>patch</code> event that names the range.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g3">
+<h3><span>3</span>A native patch cannot join a view transition</h3>
+<dl>
+<dt>Today</dt><dd>A native patch is a plain DOM change, outside <code>startViewTransition</code>, with no point at which to set per-element transition names.</dd>
+<dt>Workaround</dt><dd>When the page uses <code>&lt;ViewTransition&gt;</code>, the script applies the batch inside one transition, as <code>$RC</code> does.</dd>
+<dt>Ask</dt><dd>A declarative opt-in for a patch group to run as a view transition. Depends on gap 1.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g4">
+<h3><span>4</span>Patch content is parsed as HTML, also inside SVG and MathML</h3>
+<dl>
+<dt>Today</dt><dd>Template content is parsed in the HTML namespace wherever the target sits. The parser also rewrites <code>&lt;image&gt;</code> to <code>&lt;img&gt;</code>.</dd>
+<dt>Workaround</dt><dd>After every apply, native included, the script reparses with <code>outerHTML = outerHTML</code> in the parent’s namespace and restores SVG <code>&lt;image&gt;</code>. Preact does the same reparse.</dd>
+<dt>Ask</dt><dd>Parse the content with the target range’s parent as the context element, as <code>innerHTML</code> does.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g5">
+<h3><span>5</span>A patch cannot wait for, or place, its styles</h3>
+<dl>
+<dt>Today</dt><dd>A patch writes only into its range. It cannot add to <code>&lt;head&gt;</code> or wait for a stylesheet.</dd>
+<dt>Workaround</dt><dd>Late stylesheets go out as a render-blocking <code>&lt;link&gt;</code> before the patch. Late <code>&lt;style&gt;</code> rules arrive inside the patch and the script moves them into precedence order in <code>&lt;head&gt;</code>. Without script they stay put and the cascade order can differ.</dd>
+<dt>Ask</dt><dd>A patch group that can target several ranges, or a way to declare resources a patch must wait for.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g6">
+<h3><span>6</span>A patch with no matching range stays in the document</h3>
+<dl>
+<dt>Today</dt><dd>With no range of that name, the <code>&lt;template for&gt;</code> stays in the DOM. This happens when the client rendered the boundary first or its parent was removed.</dd>
+<dt>Workaround</dt><dd>The script removes leftover templates.</dd>
+<dt>Ask</dt><dd>Define the behaviour. Consider discarding the patch or reporting it through the event in gap 2.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g7">
+<h3><span>7</span>The range name cannot be looked up, and old browsers see a comment</h3>
+<dl>
+<dt>Today</dt><dd>No API maps a name to its range. In browsers without support the marker parses as a comment.</dd>
+<dt>Cost</dt><dd>Libraries carry a second marker per boundary (React <code>&lt;!--B:0--&gt;</code>, Preact <code>&lt;!--$s:id--&gt;</code>). Preact measured +2.8 to +5.5 gzip bytes per boundary, mostly the repeated id.</dd>
+<dt>Ask</dt><dd>A lookup from name to range, so one marker serves the browser, the fallback and hydration.</dd>
+</dl>
+</div>
+
+<div class="gap" id="g8">
+<h3><span>8</span>Native apply is slower than a script batch at high counts</h3>
+<dl>
+<dt>Today</dt><dd>At the same policy, native and script are level up to 500 boundaries. At 2,000, native takes 222&nbsp;ms and script 113&nbsp;ms.</dd>
+<dt>Ask</dt><dd>An implementation issue for Chromium, not a spec change.</dd>
+</dl>
+</div>
+
+<p class="cap">Not verified: whether a large patch shows in pieces while its template is still parsing; name collisions with user content or a second root; back/forward cache.</p>
+
+<h2 id="ship">What libraries should ship today</h2>
 <ol>
-  <li><strong>Emit the platform markers</strong> — <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> and <code>&lt;template for&gt;</code>.</li>
-  <li><strong>Use a per-flush script fallback</strong> where native support is missing (the row that wins at 500 and 2,000 above).</li>
-  <li><strong>Extend the script fallback for hard cases</strong> — SVG/MathML, view-transition reveals, and resume/prerender stay on the same markers; cover them with JS / platform fixes, not a second protocol.</li>
+  <li><strong>Emit the platform markers:</strong> <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> around the fallback and <code>&lt;template for&gt;</code> for the content.</li>
+  <li><strong>Follow each flushed group with one small script call.</strong> It is the fallback for other browsers and the place to cover the gaps above. Do not use a page-wide MutationObserver.</li>
+  <li><strong>Keep one protocol.</strong> SVG, view transitions, resume and late styles stay on the same markers, handled by that script, so each can be dropped when the platform covers it.</li>
 </ol>
-<pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
+<pre class="wire">&lt;!-- React PR #25 --&gt;
 &lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
 &lt;!-- later --&gt;
 &lt;template for="B:0"&gt;…content…&lt;/template&gt;
-&lt;script&gt;/* library fallback if native DPU did not apply */&lt;/script&gt;</pre>
-<p class="cap">Options, defaults, and exact flush timing can differ by library. The performance win comes from the markers + script fallback under a shipping-like reveal policy.</p>
+&lt;script&gt;$RP("B:0")&lt;/script&gt;</pre>
+<p class="cap">Classic sends <code>&lt;div hidden id="S:0"&gt;</code> plus <code>$RC("B:0","S:0")</code> instead. Marker names and script names are library-local.</p>
 
 <h2 id="evidence">Evidence</h2>
 <div class="tablewrap"><table>
-<thead><tr><th>Artifact</th><th>Role</th><th>Link</th></tr></thead>
+<thead><tr><th>Artifact</th><th>What it is</th><th>Link</th></tr></thead>
 <tbody>
 <tr>
-  <td>React Fizz test bed</td>
-  <td>Classic vs declarative under the same scenarios</td>
-  <td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a> · <a href="https://react-eco-stream-dpu.to-email-max.workers.dev/dpu">dpu</a> · <a href="https://react-eco-stream-baseline.to-email-max.workers.dev/dpu">baseline</a></td>
-</tr>
-<tr>
   <td>React fork PR</td>
-  <td>One implementation of the shape above — <code>$RP</code> covers unsupported browsers, SVG/MathML (outerHTML), view transitions (script path), resume, external runtime, and late stylesheets</td>
+  <td>Fizz with <code>&lt;template for&gt;</code> behind <code>enableFizzDeclarativePatching</code>. <code>$RP</code> covers client batching, SVG/MathML, view transitions, late styles and stylesheets, resume and the external runtime. 39 tests.</td>
   <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
 </tr>
 <tr>
-  <td>Preact demos / PRs</td>
-  <td>Parallel library experiments (script and observer styles)</td>
+  <td>React test bed</td>
+  <td>Classic and declarative builds on the same scenarios</td>
+  <td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a> · <a href="https://react-eco-stream-dpu.to-email-max.workers.dev/dpu">dpu</a> · <a href="https://react-eco-stream-baseline.to-email-max.workers.dev/dpu">baseline</a></td>
+</tr>
+<tr>
+  <td>Preact PRs and demos</td>
+  <td>MutationObserver style (#474) and script style (#490)</td>
   <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
+</tr>
+<tr>
+  <td>Earlier React runs</td>
+  <td>Archived three-browser runs from before the equal-policy benchmark</td>
+  <td><a href="react/">react/</a></td>
+</tr>
+<tr>
+  <td>Platform</td>
+  <td>Chrome documentation and the HTML spec PR</td>
+  <td><a href="https://developer.chrome.com/docs/web-platform/declarative-partial-updates">Chrome docs</a> · <a href="https://github.com/whatwg/html/pull/11818">whatwg/html#11818</a></td>
 </tr>
 </tbody>
 </table></div>
-
-<h2 id="extend">Script fallback covers the hard cases</h2>
-<p>React’s <code>$RP</code> (like Preact’s <code>$PRS</code>) keeps one protocol: same markers + script fallback, for every boundary.</p>
-<ul>
-  <li><strong>SVG / MathML:</strong> <code>$RP</code> reparses with <code>outerHTML = outerHTML</code> in the parent namespace (even after native apply).</li>
-  <li><strong>View-transition reveals:</strong> a page that uses <code>&lt;ViewTransition&gt;</code> gets <code>$RP(1,…)</code>; a group the script applies runs inside one <code>startViewTransition</code>.</li>
-  <li><strong>Resume / prerender:</strong> the opt-in round-trips on resumable state; postponed boundaries resume with <code>&lt;template for&gt;</code>.</li>
-  <li><strong>External runtime:</strong> bundle defines <code>$RP</code>; data streaming uses <code>data-rpi</code>.</li>
-  <li><strong>Late stylesheets:</strong> a render-blocking <code>&lt;link&gt;</code> in front of the patch, with <code>crossorigin</code> / <code>integrity</code> / <code>media</code> kept.</li>
-</ul>
-<p class="cap">Still for the platform or a later step: a patch the browser applies natively is not inside a view transition and per-element transition names are not applied; late <code>&lt;style&gt;</code> rules land at the patch location rather than in precedence order; content inside SVG is parsed as HTML first, so parser rewrites such as <code>&lt;image&gt;</code> → <code>&lt;img&gt;</code> survive the reparse.</p>
-
-<h2 id="links">Links</h2>
-<ul class="links">
-  <li>Chrome docs: <a href="https://developer.chrome.com/docs/web-platform/declarative-partial-updates">Declarative partial updates</a></li>
-  <li>WHATWG: <a href="https://github.com/whatwg/html/pull/11818">html#11818</a></li>
-  <li>Cost raw: <a href="data/fair-bench/chromium-cost-1x.md">chromium-cost-1x.md</a></li>
-</ul>
 
 <details>
 <summary>Method</summary>
 <ul>
-  <li>Chromium 156.0.8078.4, CPU throttle 1×, hydrate=off, 20 runs/cell, interleaved variants.</li>
-  <li>Metric: median main-thread TaskDuration (ms). Differences vs classic at the same 300&nbsp;ms window; bootstrap 95% CIs exclude zero for native and script fallback.</li>
-  <li>Build: the declarative rows come from a benchmark build that holds completed boundaries for the same 300&nbsp;ms window as classic. The React PR itself has no hold — each flush is its own patch group — and is measured separately: <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">no-hold tables</a>.</li>
+  <li>React cost: Chromium 156.0.8078.4, CPU throttle 1×, hydrate off, 20 runs per cell, variants interleaved. Metric: median main-thread TaskDuration. Differences are bootstrap 95% CIs over runs.</li>
+  <li>The equal-policy rows use a benchmark build that holds completed boundaries on the server for the same 300&nbsp;ms window as classic. The no-hold rows use a build that flushes at once with no client batching.</li>
+  <li>React timing: same harness with hydration late, 16 to 2,000 boundaries. Patch lag is level between variants at the same window. <a href="data/fair-bench/chromium-timing-1x.md">Timing tables</a>.</li>
+  <li>Preact: Playwright Chromium, Firefox and WebKit against deployed Workers, 5 interleaved runs per cell; gzip figures are estimates.</li>
   <li>One machine. Challenge the harness.</li>
 </ul>
 </details>
 
-<footer>A performance case for <code>&lt;template for&gt;</code> streaming — demos and fork PRs as evidence, not the only path.</footer>
+<footer>The case for <code>&lt;template for&gt;</code> in streaming SSR. Demos and fork PRs are evidence, not the only way to build it.</footer>
 </main>
 </body>
 </html>
