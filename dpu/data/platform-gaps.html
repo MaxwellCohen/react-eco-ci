@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>&lt;template for&gt;: what streaming SSR libraries still do in script</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn:#e3b341}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+.nav{color:var(--mut);font-size:.9rem;margin:0 0 1.2em}
+.nav a{color:var(--acc)}
+h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em}
+h2{font-size:1.25rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.5em 0 .35em}
+h4{font-size:1rem;margin:1.2em 0 .3em}
+p,ul,ol{margin:.55em 0}
+li{margin:.25em 0}
+a{color:var(--acc)}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+pre{background:color-mix(in srgb,var(--fg) 92%,transparent);color:var(--bg);padding:12px 14px;overflow-x:auto;border-radius:8px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre code{background:none;padding:0;color:inherit}
+.tablewrap{overflow-x:auto;margin:.7em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+blockquote{margin:.8em 0;padding:.1em 0 .1em 12px;border-left:3px solid var(--line);color:var(--mut)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="nav"><a href="../">← dpu</a> · <a href="platform-gaps.md">raw .md</a></p>
+<h1><code class="notranslate">&lt;template for&gt;</code>: what streaming SSR libraries still do in script</h1>
+<p>Notes for web standards discussion. 10 November 2026.</p>
+<p>Source: building out-of-order Suspense streaming on <code class="notranslate">&lt;template for&gt;</code> / <code class="notranslate">&lt;?start name&gt;</code> / <code class="notranslate">&lt;?end&gt;</code> in<br>
+React Fizz (<a href="https://github.com/MaxwellCohen/react/pull/25" data-hovercard-type="pull_request" data-hovercard-url="/MaxwellCohen/react/pull/25/hovercard">MaxwellCohen/react#25</a>) and<br>
+preact-render-to-string (<a href="https://github.com/preactjs/preact-render-to-string/pull/474" data-hovercard-type="pull_request" data-hovercard-url="/preactjs/preact-render-to-string/pull/474/hovercard">#474</a>,<br>
+<a href="https://github.com/preactjs/preact-render-to-string/pull/490" data-hovercard-type="pull_request" data-hovercard-url="/preactjs/preact-render-to-string/pull/490/hovercard">#490</a>), tested in Chromium 156.0.8078.4.<br>
+Summary page: <a href="https://maxwellcohen.github.io/react-eco-ci/dpu/" rel="nofollow">https://maxwellcohen.github.io/react-eco-ci/dpu/</a></p>
+<p>Each item says what the browser does today, what the library does about it, and a possible ask.<br>
+"Observed" means seen in Chromium 156 through the PR's tests or the benchmark harness. The asks are<br>
+starting points, not worked-out proposals.</p>
+<h2>Summary</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Library workaround today</th>
+<th>Severity for adoption</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A patch cannot be held, batched or scheduled</td>
+<td>React switches native patching off and applies in script</td>
+<td>Blocks the native path in React</td>
+</tr>
+<tr>
+<td>2</td>
+<td>No signal that a patch was applied</td>
+<td>MutationObserver on the markers, plus a script per flush</td>
+<td>Needs script for hydration state</td>
+</tr>
+<tr>
+<td>3</td>
+<td>A native patch cannot join a view transition</td>
+<td>Script applies the batch inside <code class="notranslate">startViewTransition</code></td>
+<td>Blocks native for pages using view transitions</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Patch content is parsed as HTML, also inside SVG and MathML</td>
+<td>Reparse with <code class="notranslate">outerHTML = outerHTML</code>, restore <code class="notranslate">&lt;image&gt;</code></td>
+<td>Wrong DOM without script</td>
+</tr>
+<tr>
+<td>5</td>
+<td>A patch cannot wait for, or place, its styles</td>
+<td>Render-blocking <code class="notranslate">&lt;link&gt;</code> before the patch, script hoists <code class="notranslate">&lt;style&gt;</code></td>
+<td>Cascade order differs without script</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A patch with no matching range stays in the document</td>
+<td>Script removes the leftover <code class="notranslate">&lt;template&gt;</code></td>
+<td>Clean-up only</td>
+</tr>
+<tr>
+<td>7</td>
+<td>The range name cannot be looked up, and old browsers see a comment</td>
+<td>A second marker per boundary</td>
+<td>About +3 to +5 gzip bytes per boundary</td>
+</tr>
+<tr>
+<td>8</td>
+<td>At high counts, native can cost more than a script batch</td>
+<td>None</td>
+<td>Open: expected cost vs Chromium bug</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Chromium only</td>
+<td>Script fallback, which CSP can block</td>
+<td>Fallback is required</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>1. A patch cannot be held, batched or scheduled</h2>
+<p><strong>Today.</strong> The browser applies <code class="notranslate">&lt;template for&gt;</code> while it parses it. There is no attribute, event or<br>
+API to delay it, group it with other patches, or align it to a frame.</p>
+<p><strong>Why it matters.</strong> React throttles Suspense reveals on purpose (about 300 ms since the last reveal,<br>
+first paint for the first one) so content does not pop in one boundary at a time. Native apply has<br>
+no client schedule: each patch commits as it parses. A server-side hold would batch, but it delays<br>
+bytes, which React will not do.</p>
+<p>The large TaskDuration gap for unthrottled native vs classic@$RC@300 (278 vs 117 ms at 500) is<br>
+<strong>not</strong> evidence of a Chromium bug, and not the right evidence for this ask. Most of it is cadence<br>
+(many more reveals). On the native rows, ScriptDuration is almost all <code class="notranslate">$RP</code>: a follow-up run that<br>
+stubbed <code class="notranslate">$RP</code> dropped native ScriptDuration to ~0.1 ms while patches still applied. Batching is<br>
+still needed for reveal UX parity, and so React can keep one schedule with or without script.</p>
+<p><strong>Workaround.</strong> <code class="notranslate">$RP()</code> runs once after the shell and replaces every <code class="notranslate">&lt;?start name&gt;</code> processing<br>
+instruction with a comment of the same text. With no range to target, the browser leaves each<br>
+<code class="notranslate">&lt;template for&gt;</code> in the document, and <code class="notranslate">$RP(id, …)</code> applies the queued ones after the throttle. With<br>
+scripts on, the native path is therefore never used. Without script the browser patches natively,<br>
+unthrottled, so the two modes reveal on different schedules.</p>
+<p><strong>Possible ask.</strong> A way to say "apply these patches together", for example a group that commits<br>
+at its end tag, a frame-aligned commit, or a cancellable event before apply that lets script take<br>
+over the timing.</p>
+<h2>2. No signal that a patch was applied</h2>
+<p><strong>Today.</strong> No event fires and no promise resolves when a range is patched.</p>
+<p><strong>Why it matters.</strong> The library has to update its own state at that moment: mark the boundary as<br>
+complete (<code class="notranslate">&lt;!--$?--&gt;</code> to <code class="notranslate">&lt;!--$--&gt;</code>), and retry hydration for it.</p>
+<p><strong>Workaround.</strong> React's client watches for the range markers disappearing with a MutationObserver.<br>
+The server still sends a <code class="notranslate">&lt;script&gt;</code> after each flushed group.</p>
+<p><strong>Possible ask.</strong> A <code class="notranslate">patch</code> event on the range's parent (or the document) naming the range.</p>
+<h2>3. A native patch cannot join a view transition</h2>
+<p><strong>Today.</strong> A patch the browser applies is a plain DOM change. It is not inside<br>
+<code class="notranslate">document.startViewTransition</code>, and there is no point at which to set per-element<br>
+<code class="notranslate">view-transition-name</code> values for the old and new content.</p>
+<p><strong>Workaround.</strong> When the page renders <code class="notranslate">&lt;ViewTransition&gt;</code>, React applies the batch in script inside<br>
+one <code class="notranslate">startViewTransition</code>, with the same enter, exit, share and update names as <code class="notranslate">$RC</code>.</p>
+<p><strong>Possible ask.</strong> A declarative opt-in for a patch (or patch group) to run as a view transition.<br>
+This depends on gap 1, since a transition needs a batch boundary.</p>
+<h2>4. Patch content is parsed as HTML, also inside SVG and MathML</h2>
+<p><strong>Today.</strong> <code class="notranslate">&lt;template&gt;</code> content is parsed in the HTML namespace regardless of where the target range<br>
+sits. A patch into <code class="notranslate">&lt;svg&gt;</code> or <code class="notranslate">&lt;math&gt;</code> inserts HTML-namespace elements. The HTML parser also rewrites<br>
+<code class="notranslate">&lt;image&gt;</code> to <code class="notranslate">&lt;img&gt;</code> before the content reaches the SVG parent.</p>
+<p><strong>Workaround.</strong> After every apply, including a native one, the script reparses the patched nodes with<br>
+<code class="notranslate">outerHTML = outerHTML</code> in the parent's namespace, and first turns <code class="notranslate">&lt;img&gt;</code> back into SVG <code class="notranslate">&lt;image&gt;</code><br>
+(except inside <code class="notranslate">&lt;foreignObject&gt;</code>). Preact does the same reparse.</p>
+<p><strong>Possible ask.</strong> Parse the content of <code class="notranslate">&lt;template for&gt;</code> with the target range's parent as the<br>
+context element, as fragment parsing does for <code class="notranslate">innerHTML</code>.</p>
+<h2>5. A patch cannot wait for, or place, its styles</h2>
+<p><strong>Today.</strong> A patch writes only into its range. It cannot also insert into <code class="notranslate">&lt;head&gt;</code>, and it cannot<br>
+wait for a stylesheet to load before it shows.</p>
+<p><strong>Why it matters.</strong> React orders hoisted styles by precedence in <code class="notranslate">&lt;head&gt;</code>, and <code class="notranslate">$RC</code> waits for a<br>
+boundary's stylesheets before revealing it.</p>
+<p><strong>Workaround.</strong> Late stylesheets are written as a render-blocking <code class="notranslate">&lt;link&gt;</code> in front of the patch.<br>
+Late <code class="notranslate">&lt;style data-precedence&gt;</code> rules arrive inside the patch and the script moves them into <code class="notranslate">&lt;head&gt;</code><br>
+after the last resource of the same precedence. Without script they stay at the patch location, so<br>
+the cascade order can differ from a scripted load.</p>
+<p><strong>Possible ask.</strong> Either a patch group that can target more than one range (one of them in<br>
+<code class="notranslate">&lt;head&gt;</code>), or a way for a patch to declare resources it must wait for.</p>
+<h2>6. A patch with no matching range stays in the document</h2>
+<p><strong>Today.</strong> When no <code class="notranslate">&lt;?start name&gt;</code> range with that name exists, the <code class="notranslate">&lt;template for&gt;</code> element stays in<br>
+the DOM as an inert template. (React's workaround for gap 1 relies on this.)</p>
+<p><strong>Why it matters.</strong> A range can be gone for good reasons: the client rendered that boundary first,<br>
+or the parent was removed.</p>
+<p><strong>Workaround.</strong> The script removes templates whose boundary is gone.</p>
+<p><strong>Possible ask.</strong> Define the behaviour, and consider discarding an unmatched patch, or reporting it<br>
+through the event from gap 2.</p>
+<h2>7. The range name cannot be looked up, and old browsers see a comment</h2>
+<p><strong>Today.</strong> There is no lookup from a name to its range. Script finds one by walking the tree. In<br>
+browsers without support, <code class="notranslate">&lt;?start name="x"&gt;</code> parses as a comment.</p>
+<p><strong>Why it matters.</strong> Libraries carry a second marker for the same boundary: React keeps a<br>
+<code class="notranslate">&lt;!--B:0--&gt;</code> anchor next to <code class="notranslate">&lt;?start name="B:0"&gt;</code>; Preact keeps <code class="notranslate">&lt;!--$s:id--&gt;</code> comments next to the<br>
+processing instruction. The id is then repeated more often, and unique ids compress badly. Preact<br>
+measured +2.8 to +5.5 gzip bytes per boundary against its current format, most of it the extra id.</p>
+<p><strong>Possible ask.</strong> A lookup API (name to range), so one marker serves the browser, the fallback and<br>
+hydration.</p>
+<h2>8. At high counts, native can cost more than a script batch</h2>
+<p>Open question for Chromium performance, not a spec gap.</p>
+<p>Same 300 ms policy, median TaskDuration:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th></th>
+<th>60</th>
+<th>500</th>
+<th>2,000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Native</td>
+<td>28.9</td>
+<td>64.6</td>
+<td>222</td>
+</tr>
+<tr>
+<td>Script-applied</td>
+<td>29.5</td>
+<td>57.7</td>
+<td>113</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Native is level with script up to 500 and twice as slow at 2,000. A follow-up run that stubbed<br>
+<code class="notranslate">$RP</code> on the native path (<code class="notranslate">nat@300-noRP</code>) dropped ScriptDuration to ~0.1 ms; TaskDuration stayed<br>
+in the same ballpark. So that high-N gap is in the browser apply/layout path, not library script.<br>
+Whether that is expected cost or a bug is open.</p>
+<p>The old “+138% when native is not batched” (no-hold vs classic@300) is <strong>not</strong> that signal: it<br>
+mixes cadence with mechanism, and its ScriptDuration spike is mostly <code class="notranslate">$RP</code>.</p>
+<h2>9. Chromium only</h2>
+<p>Firefox and WebKit need the script fallback. Under a strict CSP without a nonce on the library's<br>
+inline scripts, the Preact test page left all 112 templates unapplied in Firefox and WebKit, and<br>
+worked in Chromium.</p>
+<p>A page-wide MutationObserver polyfill is not a usable fallback at scale: 248 ms at 500 boundaries<br>
+and 1,685 ms at 2,000, against 124 and 251 for classic.</p>
+<h2>Not verified</h2>
+<ul>
+<li>Whether a large patch becomes visible in pieces while its template is still being parsed, and<br>
+whether libraries need an atomic commit for that.</li>
+<li>Name collisions between a library's ranges and user content, or between two roots on one page.</li>
+<li>Back/forward cache and prerendered pages.</li>
+</ul>
+<h2>Data</h2>
+<ul>
+<li>Equal policy, main-thread cost: <code class="notranslate">fair-bench/chromium-cost-1x.md</code></li>
+<li>No hold, main-thread cost: <code class="notranslate">fair-bench/chromium-cost-1x-nohold-summary.md</code></li>
+<li>No hold, timing: <code class="notranslate">fair-bench/chromium-timing-1x-nohold-summary.md</code></li>
+<li>Preact comparison: <code class="notranslate">preact-REPORT.md</code></li>
+</ul>
+<footer>Rendered from <code>data/platform-gaps.md</code>.</footer>
+</main>
+</body>
+</html>

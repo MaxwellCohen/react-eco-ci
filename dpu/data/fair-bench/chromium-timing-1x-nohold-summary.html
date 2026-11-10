@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>No-hold timing (Chromium, 20 runs/cell)</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn:#e3b341}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+.nav{color:var(--mut);font-size:.9rem;margin:0 0 1.2em}
+.nav a{color:var(--acc)}
+h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em}
+h2{font-size:1.25rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.5em 0 .35em}
+h4{font-size:1rem;margin:1.2em 0 .3em}
+p,ul,ol{margin:.55em 0}
+li{margin:.25em 0}
+a{color:var(--acc)}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+pre{background:color-mix(in srgb,var(--fg) 92%,transparent);color:var(--bg);padding:12px 14px;overflow-x:auto;border-radius:8px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre code{background:none;padding:0;color:inherit}
+.tablewrap{overflow-x:auto;margin:.7em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+blockquote{margin:.8em 0;padding:.1em 0 .1em 12px;border-left:3px solid var(--line);color:var(--mut)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="nav"><a href="../../">← dpu</a> · <a href="chromium-timing-1x-nohold-summary.md">raw .md</a></p>
+<h1>No-hold timing (Chromium, 20 runs/cell)</h1>
+<p>Variants interleaved: base@300, base@16, nat@0, rp@0, poly@0.</p>
+<p>Median patch lag (ms):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>60</th>
+<th>500</th>
+<th>2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>163</td>
+<td>162</td>
+<td>166</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>26.8</td>
+<td>35.3</td>
+<td>38.1</td>
+</tr>
+<tr>
+<td>nat@0</td>
+<td>26.3</td>
+<td>26.7</td>
+<td>27.0</td>
+</tr>
+<tr>
+<td>rp@0</td>
+<td>26.7</td>
+<td>26.3</td>
+<td>27.4</td>
+</tr>
+<tr>
+<td>poly@0</td>
+<td>27.0</td>
+<td>26.9</td>
+<td>955</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Raw: <code class="notranslate">chromium-timing-1x-nohold.jsonl</code> (301 lines including meta).</p>
+<footer>Rendered from <code>data/fair-bench/chromium-timing-1x-nohold-summary.md</code>.</footer>
+</main>
+</body>
+</html>

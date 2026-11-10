@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preact streaming: DPU design comparison</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn:#e3b341}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+.nav{color:var(--mut);font-size:.9rem;margin:0 0 1.2em}
+.nav a{color:var(--acc)}
+h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em}
+h2{font-size:1.25rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.5em 0 .35em}
+h4{font-size:1rem;margin:1.2em 0 .3em}
+p,ul,ol{margin:.55em 0}
+li{margin:.25em 0}
+a{color:var(--acc)}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+pre{background:color-mix(in srgb,var(--fg) 92%,transparent);color:var(--bg);padding:12px 14px;overflow-x:auto;border-radius:8px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre code{background:none;padding:0;color:inherit}
+.tablewrap{overflow-x:auto;margin:.7em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+blockquote{margin:.8em 0;padding:.1em 0 .1em 12px;border-left:3px solid var(--line);color:var(--mut)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="nav"><a href="../">← dpu</a> · <a href="preact-REPORT.md">raw .md</a></p>
+<h1>Preact streaming: DPU design comparison</h1>
+<p>Evidence for choosing how <code class="notranslate">preact-render-to-string</code> should stream Suspense completions with<br>
+<a href="https://developer.chrome.com/blog/declarative-partial-updates" rel="nofollow">Declarative Partial Updates</a> (DPU).<br>
+Everything here is reproducible from this repo (except the two <code class="notranslate">local-*</code> variants, which are built from unpushed local commits); full tables are in <a href="./results/DATA.md"><code class="notranslate">results/DATA.md</code></a>.</p>
+<blockquote>
+<p><strong>Made with LLMs.</strong> The test pages, scripts, measurements harness and this write-up were produced with<br>
+Claude (Anthropic) via Claude Code, directed by the repo owner. Expectations encoded in the scenarios are<br>
+proposals to review, not ground truth. Statements marked <em>hypothesis</em> are unverified.</p>
+</blockquote>
+<h2>What was compared</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th><code class="notranslate">preact-render-to-string</code></th>
+<th>completion format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">baseline</code> (= <code class="notranslate">main</code>)</td>
+<td>upstream <code class="notranslate">main</code> <code class="notranslate">dc7d06b</code></td>
+<td><code class="notranslate">&lt;preact-island&gt;</code> custom element + inline client script</td>
+</tr>
+<tr>
+<td><code class="notranslate">pr474</code></td>
+<td><a href="https://github.com/preactjs/preact-render-to-string/pull/474" data-hovercard-type="pull_request" data-hovercard-url="/preactjs/preact-render-to-string/pull/474/hovercard">PR #474</a> head <code class="notranslate">6a02913</code></td>
+<td><code class="notranslate">&lt;template for&gt;</code> + <code class="notranslate">&lt;?start&gt;/&lt;?end&gt;</code> markers, MutationObserver polyfill</td>
+</tr>
+<tr>
+<td><code class="notranslate">local-end-stamp</code></td>
+<td>local <code class="notranslate">dpu-end-stamp</code> <code class="notranslate">3fb6f11</code> (<strong>unpushed</strong>; rebased on current <code class="notranslate">main</code>, not stacked on the PR branch)</td>
+<td><code class="notranslate">&lt;template for&gt;</code> + <code class="notranslate">&lt;!--$p:id--&gt;</code> end stamp, hydration + SVG handling</td>
+</tr>
+<tr>
+<td><code class="notranslate">local-react-style</code></td>
+<td>local <code class="notranslate">dpu-support-react-style</code> <code class="notranslate">c1cdbac</code> (<strong>unpushed</strong>, differs from the pushed commit)</td>
+<td><code class="notranslate">&lt;template for&gt;</code> + <code class="notranslate">&lt;script&gt;$RC("id")&lt;/script&gt;</code> per chunk, one <code class="notranslate">window.$RC</code> init script</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>All use the same <code class="notranslate">preact</code> (<code class="notranslate">MaxwellCohen/preact</code> <code class="notranslate">main</code> <code class="notranslate">921df34</code>) and the same demo app, deployed as separate<br>
+Cloudflare Workers. A control (upstream <code class="notranslate">main</code> + the fork's <code class="notranslate">preact</code>) matched <code class="notranslate">baseline</code> on every correctness check,<br>
+so differences come from the <code class="notranslate">preact-render-to-string</code> change.</p>
+<h2>main vs #474 vs #490 (<code class="notranslate">c1d0a66</code> / <code class="notranslate">44c96f0</code>)</h2>
+<p>Interleaved, 5 iterations/cell, deployed Workers. Correctness (26 checks × 3 browsers): main 23/26 (stream only) and 24/26 (after hydration); #474 and #490 26/26 in both, <code class="notranslate">foreignObject</code> ok everywhere.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th></th>
+<th>main</th>
+<th>#474</th>
+<th>#490</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Patch lag Chromium 16/60/100 bnd (ms)</td>
+<td>-2 / 0 / 7</td>
+<td>-2 / 0 / 0</td>
+<td>0 / 1 / 5</td>
+</tr>
+<tr>
+<td>Patch lag Firefox (ms)</td>
+<td>25 / 22 / 28</td>
+<td>11 / 12 / 17</td>
+<td>-2 / 1 / 6</td>
+</tr>
+<tr>
+<td>Patch lag WebKit (ms)</td>
+<td>-4 / 4 / 10</td>
+<td>-3 / -3 / 6</td>
+<td>1 / 1 / 11</td>
+</tr>
+<tr>
+<td>Boundaries never shown</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Patched→interactive, client script after stream (C/F/W, ms)</td>
+<td>103 / 102 / 106</td>
+<td>90 / 81 / 114</td>
+<td>106 / 121 / 104</td>
+</tr>
+<tr>
+<td>Same, mid-stream</td>
+<td>12 / 12 / 14</td>
+<td>11 / 15 / 15</td>
+<td>16 / 13 / 14</td>
+</tr>
+<tr>
+<td>Longest stall, any cell (ms) <em>(single outliers; noisy)</em></td>
+<td>956</td>
+<td>158</td>
+<td>46</td>
+</tr>
+<tr>
+<td>Strict CSP templates unapplied (C/F/W)</td>
+<td>0 / 0 / 0 (fallbacks stay)</td>
+<td>0 / 112 / 112</td>
+<td>0 / 112 / 112</td>
+</tr>
+<tr>
+<td>Fixed overhead, first boundary (raw B)</td>
+<td>1319</td>
+<td>1190</td>
+<td><strong>883</strong></td>
+</tr>
+<tr>
+<td>Per boundary raw / gzip / brotli (B, est.)</td>
+<td>106.8 / 14.6 / 5.7</td>
+<td>108.4 / 17.4 / 6.9</td>
+<td>132.3 / 20.1 / 8.2</td>
+</tr>
+<tr>
+<td>60 / 100-boundary page gzip (B, est.)</td>
+<td>6839 / 7367</td>
+<td>7062 / 7680</td>
+<td>7154 / 7851</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>#490 costs ≈ +5.5 gzip B per boundary vs main but 436 B less raw once per page; #474 ≈ +2.8 B. Timing differences are small<br>
+and within noise except Firefox patch lag, where both DPU PRs are lower than main.</p>
+<h2><code class="notranslate">main</code> vs <code class="notranslate">dpu-support</code> (<code class="notranslate">c1d0a66</code>; PR #474 head <code class="notranslate">e1e62e6</code> has the same code)</h2>
+<p>Interleaved runs, 5 iterations per cell, deployed Workers. Lag = patch visible − (responseStart + server delay), medians for 16 / 60 / 100 boundaries.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th></th>
+<th>main</th>
+<th>dpu-support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correct DOM, stream only (<code class="notranslate">hydrate=off</code>), 26 checks × 3 browsers</td>
+<td>23/26 (<code class="notranslate">table-rows</code>, <code class="notranslate">svg-namespace</code>, <code class="notranslate">mathml-namespace</code>)</td>
+<td><strong>26/26</strong></td>
+</tr>
+<tr>
+<td>Correct DOM after hydration (<code class="notranslate">hydrate=late</code>)</td>
+<td>24/26 (<code class="notranslate">svg-namespace</code>, <code class="notranslate">mathml-namespace</code>)</td>
+<td><strong>26/26</strong></td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;svg&gt;&lt;foreignObject&gt;</code> page / boundaries never shown</td>
+<td>ok / 0</td>
+<td>ok / 0</td>
+</tr>
+<tr>
+<td>Patch lag, Chromium (ms)</td>
+<td>−8 / −3 / 6</td>
+<td>−4 / −1 / 4</td>
+</tr>
+<tr>
+<td>Patch lag, Firefox (ms)</td>
+<td>31 / 30 / 23</td>
+<td><strong>10 / 15 / 15</strong></td>
+</tr>
+<tr>
+<td>Patch lag, WebKit (ms)</td>
+<td>−3 / 1 / 19</td>
+<td>−2 / −1 / 1</td>
+</tr>
+<tr>
+<td>Patched content → interactive, client script after stream (Chromium / Firefox / WebKit, ms)</td>
+<td>124 / 97 / 97</td>
+<td>102 / 125 / 137</td>
+</tr>
+<tr>
+<td>Same, client script mid-stream</td>
+<td>11 / 15 / 13</td>
+<td>10 / 15 / 15</td>
+</tr>
+<tr>
+<td>Longest main-thread stall in any timing cell</td>
+<td>68 ms</td>
+<td>35 ms</td>
+</tr>
+<tr>
+<td>Fixed overhead, first boundary (raw)</td>
+<td>1319 B</td>
+<td><strong>1190 B</strong></td>
+</tr>
+<tr>
+<td>Per boundary raw / gzip / brotli (est.)</td>
+<td>106.8 / 14.6 / 5.7 B</td>
+<td>108.4 / 17.4 / 6.9 B</td>
+</tr>
+<tr>
+<td>60-boundary page, gzip (est.)</td>
+<td>6839 B</td>
+<td>7062 B (+3.3%)</td>
+</tr>
+<tr>
+<td>Strict CSP (inline scripts without nonce)</td>
+<td>fallbacks stay in all 3 browsers</td>
+<td>works in Chromium; Firefox/WebKit leave 112 templates unapplied</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Reading it: <code class="notranslate">dpu-support</code> fixes the table-row and namespace failures of <code class="notranslate">main</code>, has no timing penalty (lower lag in<br>
+Firefox, equal elsewhere), costs ≈ +2.8 gzip bytes per boundary but ≈ 130 B less once per page. One watch item: in<br>
+Firefox and WebKit the patched counter becomes clickable 28–40 ms later than on <code class="notranslate">main</code> when the client script loads<br>
+after the stream (spread across the 5 runs was not analysed, so treat differences of this size with caution).<br>
+Wire table for the PR description (id=5, no nonce, content excluded): main 1273 B → 1142 B for one boundary,<br>
+2056 B → 1916 B for ten.</p>
+<h2>All variants</h2>
+<h3>Headline results</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>question</th>
+<th>main</th>
+<th>PR #474</th>
+<th>local end-stamp</th>
+<th>local react-style</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correct final DOM, stream only (<code class="notranslate">hydrate=off</code>), 26 checks × 3 browsers</td>
+<td>23/26</td>
+<td>26/26</td>
+<td>26/26</td>
+<td>26/26</td>
+</tr>
+<tr>
+<td>What <code class="notranslate">main</code> fails</td>
+<td><code class="notranslate">table-rows</code>, <code class="notranslate">svg-namespace</code>, <code class="notranslate">mathml-namespace</code></td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;svg&gt;&lt;foreignObject&gt;</code> boundary</td>
+<td>ok</td>
+<td><strong>hangs the main thread (all 3 browsers)</strong></td>
+<td>ok</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>Last-resolving boundary shown when hydration starts right after the stream (Firefox, WebKit)</td>
+<td>ok</td>
+<td><strong>lost in every run</strong> (cell 8 of 16; cell 97 of 100)</td>
+<td>ok</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>Patch lag in Firefox (median over 16/60/100 boundaries)</td>
+<td>21–34 ms</td>
+<td>13–134 ms (includes the lost boundary)</td>
+<td>9–14 ms</td>
+<td>−7…4 ms</td>
+</tr>
+<tr>
+<td>Patch lag in Chromium / WebKit</td>
+<td>≈0–10 ms</td>
+<td>≈0–10 ms (WebKit: lost boundary)</td>
+<td>≈0–5 ms</td>
+<td>≈0–11 ms</td>
+</tr>
+<tr>
+<td>Fixed overhead, first boundary (raw)</td>
+<td>1319 B</td>
+<td>1274 B</td>
+<td>1385 B</td>
+<td><strong>880 B</strong></td>
+</tr>
+<tr>
+<td>Per boundary, raw / gzip (est.)</td>
+<td>106.8 / 14.6 B</td>
+<td>107.6 / 17.3 B</td>
+<td>119.1 / 20.0 B</td>
+<td>131.5 / 19.7 B</td>
+</tr>
+<tr>
+<td>Strict CSP, Chromium</td>
+<td>fallbacks stay</td>
+<td>works (native)</td>
+<td>works (native)</td>
+<td>works (native)</td>
+</tr>
+<tr>
+<td>Strict CSP, Firefox / WebKit</td>
+<td>fallbacks stay</td>
+<td>112 templates unapplied</td>
+<td>112 unapplied</td>
+<td>112 unapplied</td>
+</tr>
+<tr>
+<td>Page errors / main-thread stalls &gt;50 ms</td>
+<td>none</td>
+<td>none (except the hang above)</td>
+<td>none</td>
+<td>none</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>What the data supports</h3>
+<ol>
+<li><strong>Any DPU variant fixes real <code class="notranslate">main</code> problems.</strong> Without client JS, <code class="notranslate">main</code> also fails <code class="notranslate">table-rows</code> (rows inserted<br>
+into a <code class="notranslate">&lt;tbody&gt;</code>), and puts SVG/MathML boundaries in the HTML namespace. Hydration masks <code class="notranslate">table-rows</code> but not the<br>
+namespace cases.</li>
+<li><strong>PR #474 as opened has two defects the local end-stamp work resolves</strong>, both reproducible on the live pages:<br>
+(a) a boundary inside <code class="notranslate">&lt;svg&gt;&lt;foreignObject&gt;</code> freezes the page in Chromium, Firefox and WebKit; (b) in Firefox and<br>
+WebKit the last streamed boundary is missing when hydration runs right after the stream ends. It applies fine with<br>
+<code class="notranslate">hydrate=off</code>, so this looks like a race between the final patch and hydration/observer teardown <em>(hypothesis; not<br>
+root-caused)</em>.</li>
+<li><strong>No timing penalty otherwise.</strong> Patch lag for <code class="notranslate">local-end-stamp</code> and <code class="notranslate">local-react-style</code> is at or below <code class="notranslate">main</code> in<br>
+every browser (interleaved runs, 5 per cell). Differences under ~16 ms are noise.</li>
+<li><strong>Payload cost is small:</strong> +3 to +6 B gzip per boundary vs <code class="notranslate">main</code>. <code class="notranslate">local-react-style</code> has the smallest fixed cost<br>
+but the largest per-boundary raw cost (extra <code class="notranslate">&lt;script&gt;</code> per chunk).</li>
+<li><strong>Strict CSP is unsolved by all of them</strong> in browsers without native DPU (Firefox, WebKit here): inline scripts<br>
+carry no nonce.</li>
+</ol>
+<h3>Why <code class="notranslate">main</code> compresses better: the boundary id is written more times</h3>
+<p>Boundary ids are unique numbers (<code class="notranslate">-51</code>, <code class="notranslate">-55</code>, …), and gzip cannot predict them. Measured on the 60-boundary page with<br>
+ids normalised (gzip level 9, bytes per boundary):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>id written N× per boundary</th>
+<th>first occurrence</th>
+<th>each repeat</th>
+<th>other markup</th>
+<th>total gzip</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>main</td>
+<td>3 (<code class="notranslate">$s:</code> open, <code class="notranslate">/$s:</code> close, <code class="notranslate">data-target</code>)</td>
+<td>3.0</td>
+<td>2.9</td>
+<td>27.5</td>
+<td>36.2</td>
+</tr>
+<tr>
+<td>PR #474</td>
+<td>4 (+ <code class="notranslate">&lt;?start name="id"&gt;</code>)</td>
+<td>2.8</td>
+<td>2.9</td>
+<td>28.9</td>
+<td>40.4</td>
+</tr>
+<tr>
+<td>local end-stamp</td>
+<td>5 (+ <code class="notranslate">name</code>, + <code class="notranslate">$p:id</code> stamp)</td>
+<td>2.9</td>
+<td>2.9</td>
+<td>30.9</td>
+<td>45.4</td>
+</tr>
+<tr>
+<td>local react-style</td>
+<td>5 (+ <code class="notranslate">name</code>, + <code class="notranslate">$RC("id")</code>)</td>
+<td>2.9</td>
+<td>2.8</td>
+<td>26.3</td>
+<td>40.4</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Every extra copy of an id costs ≈2.9 gzip bytes (a back-reference token), so the id count explains most of the gap:<br>
+PR #474 = one extra id (+2.9) + 1.4 markup; end-stamp = two extra ids (+5.8) + 3.4 markup; react-style = two extra ids<br>
+(+5.5) − 1.2 markup. Brotli narrows the gap (5.7 vs 6.8 / 7.8 / 7.7 B per boundary).<br>
+The ids are repeated because the output carries two marker systems: the <code class="notranslate">&lt;!--$s:id--&gt;</code> comments (polyfill/hydration)<br>
+and <code class="notranslate">&lt;?start name="id"&gt;</code> (the DPU range marker) — <em>hypothesis:</em> the PI is needed for native DPU, the comments for the<br>
+polyfill and hydration. If so, dropping the stamp id (newline stamp) takes an end-stamp page back to 4 id copies, and<br>
+removing either marker system would return it to <code class="notranslate">main</code>'s 3.</p>
+<h3>The end stamp and "just use a newline"</h3>
+<p>Measured on the real <code class="notranslate">local-end-stamp</code> output (60 boundaries, gzip level 9): the current <code class="notranslate">&lt;!--$p:-19321--&gt;</code> stamp<br>
+costs 16 raw / 3.55 gzip bytes per boundary; a single <code class="notranslate">\n</code> costs 1 raw / 0.12 gzip; no stamp costs 0. The comment's<br>
+gzip cost is almost entirely the unique id (constant id ⇒ 0.32 B). So a newline would save ≈15 raw / ≈3.4 gzip bytes<br>
+per boundary (≈780 B raw, ≈200 B gzip on 60 boundaries; ≈1.1 KB raw, ≈300 B gzip on 85 stamps in the 100-cell page).<br>
+<strong>Caveat:</strong> the stamp's id is what ties it to a boundary. A bare newline carries no id, so the client would have to<br>
+infer the boundary by position. That has not been built or tested; this is a size projection only.</p>
+<h3>Where the designs differ (from the emitted HTML, not benchmarks)</h3>
+<ul>
+<li><strong>Trigger.</strong> PR #474 / end-stamp: one <code class="notranslate">MutationObserver</code>; react-style: an explicit <code class="notranslate">$RC(id)</code> call per chunk, the<br>
+script removes itself after running.</li>
+<li><strong>Per-chunk markup.</strong> react-style adds a <code class="notranslate">&lt;script&gt;</code> per chunk; end-stamp adds a comment.</li>
+<li><strong>Global.</strong> react-style defines <code class="notranslate">window.$RC</code> <em>(hypothesis: collides with React Fizz's global on mixed pages; untested)</em>.</li>
+<li><strong>Observability.</strong> <code class="notranslate">$RC</code> lets the harness see per chunk whether the browser already consumed the template natively.</li>
+</ul>
+<h2>Method</h2>
+<ul>
+<li>Variants are pinned in <a href="./versions.json"><code class="notranslate">versions.json</code></a> (+ untracked <code class="notranslate">versions.local.json</code> for local checkouts) and<br>
+built by <code class="notranslate">scripts/build-variant.mjs</code> (read-only clones, pack, build). Same demo app for every variant.</li>
+<li><strong>Correctness</strong> (<code class="notranslate">scripts/compare.mjs</code>, <code class="notranslate">HYDRATE=off|late</code>): 26 checks on <code class="notranslate">/dpu</code> (14 s settle) plus an isolated<br>
+<code class="notranslate">foreignObject</code> page, in Playwright Chromium, Firefox and WebKit. <code class="notranslate">hydrate=off</code> judges the stream/polyfill alone;<br>
+<code class="notranslate">late</code> runs after client hydration and can hide a failed patch.</li>
+<li><strong>Timing</strong> (<code class="notranslate">scripts/bench.mjs</code>): 5 iterations; each iteration visits every variant in a fresh random order<br>
+(interleaved, fixes the order confound of the first report). <em>Patch lag</em> = visible − (responseStart + server delay),<br>
+observed via MutationObserver plus a 16 ms layout scan. Scenarios: popcorning (16), many-boundaries (60), grid-100<br>
+(100), and patched-counter interactivity with hydration <code class="notranslate">late</code>/<code class="notranslate">early</code>.</li>
+<li><strong>Payload</strong> (<code class="notranslate">scripts/size.mjs</code>): raw bytes; gzip/brotli are <strong>estimates</strong> (decoded stream compressed locally).</li>
+<li><strong>CSP</strong>: <code class="notranslate">?csp=strict</code> → <code class="notranslate">script-src 'self' 'nonce-…'</code>, nonces only on harness scripts.</li>
+</ul>
+<h2>Limitations</h2>
+<ul>
+<li>One machine/network/day. Timing resolution ≈16 ms. Chromium handled <code class="notranslate">&lt;template for&gt;</code> natively (native path);<br>
+Firefox/WebKit exercised the polyfills.</li>
+<li>Not measured: low-end CPU/memory, throttled networks, real wire compression, &gt;100 boundaries, bfcache, buffering<br>
+proxies, intermediate visual states.</li>
+<li><code class="notranslate">local-*</code> variants are unpushed commits; SHAs are recorded above and in each page's <code class="notranslate">/index.json</code>. To reproduce,<br>
+push those commits (or point <code class="notranslate">versions.local.json</code> at your checkout).</li>
+<li>The cause of the PR #474 last-boundary loss and of the <code class="notranslate">foreignObject</code> hang were not investigated beyond isolating<br>
+them to the stream format/polyfill; both are reproducible with <code class="notranslate">/s/popcorning</code> (Firefox/WebKit) and<br>
+<code class="notranslate">/s/foreign-object</code>.</li>
+</ul>
+<h2>Reproduce</h2>
+<div class="highlight highlight-source-shell"><pre class="notranslate">npm install
+node scripts/build-variant.mjs <span class="pl-k">&lt;</span>variant<span class="pl-k">&gt;</span> <span class="pl-k">&amp;&amp;</span> (cd .build/<span class="pl-k">&lt;</span>variant<span class="pl-k">&gt;</span> <span class="pl-k">&amp;&amp;</span> npx wrangler deploy)
+HYDRATE=off node scripts/compare.mjs <span class="pl-k">&lt;</span>variants…<span class="pl-k">&gt;</span>   <span class="pl-c"><span class="pl-c">#</span> also HYDRATE=late</span>
+node scripts/bench.mjs chromium 5                   <span class="pl-c"><span class="pl-c">#</span> also firefox, webkit</span>
+node scripts/size.mjs <span class="pl-k">&lt;</span>variants…<span class="pl-k">&gt;</span> <span class="pl-k">&amp;&amp;</span> node scripts/report.mjs
+node scripts/build-index.mjs <span class="pl-k">&amp;&amp;</span> (cd .build/index <span class="pl-k">&amp;&amp;</span> npx wrangler deploy)   <span class="pl-c"><span class="pl-c">#</span> landing page</span></pre></div>
+<p>Live pages per variant: <code class="notranslate">/</code> (54 scenarios + selection controls), <code class="notranslate">/dpu</code> (diagnostics), <code class="notranslate">/dpu?csp=strict</code>,<br>
+<code class="notranslate">/s/&lt;id&gt;</code>, <code class="notranslate">/index.json</code>. Landing page: <a href="https://preact-eco-index.to-email-max.workers.dev" rel="nofollow">https://preact-eco-index.to-email-max.workers.dev</a></p>
+<h2>Decision guide (interpretation)</h2>
+<ul>
+<li>Parity with the DPU spec and no hangs: <code class="notranslate">local-end-stamp</code> and <code class="notranslate">local-react-style</code> meet it equally; PR #474 as opened does not.</li>
+<li>Smallest per-boundary cost: end-stamp (comment, or a newline if id-less matching proves feasible).</li>
+<li>Smallest fixed cost, explicit control flow, per-chunk observability: react-style.</li>
+<li>Strict-CSP sites: none is sufficient in non-native browsers; a nonce hook or non-inline fallback is separate work.</li>
+</ul>
+<footer>Rendered from <code>data/preact-REPORT.md</code>.</footer>
+</main>
+</body>
+</html>

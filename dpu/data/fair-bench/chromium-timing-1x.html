@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>chromium 156.0.8078.4 — timing, CPU throttle 1x, hydrate=late, 20 runs/cell (raw/chromium-timing-1x.jsonl)</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn:#e3b341}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+.nav{color:var(--mut);font-size:.9rem;margin:0 0 1.2em}
+.nav a{color:var(--acc)}
+h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em}
+h2{font-size:1.25rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.5em 0 .35em}
+h4{font-size:1rem;margin:1.2em 0 .3em}
+p,ul,ol{margin:.55em 0}
+li{margin:.25em 0}
+a{color:var(--acc)}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+pre{background:color-mix(in srgb,var(--fg) 92%,transparent);color:var(--bg);padding:12px 14px;overflow-x:auto;border-radius:8px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre code{background:none;padding:0;color:inherit}
+.tablewrap{overflow-x:auto;margin:.7em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+blockquote{margin:.8em 0;padding:.1em 0 .1em 12px;border-left:3px solid var(--line);color:var(--mut)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="nav"><a href="../../">← dpu</a> · <a href="chromium-timing-1x.md">raw .md</a></p>
+<h3>chromium 156.0.8078.4 — timing, CPU throttle 1x, hydrate=late, 20 runs/cell (raw/chromium-timing-1x.jsonl)</h3>
+<p>Failed/incomplete loads (hung, error, missing boundaries, leftover fallback/template, not all revealed): 0 of 800</p>
+<h4>Patch lag per run: median over boundaries (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>114 [110-145] / 146 (n=20)</td>
+<td>120 [103-137] / 138 (n=20)</td>
+<td>122 [107-139] / 140 (n=20)</td>
+<td>114 [109-137] / 138 (n=20)</td>
+<td>118 [107-137] / 138 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>122 [116-150] / 151 (n=20)</td>
+<td>111 [102-135] / 136 (n=20)</td>
+<td>110 [103-137] / 138 (n=20)</td>
+<td>109 [105-137] / 138 (n=20)</td>
+<td>150 [137-158] / 169 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>120 [116-150] / 152 (n=20)</td>
+<td>107 [101-135] / 137 (n=20)</td>
+<td>118 [104-137] / 138 (n=20)</td>
+<td>117 [105-136] / 138 (n=20)</td>
+<td>120 [113-140] / 145 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>122 [117-150] / 152 (n=20)</td>
+<td>109 [102-135] / 139 (n=20)</td>
+<td>113 [105-138] / 139 (n=20)</td>
+<td>139 [130-153] / 156 (n=20)</td>
+<td>625 [603-699] / 855 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>-29.8 [-33.9--0.07] / 0.17 (n=20)</td>
+<td>-25.9 [-34.0--0.21] / 0.43 (n=20)</td>
+<td>-16.8 [-25.2-9.34] / 9.70 (n=20)</td>
+<td>-15.4 [-25.9-8.56] / 9.11 (n=20)</td>
+<td>-19.5 [-24.9-10.2] / 10.9 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>-29.8 [-34.4--0.25] / 0.29 (n=20)</td>
+<td>-28.8 [-33.0--0.19] / 4.75 (n=20)</td>
+<td>-20.2 [-24.3-9.84] / 10.6 (n=20)</td>
+<td>-14.3 [-25.6-8.76] / 9.14 (n=20)</td>
+<td>-20.5 [-24.2-10.0] / 10.4 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>-28.9 [-34.2--0.14] / 0.13 (n=20)</td>
+<td>-21.9 [-33.3--0.14] / 0.47 (n=20)</td>
+<td>-20.9 [-24.1-10.0] / 10.7 (n=20)</td>
+<td>-21.7 [-25.3-8.97] / 9.52 (n=20)</td>
+<td>-19.0 [-24.7-9.59] / 9.90 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>-30.2 [-34.4-0.02] / 0.46 (n=20)</td>
+<td>-29.8 [-33.8--0.05] / 0.47 (n=20)</td>
+<td>-18.8 [-24.2-10.6] / 10.8 (n=20)</td>
+<td>-13.7 [-23.9-9.92] / 10.4 (n=20)</td>
+<td>446 [405-461] / 527 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+7.90 [-26.3, 37.1] ns</td>
+<td>-9.57 [-29.8, 29.8] ns</td>
+<td>-11.8 [-33.7, 27.1] ns</td>
+<td>-5.81 [-30.0, 26.5] ns</td>
+<td>+32.7 [3.76, 48.2]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+5.93 [-25.1, 37.2] ns</td>
+<td>-13.4 [-33.4, 30.2] ns</td>
+<td>-3.28 [-32.6, 27.5] ns</td>
+<td>+2.84 [-30.1, 25.4] ns</td>
+<td>+2.27 [-20.6, 31.7] ns</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+7.93 [-25.6, 37.5] ns</td>
+<td>-11.2 [-33.2, 30.5] ns</td>
+<td>-8.49 [-30.9, 28.0] ns</td>
+<td>+24.8 [-3.53, 42.4] ns</td>
+<td>+507 [474, 560]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>-0.03 [-33.3, 33.0] ns</td>
+<td>-2.96 [-31.9, 33.4] ns</td>
+<td>-3.41 [-31.7, 34.1] ns</td>
+<td>+1.11 [-32.9, 32.9] ns</td>
+<td>-0.94 [-32.9, 32.8] ns</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+0.91 [-33.1, 33.1] ns</td>
+<td>+4.01 [-30.9, 33.3] ns</td>
+<td>-4.19 [-31.9, 34.3] ns</td>
+<td>-6.24 [-32.8, 33.6] ns</td>
+<td>+0.50 [-33.4, 32.4] ns</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-0.42 [-32.8, 33.1] ns</td>
+<td>-3.95 [-32.4, 33.4] ns</td>
+<td>-2.02 [-32.1, 34.6] ns</td>
+<td>+1.75 [-31.5, 34.5] ns</td>
+<td>+466 [410, 476]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Patch lag per run: p95 over boundaries (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>247 [243-278] / 279 (n=20)</td>
+<td>269 [248-281] / 282 (n=20)</td>
+<td>270 [255-289] / 290 (n=20)</td>
+<td>264 [259-286] / 288 (n=20)</td>
+<td>267 [257-288] / 289 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>256 [250-283] / 285 (n=20)</td>
+<td>255 [252-284] / 285 (n=20)</td>
+<td>259 [252-286] / 289 (n=20)</td>
+<td>258 [255-287] / 288 (n=20)</td>
+<td>282 [264-297] / 299 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>255 [250-284] / 285 (n=20)</td>
+<td>254 [251-284] / 285 (n=20)</td>
+<td>268 [254-286] / 288 (n=20)</td>
+<td>267 [255-286] / 288 (n=20)</td>
+<td>269 [263-290] / 294 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>256 [251-284] / 286 (n=20)</td>
+<td>256 [251-285] / 287 (n=20)</td>
+<td>261 [255-287] / 288 (n=20)</td>
+<td>290 [281-304] / 306 (n=20)</td>
+<td>793 [774-867] / 1010 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>-29.2 [-32.8-0.33] / 0.91 (n=20)</td>
+<td>-23.8 [-32.9-0.51] / 2.85 (n=20)</td>
+<td>-9.26 [-17.3-16.6] / 17.4 (n=20)</td>
+<td>-7.38 [-19.0-15.5] / 16.5 (n=20)</td>
+<td>-11.7 [-16.8-18.3] / 18.8 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>-29.1 [-33.7--0.01] / 0.51 (n=20)</td>
+<td>-26.6 [-31.2-2.11] / 7.77 (n=20)</td>
+<td>-13.6 [-17.7-16.3] / 17.0 (n=20)</td>
+<td>-6.55 [-17.9-16.5] / 16.8 (n=20)</td>
+<td>-12.5 [-16.4-17.7] / 18.1 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>-28.4 [-33.4-0.01] / 0.35 (n=20)</td>
+<td>-15.6 [-30.0-1.51] / 2.52 (n=20)</td>
+<td>-14.2 [-17.6-16.4] / 17.1 (n=20)</td>
+<td>-14.4 [-17.6-16.7] / 17.4 (n=20)</td>
+<td>-11.2 [-16.8-17.4] / 17.8 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>-29.3 [-33.5-0.43] / 2.23 (n=20)</td>
+<td>-27.8 [-32.0-1.60] / 3.14 (n=20)</td>
+<td>-12.1 [-17.7-16.6] / 17.1 (n=20)</td>
+<td>-5.90 [-16.6-17.6] / 18.0 (n=20)</td>
+<td>478 [443-503] / 568 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+8.74 [-26.0, 37.6] ns</td>
+<td>-14.3 [-28.1, 32.4] ns</td>
+<td>-10.7 [-33.7, 28.0] ns</td>
+<td>-5.85 [-30.1, 26.3] ns</td>
+<td>+14.8 [-19.2, 37.9] ns</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+7.56 [-25.0, 38.5] ns</td>
+<td>-15.4 [-29.1, 33.1] ns</td>
+<td>-1.79 [-31.7, 28.3] ns</td>
+<td>+3.13 [-30.2, 25.5] ns</td>
+<td>+2.50 [-21.6, 30.5] ns</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+8.49 [-25.7, 39.0] ns</td>
+<td>-13.0 [-28.1, 33.7] ns</td>
+<td>-8.55 [-30.7, 29.1] ns</td>
+<td>+25.7 [-3.17, 43.7] ns</td>
+<td>+526 [491, 577]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>+0.12 [-33.2, 32.0] ns</td>
+<td>-2.78 [-29.5, 33.3] ns</td>
+<td>-4.30 [-33.0, 33.0] ns</td>
+<td>+0.83 [-32.0, 34.0] ns</td>
+<td>-0.76 [-33.0, 32.5] ns</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+0.77 [-33.0, 32.2] ns</td>
+<td>+8.21 [-29.5, 32.8] ns</td>
+<td>-4.95 [-32.9, 33.0] ns</td>
+<td>-7.02 [-32.3, 34.2] ns</td>
+<td>+0.51 [-33.4, 32.1] ns</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-0.12 [-32.3, 32.4] ns</td>
+<td>-3.99 [-30.6, 33.2] ns</td>
+<td>-2.86 [-32.9, 33.3] ns</td>
+<td>+1.48 [-31.1, 35.0] ns</td>
+<td>+489 [451, 510]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Navigation start -&gt; last boundary revealed (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>1218 [1217-1219] / 1220 (n=20)</td>
+<td>1217 [1217-1218] / 1228 (n=20)</td>
+<td>1224 [1214-1231] / 1235 (n=20)</td>
+<td>1227 [1221-1238] / 1245 (n=20)</td>
+<td>1234 [1232-1241] / 1252 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>1223 [1223-1224] / 1225 (n=20)</td>
+<td>1222 [1222-1224] / 1225 (n=20)</td>
+<td>1224 [1222-1225] / 1225 (n=20)</td>
+<td>1226 [1226-1229] / 1234 (n=20)</td>
+<td>1269 [1267-1286] / 1293 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>1223 [1222-1225] / 1227 (n=20)</td>
+<td>1223 [1222-1223] / 1224 (n=20)</td>
+<td>1224 [1223-1225] / 1226 (n=20)</td>
+<td>1227 [1224-1229] / 1231 (n=20)</td>
+<td>1239 [1236-1248] / 1251 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>1224 [1224-1225] / 1226 (n=20)</td>
+<td>1224 [1223-1225] / 1226 (n=20)</td>
+<td>1227 [1225-1228] / 1231 (n=20)</td>
+<td>1242 [1238-1250] / 1258 (n=20)</td>
+<td>1689 [1669-1739] / 1948 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>1141 [1140-1142] / 1143 (n=20)</td>
+<td>1187 [1187-1187] / 1206 (n=20)</td>
+<td>1213 [1212-1226] / 1236 (n=20)</td>
+<td>1224 [1222-1234] / 1243 (n=20)</td>
+<td>1233 [1228-1237] / 1242 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>1141 [1140-1141] / 1143 (n=20)</td>
+<td>1187 [1187-1192] / 1193 (n=20)</td>
+<td>1207 [1200-1210] / 1211 (n=20)</td>
+<td>1215 [1211-1217] / 1217 (n=20)</td>
+<td>1210 [1209-1213] / 1220 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>1141 [1141-1142] / 1142 (n=20)</td>
+<td>1187 [1187-1191] / 1200 (n=20)</td>
+<td>1209 [1206-1210] / 1212 (n=20)</td>
+<td>1213 [1211-1215] / 1216 (n=20)</td>
+<td>1211 [1208-1218] / 1221 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>1141 [1140-1142] / 1142 (n=20)</td>
+<td>1187 [1187-1188] / 1193 (n=20)</td>
+<td>1208 [1201-1210] / 1212 (n=20)</td>
+<td>1212 [1209-1215] / 1217 (n=20)</td>
+<td>1701 [1646-1724] / 1762 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+5.25 [4.55, 6.25]</td>
+<td>+5.10 [4.35, 6.45]</td>
+<td>-0.75 [-5.55, 9.65] ns</td>
+<td>-0.45 [-8.95, 5.75] ns</td>
+<td>+34.6 [29.7, 49.6]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+5.20 [4.20, 6.35]</td>
+<td>+5.60 [4.80, 6.30]</td>
+<td>-0.80 [-5.20, 9.50] ns</td>
+<td>-0.10 [-9.00, 6.10] ns</td>
+<td>+5.00 [-0.35, 12.6] ns</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+6.20 [5.45, 7.10]</td>
+<td>+6.45 [5.40, 7.50]</td>
+<td>+2.40 [-2.45, 12.9] ns</td>
+<td>+14.7 [5.45, 23.1]</td>
+<td>+455 [437, 481]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>+0.20 [-0.95, 0.65] ns</td>
+<td>+0.35 [-0.20, 4.90] ns</td>
+<td>-5.30 [-18.4, -2.95]</td>
+<td>-9.05 [-18.4, -6.40]</td>
+<td>-23.5 [-26.9, -18.5]</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+0.65 [-0.45, 1.15] ns</td>
+<td>+0.45 [-0.25, 4.00] ns</td>
+<td>-3.45 [-15.7, -2.10]</td>
+<td>-11.3 [-19.4, -8.60]</td>
+<td>-22.7 [-27.6, -15.8]</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>+0.30 [-0.85, 1.00] ns</td>
+<td>+0.25 [-0.15, 1.20] ns</td>
+<td>-5.05 [-17.7, -3.00]</td>
+<td>-11.7 [-21.1, -8.90]</td>
+<td>+468 [421, 488]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Navigation start -&gt; last boundary painted, approx (rAF+message) (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>1219 [1218-1220] / 1222 (n=20)</td>
+<td>1223 [1218-1224] / 1239 (n=20)</td>
+<td>1233 [1223-1240] / 1241 (n=20)</td>
+<td>1241 [1228-1245] / 1252 (n=20)</td>
+<td>1246 [1241-1252] / 1267 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>1241 [1239-1254] / 1258 (n=20)</td>
+<td>1239 [1238-1252] / 1261 (n=20)</td>
+<td>1249 [1239-1260] / 1262 (n=20)</td>
+<td>1248 [1244-1260] / 1266 (n=20)</td>
+<td>1297 [1290-1316] / 1324 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>1242 [1238-1251] / 1259 (n=20)</td>
+<td>1241 [1239-1247] / 1258 (n=20)</td>
+<td>1242 [1239-1252] / 1263 (n=20)</td>
+<td>1249 [1244-1263] / 1268 (n=20)</td>
+<td>1262 [1260-1282] / 1287 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>1242 [1240-1256] / 1259 (n=20)</td>
+<td>1241 [1240-1255] / 1261 (n=20)</td>
+<td>1249 [1241-1254] / 1264 (n=20)</td>
+<td>1263 [1259-1274] / 1285 (n=20)</td>
+<td>1751 [1732-1801] / 2020 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>1163 [1160-1175] / 1182 (n=20)</td>
+<td>1207 [1205-1219] / 1229 (n=20)</td>
+<td>1223 [1223-1239] / 1240 (n=20)</td>
+<td>1230 [1226-1244] / 1248 (n=20)</td>
+<td>1244 [1238-1247] / 1252 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>1158 [1157-1167] / 1180 (n=20)</td>
+<td>1211 [1206-1218] / 1228 (n=20)</td>
+<td>1226 [1223-1233] / 1237 (n=20)</td>
+<td>1235 [1227-1238] / 1246 (n=20)</td>
+<td>1235 [1234-1238] / 1240 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>1159 [1156-1174] / 1178 (n=20)</td>
+<td>1208 [1207-1218] / 1237 (n=20)</td>
+<td>1232 [1226-1241] / 1248 (n=20)</td>
+<td>1233 [1228-1237] / 1250 (n=20)</td>
+<td>1235 [1230-1240] / 1245 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>1160 [1157-1170] / 1176 (n=20)</td>
+<td>1212 [1207-1221] / 1225 (n=20)</td>
+<td>1228 [1223-1234] / 1244 (n=20)</td>
+<td>1232 [1231-1236] / 1238 (n=20)</td>
+<td>1727 [1672-1748] / 1788 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+21.8 [20.1, 32.7]</td>
+<td>+16.8 [15.3, 25.3]</td>
+<td>+16.8 [2.30, 32.3]</td>
+<td>+7.60 [2.40, 25.2]</td>
+<td>+51.1 [44.0, 68.7]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+22.6 [19.2, 30.0]</td>
+<td>+18.3 [16.5, 24.5]</td>
+<td>+9.25 [0.30, 24.8]</td>
+<td>+8.00 [2.60, 27.5]</td>
+<td>+16.5 [11.5, 31.0]</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+23.1 [20.9, 36.3]</td>
+<td>+18.2 [16.6, 31.6]</td>
+<td>+16.8 [1.60, 28.6]</td>
+<td>+22.4 [17.6, 39.6]</td>
+<td>+505 [490, 532]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>-4.95 [-11.8, 4.05] ns</td>
+<td>+3.50 [-7.05, 11.2] ns</td>
+<td>+2.50 [-13.8, 8.50] ns</td>
+<td>+5.15 [-9.55, 9.80] ns</td>
+<td>-9.15 [-12.1, -3.20]</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>-4.20 [-11.5, 10.7] ns</td>
+<td>+1.10 [-8.50, 9.45] ns</td>
+<td>+8.75 [-7.20, 15.3] ns</td>
+<td>+3.30 [-10.7, 7.85] ns</td>
+<td>-9.45 [-14.7, -2.50]</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-3.25 [-11.2, 4.60] ns</td>
+<td>+5.15 [-6.45, 13.3] ns</td>
+<td>+4.90 [-11.0, 10.9] ns</td>
+<td>+1.90 [-10.8, 7.55] ns</td>
+<td>+483 [436, 500]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Navigation start -&gt; hydration complete (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>1219 [1218-1220] / 1222 (n=20)</td>
+<td>1223 [1219-1224] / 1230 (n=20)</td>
+<td>1227 [1223-1233] / 1237 (n=20)</td>
+<td>1231 [1228-1245] / 1250 (n=20)</td>
+<td>1248 [1243-1254] / 1268 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>1245 [1243-1259] / 1263 (n=20)</td>
+<td>1243 [1242-1257] / 1266 (n=20)</td>
+<td>1255 [1244-1266] / 1268 (n=20)</td>
+<td>1255 [1251-1269] / 1276 (n=20)</td>
+<td>1307 [1302-1324] / 1332 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>1245 [1242-1256] / 1264 (n=20)</td>
+<td>1245 [1243-1252] / 1263 (n=20)</td>
+<td>1247 [1243-1258] / 1269 (n=20)</td>
+<td>1258 [1252-1273] / 1279 (n=20)</td>
+<td>1280 [1275-1299] / 1303 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>1246 [1244-1261] / 1263 (n=20)</td>
+<td>1245 [1244-1261] / 1266 (n=20)</td>
+<td>1254 [1245-1259] / 1270 (n=20)</td>
+<td>1271 [1267-1282] / 1293 (n=20)</td>
+<td>1765 [1746-1816] / 2036 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>1164 [1161-1176] / 1183 (n=20)</td>
+<td>1208 [1206-1221] / 1229 (n=20)</td>
+<td>1214 [1213-1228] / 1239 (n=20)</td>
+<td>1230 [1226-1244] / 1248 (n=20)</td>
+<td>1244 [1239-1247] / 1253 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>1162 [1160-1171] / 1185 (n=20)</td>
+<td>1212 [1207-1222] / 1233 (n=20)</td>
+<td>1230 [1226-1239] / 1243 (n=20)</td>
+<td>1242 [1235-1247] / 1257 (n=20)</td>
+<td>1245 [1244-1248] / 1255 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>1165 [1160-1181] / 1183 (n=20)</td>
+<td>1211 [1208-1222] / 1242 (n=20)</td>
+<td>1238 [1230-1246] / 1254 (n=20)</td>
+<td>1240 [1236-1245] / 1260 (n=20)</td>
+<td>1248 [1245-1254] / 1263 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>1164 [1160-1174] / 1180 (n=20)</td>
+<td>1214 [1208-1223] / 1229 (n=20)</td>
+<td>1233 [1228-1241] / 1250 (n=20)</td>
+<td>1241 [1238-1245] / 1247 (n=20)</td>
+<td>1736 [1679-1757] / 1797 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+25.2 [23.4, 37.0]</td>
+<td>+20.6 [19.0, 29.1]</td>
+<td>+28.1 [17.6, 38.3]</td>
+<td>+24.2 [13.0, 37.8]</td>
+<td>+58.8 [53.3, 73.9]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+25.9 [22.3, 34.5]</td>
+<td>+22.2 [20.4, 28.9]</td>
+<td>+20.2 [15.1, 31.4]</td>
+<td>+26.4 [15.5, 38.7]</td>
+<td>+32.1 [25.6, 45.4]</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+26.4 [24.1, 40.7]</td>
+<td>+22.2 [20.7, 36.8]</td>
+<td>+27.8 [17.0, 34.2]</td>
+<td>+40.0 [28.9, 48.9]</td>
+<td>+517 [503, 545]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>-2.10 [-9.30, 7.75] ns</td>
+<td>+3.95 [-6.95, 13.4] ns</td>
+<td>+16.0 [3.75, 21.3]</td>
+<td>+11.5 [0.55, 17.4]</td>
+<td>+1.30 [-1.90, 6.50] ns</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+1.15 [-7.10, 16.5] ns</td>
+<td>+2.35 [-7.75, 13.2] ns</td>
+<td>+23.6 [9.60, 29.9]</td>
+<td>+10.3 [-0.75, 15.8] ns</td>
+<td>+3.65 [0.10, 11.2]</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-0.35 [-8.20, 8.25] ns</td>
+<td>+6.05 [-6.30, 14.5] ns</td>
+<td>+18.8 [6.40, 25.9]</td>
+<td>+10.4 [-0.05, 15.2] ns</td>
+<td>+492 [444, 510]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Server hold per run: median(send - ready) (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>0.09 [0.07-0.10] / 0.14 (n=20)</td>
+<td>0.07 [0.07-0.08] / 0.10 (n=20)</td>
+<td>0.06 [0.05-0.09] / 0.10 (n=20)</td>
+<td>0.04 [0.03-0.05] / 0.06 (n=20)</td>
+<td>0.05 [0.05-0.06] / 0.08 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>150 [149-151] / 152 (n=20)</td>
+<td>135 [134-136] / 143 (n=20)</td>
+<td>137 [136-137] / 138 (n=20)</td>
+<td>136 [136-137] / 138 (n=20)</td>
+<td>138 [137-139] / 140 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>150 [149-152] / 153 (n=20)</td>
+<td>135 [134-136] / 142 (n=20)</td>
+<td>137 [137-138] / 139 (n=20)</td>
+<td>136 [136-137] / 138 (n=20)</td>
+<td>138 [137-139] / 141 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>151 [150-151] / 152 (n=20)</td>
+<td>135 [135-136] / 142 (n=20)</td>
+<td>137 [136-137] / 139 (n=20)</td>
+<td>136 [135-136] / 138 (n=20)</td>
+<td>136 [136-137] / 138 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>0.12 [0.09-0.17] / 0.21 (n=20)</td>
+<td>0.08 [0.07-0.14] / 0.16 (n=20)</td>
+<td>0.08 [0.07-0.10] / 0.12 (n=20)</td>
+<td>0.04 [0.04-0.05] / 0.07 (n=20)</td>
+<td>0.05 [0.04-0.05] / 0.08 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>0.11 [0.07-0.14] / 0.17 (n=20)</td>
+<td>0.11 [0.08-3.93] / 5.10 (n=20)</td>
+<td>10.2 [10.1-11.0] / 11.2 (n=20)</td>
+<td>9.06 [8.97-9.07] / 9.11 (n=20)</td>
+<td>9.17 [9.12-9.21] / 9.27 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>0.10 [0.08-0.14] / 0.19 (n=20)</td>
+<td>0.11 [0.09-1.57] / 3.91 (n=20)</td>
+<td>10.2 [10.1-11.1] / 11.1 (n=20)</td>
+<td>9.08 [8.99-9.09] / 9.42 (n=20)</td>
+<td>9.16 [9.13-9.19] / 9.31 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>0.11 [0.10-0.14] / 0.16 (n=20)</td>
+<td>0.09 [0.08-0.13] / 4.02 (n=20)</td>
+<td>10.3 [10.2-10.8] / 11.1 (n=20)</td>
+<td>9.06 [8.97-9.09] / 9.31 (n=20)</td>
+<td>9.05 [9.01-9.08] / 9.14 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+150 [149, 151]</td>
+<td>+135 [134, 135]</td>
+<td>+137 [136, 137]</td>
+<td>+136 [135, 136]</td>
+<td>+138 [137, 138]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+150 [149, 151]</td>
+<td>+135 [135, 135]</td>
+<td>+137 [137, 138]</td>
+<td>+136 [136, 137]</td>
+<td>+138 [137, 139]</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+151 [150, 151]</td>
+<td>+135 [135, 135]</td>
+<td>+137 [136, 137]</td>
+<td>+136 [135, 136]</td>
+<td>+136 [136, 137]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>-0.01 [-0.06, 0.03] ns</td>
+<td>+0.03 [-0.03, 3.81] ns</td>
+<td>+10.1 [10.0, 10.9]</td>
+<td>+9.02 [8.93, 9.03]</td>
+<td>+9.13 [9.08, 9.15]</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>-0.02 [-0.07, 0.03] ns</td>
+<td>+0.03 [-0.02, 1.39] ns</td>
+<td>+10.1 [10.0, 10.8]</td>
+<td>+9.03 [8.96, 9.05]</td>
+<td>+9.11 [9.09, 9.14]</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-0.01 [-0.06, 0.02] ns</td>
+<td>+0.01 [-0.04, 0.03] ns</td>
+<td>+10.3 [10.1, 10.6]</td>
+<td>+9.01 [8.96, 9.04]</td>
+<td>+9.00 [8.98, 9.03]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Client delay per run: median(visible - send) (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>114 [110-144] / 146 (n=20)</td>
+<td>120 [103-137] / 138 (n=20)</td>
+<td>121 [107-139] / 140 (n=20)</td>
+<td>114 [108-137] / 138 (n=20)</td>
+<td>117 [107-137] / 138 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>-28.1 [-34.1--0.17] / 0.20 (n=20)</td>
+<td>-30.4 [-33.7--0.19] / 0.27 (n=20)</td>
+<td>-26.9 [-33.9-0.19] / 1.36 (n=20)</td>
+<td>-27.8 [-30.6-2.06] / 2.76 (n=20)</td>
+<td>4.23 [-6.17-11.1] / 28.3 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>-30.9 [-33.6--0.05] / 0.24 (n=20)</td>
+<td>-30.9 [-33.9-0.01] / 0.43 (n=20)</td>
+<td>-19.3 [-33.1--0.05] / 0.37 (n=20)</td>
+<td>-19.4 [-31.1-1.01] / 2.33 (n=20)</td>
+<td>-20.2 [-25.2-3.75] / 4.90 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>-28.7 [-33.7-0.06] / 0.39 (n=20)</td>
+<td>-29.1 [-32.0-0.41] / 0.93 (n=20)</td>
+<td>-23.0 [-31.5-1.21] / 1.58 (n=20)</td>
+<td>1.77 [-4.75-18.3] / 21.0 (n=20)</td>
+<td>511 [488-585] / 720 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>-30.0 [-34.0--0.18] / 0.09 (n=20)</td>
+<td>-26.0 [-34.2--0.30] / 0.23 (n=20)</td>
+<td>-16.8 [-25.3-9.28] / 9.66 (n=20)</td>
+<td>-15.5 [-25.9-8.53] / 9.07 (n=20)</td>
+<td>-19.6 [-24.9-10.1] / 10.3 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>-30.0 [-34.6--0.32] / 0.10 (n=20)</td>
+<td>-31.8 [-34.7--0.38] / -0.06 (n=20)</td>
+<td>-30.8 [-34.7--0.36] / -0.01 (n=20)</td>
+<td>-23.4 [-34.7--0.18] / 0.13 (n=20)</td>
+<td>-29.5 [-33.4-1.00] / 1.22 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>-29.1 [-34.4--0.22] / 0.07 (n=20)</td>
+<td>-25.0 [-34.5--0.31] / 0.06 (n=20)</td>
+<td>-31.4 [-34.7--0.21] / -0.06 (n=20)</td>
+<td>-31.2 [-34.3--0.05] / 0.42 (n=20)</td>
+<td>-28.2 [-34.0-0.46] / 0.79 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>-30.3 [-34.5--0.04] / 0.31 (n=20)</td>
+<td>-31.6 [-34.8--0.14] / 0.08 (n=20)</td>
+<td>-29.3 [-34.6--0.14] / 0.21 (n=20)</td>
+<td>-22.7 [-33.5-0.91] / 1.26 (n=20)</td>
+<td>435 [395-450] / 518 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>-142 [-177, -112]</td>
+<td>-150 [-169, -104]</td>
+<td>-148 [-170, -109]</td>
+<td>-142 [-166, -109]</td>
+<td>-113 [-140, -96.8]</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>-145 [-177, -112]</td>
+<td>-151 [-170, -104]</td>
+<td>-141 [-170, -109]</td>
+<td>-134 [-166, -110]</td>
+<td>-138 [-158, -104]</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>-143 [-177, -112]</td>
+<td>-149 [-167, -104]</td>
+<td>-144 [-168, -108]</td>
+<td>-113 [-138, -92.4]</td>
+<td>+393 [356, 449]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>+0.05 [-33.4, 33.1] ns</td>
+<td>-5.79 [-33.5, 33.2] ns</td>
+<td>-13.9 [-42.3, 23.9] ns</td>
+<td>-7.84 [-41.7, 24.5] ns</td>
+<td>-9.94 [-42.0, 23.5] ns</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+0.93 [-33.3, 33.1] ns</td>
+<td>+1.05 [-33.3, 33.4] ns</td>
+<td>-14.6 [-42.4, 24.2] ns</td>
+<td>-15.7 [-41.7, 24.7] ns</td>
+<td>-8.61 [-42.4, 23.3] ns</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>-0.33 [-32.9, 33.2] ns</td>
+<td>-5.62 [-33.3, 33.4] ns</td>
+<td>-12.5 [-42.0, 24.2] ns</td>
+<td>-7.18 [-40.6, 25.6] ns</td>
+<td>+455 [400, 465]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Long-task total (ms)</h4>
+<p>Cell = median [p25-p75] / p95 across runs.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 54.1 (n=20)</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>65.0 [58.8-70.3] / 87.0 (n=20)</td>
+<td>1691 [1673-1737] / 1957 (n=20)</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>0.00 [0.00-0.00] / 0.00 (n=20)</td>
+<td>478 [455-485] / 526 (n=20)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Difference of medians vs the baseline with the SAME window (bootstrap 95% CI over runs, 10000 resamples; "ns" = CI includes 0):</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nat@300 - base@300</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+</tr>
+<tr>
+<td>rp@300 - base@300</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+</tr>
+<tr>
+<td>poly@300 - base@300</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+65.0 [60.0, 70.0]</td>
+<td>+1691 [1679, 1714]</td>
+</tr>
+<tr>
+<td>nat@16 - base@16</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+</tr>
+<tr>
+<td>rp@16 - base@16</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+</tr>
+<tr>
+<td>poly@16 - base@16</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+0.00 [0.00, 0.00] ns</td>
+<td>+478 [465, 483]</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4>Patch lag pooled over all boundaries x runs (ms): median / p25 / p75 / p95 / max</h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>variant</th>
+<th>N=16</th>
+<th>N=60</th>
+<th>N=100</th>
+<th>N=500</th>
+<th>N=2000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base@300</td>
+<td>118 / 56.4 / 204 / 274 / 287</td>
+<td>119 / 50.0 / 201 / 268 / 299</td>
+<td>122 / 53.0 / 206 / 272 / 320</td>
+<td>121 / 51.7 / 205 / 274 / 315</td>
+<td>122 / 54.5 / 205 / 273 / 310</td>
+</tr>
+<tr>
+<td>nat@300</td>
+<td>125 / 61.6 / 209 / 279 / 295</td>
+<td>118 / 51.2 / 201 / 268 / 302</td>
+<td>118 / 52.2 / 202 / 268 / 303</td>
+<td>120 / 53.3 / 204 / 270 / 310</td>
+<td>149 / 85.0 / 221 / 283 / 331</td>
+</tr>
+<tr>
+<td>rp@300</td>
+<td>126 / 63.4 / 209 / 280 / 293</td>
+<td>118 / 51.3 / 201 / 268 / 302</td>
+<td>118 / 53.1 / 203 / 269 / 303</td>
+<td>121 / 53.5 / 204 / 271 / 308</td>
+<td>127 / 59.3 / 210 / 277 / 317</td>
+</tr>
+<tr>
+<td>poly@300</td>
+<td>125 / 62.5 / 209 / 280 / 295</td>
+<td>118 / 52.3 / 202 / 269 / 307</td>
+<td>119 / 54.5 / 203 / 269 / 305</td>
+<td>142 / 73.5 / 225 / 293 / 335</td>
+<td>657 / 547 / 761 / 932 / 1098</td>
+</tr>
+<tr>
+<td>base@16</td>
+<td>-29.7 / -33.9 / -0.01 / 0.34 / 1.73</td>
+<td>-19.9 / -34.1 / -0.15 / 0.59 / 19.1</td>
+<td>-15.6 / -25.2 / 8.50 / 16.0 / 34.3</td>
+<td>-14.7 / -25.8 / 7.66 / 15.0 / 42.0</td>
+<td>-15.9 / -24.6 / 9.16 / 16.8 / 39.5</td>
+</tr>
+<tr>
+<td>nat@16</td>
+<td>-29.5 / -34.4 / -0.23 / 0.35 / 1.46</td>
+<td>-28.1 / -33.3 / 0.02 / 4.98 / 17.3</td>
+<td>-17.0 / -25.2 / 8.98 / 16.2 / 18.1</td>
+<td>-13.7 / -25.8 / 7.72 / 15.4 / 18.7</td>
+<td>-16.4 / -24.6 / 9.25 / 16.7 / 21.1</td>
+</tr>
+<tr>
+<td>rp@16</td>
+<td>-28.9 / -34.2 / -0.10 / 0.17 / 0.52</td>
+<td>-18.1 / -32.8 / -0.08 / 1.37 / 4.84</td>
+<td>-17.1 / -25.0 / 8.91 / 16.2 / 18.2</td>
+<td>-18.1 / -25.9 / 7.93 / 15.9 / 22.2</td>
+<td>-16.4 / -24.8 / 8.56 / 16.3 / 19.6</td>
+</tr>
+<tr>
+<td>poly@16</td>
+<td>-29.8 / -34.2 / 0.02 / 0.68 / 7.46</td>
+<td>-29.6 / -34.0 / -0.03 / 2.45 / 13.1</td>
+<td>-16.6 / -24.8 / 9.38 / 16.5 / 19.5</td>
+<td>-13.7 / -24.4 / 8.97 / 16.6 / 21.2</td>
+<td>419 / 348 / 472 / 552 / 799</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<footer>Rendered from <code>data/fair-bench/chromium-timing-1x.md</code>.</footer>
+</main>
+</body>
+</html>

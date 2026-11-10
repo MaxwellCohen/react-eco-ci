@@ -117,7 +117,7 @@ nav.toc a:hover{text-decoration:underline}
 <tr><td><code>&lt;template for&gt;</code>, MutationObserver polyfill</td><td class="n">40.4</td><td class="n bad">248</td><td class="n bad">1,685</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Bootstrap 95% CIs for native and script-applied vs classic exclude zero in every column. ScriptDuration drops as well (native at 500: 4.8 vs 13.2&nbsp;ms). <a href="data/fair-bench/chromium-cost-1x.md">Full tables</a>.</p>
+<p class="cap">Bootstrap 95% CIs for native and script-applied vs classic exclude zero in every column. ScriptDuration drops as well (native at 500: 4.8 vs 13.2&nbsp;ms). <a href="data/fair-bench/chromium-cost-1x.html">Full tables</a>.</p>
 
 <div class="note"><strong>How to read these rows.</strong> They come from a benchmark build where the <em>server</em> holds completed boundaries for 300&nbsp;ms and sends them as one group. The React PR does not hold on the server. Its head batches on the client instead, which makes it a script-applied path. That exact build has not been run through this benchmark yet; the script-applied row is the closest measurement.</div>
 
@@ -132,7 +132,7 @@ nav.toc a:hover{text-decoration:underline}
 <tr><td>Script-applied, no hold</td><td class="n bad">106</td><td class="n bad">261</td><td class="n bad">566</td><td class="n good">26–27</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>.</p>
+<p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.html">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.html">timing</a>.</p>
 <p>Do not read the jump vs classic@300 as a Chromium bug. Most of it is cadence (many more reveals), and on the native rows <strong>ScriptDuration is almost all <code>$RP</code></strong>: stubbing <code>$RP</code> in a follow-up run dropped native ScriptDuration to ~0.1&nbsp;ms while patches still applied. Against classic at a similar cadence (<code>$RC</code> @16&nbsp;ms) the leftover gap is smaller. The clearer high-count native-vs-script question is under the same 300&nbsp;ms policy (<a href="#g8">gap 8</a>).</p>
 
 <h3>Bytes</h3>
@@ -158,7 +158,7 @@ nav.toc a:hover{text-decoration:underline}
 <tr><td>Strict CSP, templates left unapplied (Chromium / Firefox / WebKit)</td><td class="n">fallbacks stay</td><td class="n">0 / 112 / 112</td><td class="n">0 / 112 / 112</td></tr>
 </tbody>
 </table></div>
-<p class="cap">Timing differences are within noise except Firefox patch lag. The extra gzip bytes per boundary are mostly a repeated id (<a href="#g7">gap 7</a>). <a href="data/preact-REPORT.md">Report</a> · <a href="data/preact-DATA.md">data</a>.</p>
+<p class="cap">Timing differences are within noise except Firefox patch lag. The extra gzip bytes per boundary are mostly a repeated id (<a href="#g7">gap 7</a>). <a href="data/preact-REPORT.html">Report</a> · <a href="data/preact-DATA.html">data</a>.</p>
 
 <h2 id="lacking">What is lacking</h2>
 <ul>
@@ -171,7 +171,7 @@ nav.toc a:hover{text-decoration:underline}
 </ul>
 
 <h2 id="gaps">Platform gaps: notes for web standards</h2>
-<p>Each item is something a streaming library needs that <code>&lt;template for&gt;</code> does not do natively, as observed in Chromium 156, with the script React or Preact uses instead. The same notes as a plain file to paste into an issue: <a href="data/platform-gaps.md">platform-gaps.md</a>.</p>
+<p>Each item is something a streaming library needs that <code>&lt;template for&gt;</code> does not do natively, as observed in Chromium 156, with the script React or Preact uses instead. Formatted notes: <a href="data/platform-gaps.html">platform gaps</a>. Raw markdown to paste into an issue: <a href="data/platform-gaps.md">platform-gaps.md</a>.</p>
 
 <div class="gap" id="g1">
 <h3><span>1</span>A patch cannot be held, batched or scheduled</h3>
@@ -298,7 +298,7 @@ nav.toc a:hover{text-decoration:underline}
 <ul>
   <li>React cost: Chromium 156.0.8078.4, CPU throttle 1×, hydrate off, 20 runs per cell, variants interleaved. Metric: median main-thread TaskDuration. Differences are bootstrap 95% CIs over runs.</li>
   <li>The equal-policy rows use a benchmark build that holds completed boundaries on the server for the same 300&nbsp;ms window as classic. The no-hold rows use a build that flushes at once with no client batching.</li>
-  <li>React timing: same harness with hydration late, 16 to 2,000 boundaries. Patch lag is level between variants at the same window. <a href="data/fair-bench/chromium-timing-1x.md">Timing tables</a>.</li>
+  <li>React timing: same harness with hydration late, 16 to 2,000 boundaries. Patch lag is level between variants at the same window. <a href="data/fair-bench/chromium-timing-1x.html">Timing tables</a>.</li>
   <li>Preact: Playwright Chromium, Firefox and WebKit against deployed Workers, 5 interleaved runs per cell; gzip figures are estimates.</li>
   <li>One machine. Challenge the harness.</li>
 </ul>
