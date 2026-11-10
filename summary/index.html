@@ -113,7 +113,7 @@ summary{cursor:pointer;font-weight:600}
 <h2>Links</h2>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> — one-flag HTML-first (based on <code>facebook/react</code> main)</li>
-<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a></li>
+<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (full size @ <code>c7e2a925</code>)</li>
 <li><a href="https://html-first-react.pages.dev/summary/">Live summary</a> on Cloudflare Pages</li>
 <li><a href="https://html-first-react.pages.dev/examples/">Live examples</a> on Cloudflare Pages</li>
 <li>Earlier drafts (history only): <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a>–<a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a></li>
@@ -125,7 +125,7 @@ summary{cursor:pointer;font-weight:600}
 <li>Treatment: same tip, flag on. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
 <li>Framework throughput exemplar: stock React vs flag+patched Waku (picked for easy patching + solid RSC), 5 rotated rounds, host-row page (see waku-htmlfirst-bench RESULTS). Not Waku-limited.</li>
 <li>Browsers: Playwright Chromium, Firefox, WebKit for correctness.</li>
-<li>Fresh rerun 10 Nov 2026: metrics N=15 full size; correctness <b>41/41 PASS</b> in Chromium, Firefox, and WebKit (exit 0).</li>
+<li>Fresh rerun 10 Nov 2026 @ <code>c7e2a925</code> (DOM adopt fix): metrics N=15 full size — gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
 </ul></details>
 
 <footer>HTML-first React: Results Summary &middot; static page, no tracking.</footer>
