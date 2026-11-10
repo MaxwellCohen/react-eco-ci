@@ -83,7 +83,7 @@ nav.toc a:hover{text-decoration:underline}
 <div class="stats">
 <div class="stat"><b>−37% to −55%</b><span>main-thread, script-applied <code>&lt;template for&gt;</code> vs <code>$RC</code>, 60 to 2,000 boundaries</span></div>
 <div class="stat"><b>−39% / −48%</b><span>main-thread, native apply, at 60 / 500 boundaries</span></div>
-<div class="stat neg"><b>~2×</b><span>native vs script-applied at 2,000 boundaries, same policy — Chromium cost (<a href="#g8">gap 8</a>)</span></div>
+<div class="stat neg"><b>~2×</b><span>native vs script-applied TaskDuration at 2,000, same 300&nbsp;ms policy (<a href="#g8">gap 8</a>)</span></div>
 </div>
 
 <nav class="toc" aria-label="Sections">
@@ -133,7 +133,7 @@ nav.toc a:hover{text-decoration:underline}
 </tbody>
 </table></div>
 <p class="cap">Median TaskDuration (ms) and median patch lag (ms). A separate session from the table above, so compare within a table. <a href="data/fair-bench/chromium-cost-1x-nohold-summary.md">Cost</a> · <a href="data/fair-bench/chromium-timing-1x-nohold-summary.md">timing</a>.</p>
-<p>Against classic at a similar cadence (<code>$RC</code> @16&nbsp;ms), layout is about the same (30.7 vs 29.8&nbsp;ms at 500), but native <strong>ScriptDuration</strong> jumps to 79.7&nbsp;ms vs 8.8&nbsp;ms. That spike, and native running ~2× a script batch at 2,000 under the same 300&nbsp;ms policy, look like Chromium implementation cost for many small patches (<a href="#g8">gap 8</a>) — not evidence that batching is what makes <code>&lt;template for&gt;</code> fast.</p>
+<p>Do not read the jump vs classic@300 as a Chromium bug. Most of it is cadence (many more reveals), and on the native rows <strong>ScriptDuration is almost all <code>$RP</code></strong>: stubbing <code>$RP</code> in a follow-up run dropped native ScriptDuration to ~0.1&nbsp;ms while patches still applied. Against classic at a similar cadence (<code>$RC</code> @16&nbsp;ms) the leftover gap is smaller. The clearer high-count native-vs-script question is under the same 300&nbsp;ms policy (<a href="#g8">gap 8</a>).</p>
 
 <h3>Bytes</h3>
 <div class="tablewrap"><table>
@@ -239,10 +239,10 @@ nav.toc a:hover{text-decoration:underline}
 </div>
 
 <div class="gap" id="g8">
-<h3><span>8</span>Many small native patches are expensive in Chromium</h3>
+<h3><span>8</span>At high counts, native can cost more than a script batch</h3>
 <dl>
-<dt>Today</dt><dd>Same 300&nbsp;ms policy: native and script are level up to 500 boundaries; at 2,000, native takes 222&nbsp;ms and script 113&nbsp;ms. With no hold, at 500 boundaries layout matches classic <code>$RC</code> @16&nbsp;ms, but native ScriptDuration is 79.7&nbsp;ms against 8.8&nbsp;ms.</dd>
-<dt>Ask</dt><dd>Chromium performance bug / implementation work, not a spec change. Libraries should not treat that cost as a reason to avoid the wire format.</dd>
+<dt>Today</dt><dd>Same 300&nbsp;ms policy: native and script are level up to 500; at 2,000, native is 222&nbsp;ms and script-applied 113&nbsp;ms. Stubbing <code>$RP</code> on native drops ScriptDuration to ~0, so that gap is not library script — it is in the browser’s apply/layout path. Open whether that is expected cost or a Chromium bug.</dd>
+<dt>Ask</dt><dd>Worth a Chromium performance look, not a spec change. Separate from the no-hold vs classic@300 comparison, which is mostly cadence plus <code>$RP</code>.</dd>
 </dl>
 </div>
 

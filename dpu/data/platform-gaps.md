@@ -23,7 +23,7 @@ starting points, not worked-out proposals.
 | 5 | A patch cannot wait for, or place, its styles | Render-blocking `<link>` before the patch, script hoists `<style>` | Cascade order differs without script |
 | 6 | A patch with no matching range stays in the document | Script removes the leftover `<template>` | Clean-up only |
 | 7 | The range name cannot be looked up, and old browsers see a comment | A second marker per boundary | About +3 to +5 gzip bytes per boundary |
-| 8 | Many small native patches are expensive in Chromium | None | Implementation bug, not spec |
+| 8 | At high counts, native can cost more than a script batch | None | Open: expected cost vs Chromium bug |
 | 9 | Chromium only | Script fallback, which CSP can block | Fallback is required |
 
 ## 1. A patch cannot be held, batched or scheduled
@@ -37,10 +37,10 @@ no client schedule: each patch commits as it parses. A server-side hold would ba
 bytes, which React will not do.
 
 The large TaskDuration gap for unthrottled native vs classic@$RC@300 (278 vs 117 ms at 500) is
-**not** the right evidence for this ask. Against classic at a similar cadence (`$RC` @16 ms), layout
-is level and the excess is almost all ScriptDuration (79.7 vs 8.8 ms at 500) — that looks like a
-Chromium cost for many small patches (see §8). Batching is still needed for reveal UX parity, and
-so React can keep one schedule with or without script.
+**not** evidence of a Chromium bug, and not the right evidence for this ask. Most of it is cadence
+(many more reveals). On the native rows, ScriptDuration is almost all `$RP`: a follow-up run that
+stubbed `$RP` dropped native ScriptDuration to ~0.1 ms while patches still applied. Batching is
+still needed for reveal UX parity, and so React can keep one schedule with or without script.
 
 **Workaround.** `$RP()` runs once after the shell and replaces every `<?start name>` processing
 instruction with a comment of the same text. With no range to target, the browser leaves each
@@ -131,9 +131,9 @@ measured +2.8 to +5.5 gzip bytes per boundary against its current format, most o
 **Possible ask.** A lookup API (name to range), so one marker serves the browser, the fallback and
 hydration.
 
-## 8. Many small native patches are expensive in Chromium
+## 8. At high counts, native can cost more than a script batch
 
-Implementation / performance bug for Chromium, not a spec gap.
+Open question for Chromium performance, not a spec gap.
 
 Same 300 ms policy, median TaskDuration:
 
@@ -142,18 +142,13 @@ Same 300 ms policy, median TaskDuration:
 | Native | 28.9 | 64.6 | 222 |
 | Script-applied | 29.5 | 57.7 | 113 |
 
-Native is level with script up to 500 and twice as slow at 2,000. At a 16 ms window, native is
-+59 ms against classic at 2,000 while the script path is level.
+Native is level with script up to 500 and twice as slow at 2,000. A follow-up run that stubbed
+`$RP` on the native path (`nat@300-noRP`) dropped ScriptDuration to ~0.1 ms; TaskDuration stayed
+in the same ballpark. So that high-N gap is in the browser apply/layout path, not library script.
+Whether that is expected cost or a bug is open.
 
-No-hold (every patch commits immediately), at 500 boundaries:
-
-| | TaskDuration | ScriptDuration | LayoutDuration |
-|---|---|---|---|
-| Classic `$RC` @16 ms | 171 | 8.81 | 29.8 |
-| Native, no hold | 278 | 79.7 | 30.7 |
-
-Layout matches; ScriptDuration does not. Treat the old “+138% when native is not batched” headline
-as a Chromium signal, not as proof that the format needs a batch API to be fast.
+The old “+138% when native is not batched” (no-hold vs classic@300) is **not** that signal: it
+mixes cadence with mechanism, and its ScriptDuration spike is mostly `$RP`.
 
 ## 9. Chromium only
 
