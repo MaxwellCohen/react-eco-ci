@@ -35,15 +35,12 @@ const stream = new ReadableStream({
     self.__FLIGHT_DATA = { push };
   },
 });
-// With enableFlightLazyClientParser the reply encoder and the typed-array parser extension are split out of the
-// browser client: the framework supplies a literal import() so its bundler can emit them as separate chunks.
-const loadReplyEncoder = () => import('./reply.js');
-const loadParserExtension = () => import('./parser.js');
+// One-flag tip (enableFlightHtmlFirst): encodeReply lives on client.browser — no lazy parser/reply split.
 async function callServer(id, args) {
-  const res = await fetch(location.pathname + location.search, { method: 'POST', headers: { 'x-rsc-action': id }, body: await encodeReply(args, { unstable_loadReplyEncoder: loadReplyEncoder }) });
-  return createFromReadableStream(res.body, { callServer, unstable_loadParserExtension: loadParserExtension });
+  const res = await fetch(location.pathname + location.search, { method: 'POST', headers: { 'x-rsc-action': id }, body: await encodeReply(args) });
+  return createFromReadableStream(res.body, { callServer });
 }
-hydrateRoot(document, <Shell response={createFromReadableStream(stream, { callServer, unstable_loadParserExtension: loadParserExtension })} />, { formState: self.__FORM_STATE__ ?? null, onRecoverableError: e => recoverable.push(String(e && e.message).slice(0, 200)) });
+hydrateRoot(document, <Shell response={createFromReadableStream(stream, { callServer })} />, { formState: self.__FORM_STATE__ ?? null, onRecoverableError: e => recoverable.push(String(e && e.message).slice(0, 200)) });
 
 function check() {
   const h = window.__hydration;
