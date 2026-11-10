@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML-first scenario examples</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.7rem}
+.sub,.cap{color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+a{color:var(--acc)}
+code{font-size:.88em}
+</style></head><body><main>
+<p class="sub"><a href="../summary/">← Summary</a> · 41 scenario pages</p>
+<h1>HTML-first scenario examples</h1>
+<p>Corpus pages used to prove HTML-first elision. Gzip column is flags-on vs flags-off on the Suspense build (full size).</p>
+<p class="cap">Sources live in <code>fixtures/flight-ssr-bench</code> on branch <code>rsc/7-scenario-examples</code>.</p>
+<table><thead><tr><th>Scenario</th><th class="n">gzip (all vs off)</th></tr></thead><tbody>
+<tr><td><code>all-client</code></td><td class="n">1000 (0.0%)</td></tr>
+<tr><td><code>attributes-styles-aria</code></td><td class="n">43034 (-18.7%)</td></tr>
+<tr><td><code>blog-article</code></td><td class="n">22308 (-17.4%)</td></tr>
+<tr><td><code>cart-quantity-steppers</code></td><td class="n">5800 (-18.5%)</td></tr>
+<tr><td><code>client-composition-slot</code></td><td class="n">2997 (-0.4%)</td></tr>
+<tr><td><code>client-only-wrapper</code></td><td class="n">559 (+0.7%)</td></tr>
+<tr><td><code>comments-thread-recursive</code></td><td class="n">9830 (-28.7%)</td></tr>
+<tr><td><code>dangerous-inner-html</code></td><td class="n">9880 (-50.1%)</td></tr>
+<tr><td><code>dashboard-client-widgets</code></td><td class="n">3577 (-9.7%)</td></tr>
+<tr><td><code>data-grid-client-cells</code></td><td class="n">69555 (-0.1%)</td></tr>
+<tr><td><code>data-grid-server-cells</code></td><td class="n">92290 (-59.4%)</td></tr>
+<tr><td><code>deep-tree</code></td><td class="n">2936 (-6.6%)</td></tr>
+<tr><td><code>docs-sidebar-toc</code></td><td class="n">16393 (-58.5%)</td></tr>
+<tr><td><code>form-controls-uncontrolled</code></td><td class="n">25189 (-4.6%)</td></tr>
+<tr><td><code>fragments-arrays-keys</code></td><td class="n">792 (-1.5%)</td></tr>
+<tr><td><code>full-refresh-focus</code></td><td class="n">657 (-0.9%)</td></tr>
+<tr><td><code>head-hoistables</code></td><td class="n">4805 (-0.7%)</td></tr>
+<tr><td><code>huge-inline-svg</code></td><td class="n">57089 (-49.8%)</td></tr>
+<tr><td><code>i18n-text-heavy</code></td><td class="n">6337 (-43.2%)</td></tr>
+<tr><td><code>islands-many-tiny</code></td><td class="n">12547 (-14.7%)</td></tr>
+<tr><td><code>keyed-list-client-reorder</code></td><td class="n">627 (0.0%)</td></tr>
+<tr><td><code>marketing-style-jsonld</code></td><td class="n">35558 (-49.3%)</td></tr>
+<tr><td><code>modal-children-toggle</code></td><td class="n">559 (0.0%)</td></tr>
+<tr><td><code>nested-layouts-context</code></td><td class="n">5296 (0.0%)</td></tr>
+<tr><td><code>nested-suspense-waterfall</code></td><td class="n">1237 (+0.2%)</td></tr>
+<tr><td><code>product-detail-reviews</code></td><td class="n">8515 (-48.4%)</td></tr>
+<tr><td><code>product-listing</code></td><td class="n">54722 (-1.9%)</td></tr>
+<tr><td><code>realistic-storefront</code></td><td class="n">10345 (-15.5%)</td></tr>
+<tr><td><code>repeated-long-strings</code></td><td class="n">13182 (+12.4%)</td></tr>
+<tr><td><code>repeated-object-props</code></td><td class="n">2802 (-0.4%)</td></tr>
+<tr><td><code>server-action-form</code></td><td class="n">874 (0.0%)</td></tr>
+<tr><td><code>server-element-via-props</code></td><td class="n">782 (0.0%)</td></tr>
+<tr><td><code>server-error-in-suspense</code></td><td class="n">611 (-2.6%)</td></tr>
+<tr><td><code>server-table-client-rows</code></td><td class="n">21248 (-49.7%)</td></tr>
+<tr><td><code>suspense-fallback-shown-late</code></td><td class="n">641 (-0.9%)</td></tr>
+<tr><td><code>suspense-many-boundaries</code></td><td class="n">5132 (-8.0%)</td></tr>
+<tr><td><code>suspense-staggered</code></td><td class="n">1971 (-6.8%)</td></tr>
+<tr><td><code>tabs-panels-prop</code></td><td class="n">614 (0.0%)</td></tr>
+<tr><td><code>tiny-static</code></td><td class="n">409 (-20.1%)</td></tr>
+<tr><td><code>whitespace-entities-text</code></td><td class="n">11049 (-50.5%)</td></tr>
+<tr><td><code>wide-tree</code></td><td class="n">26681 (-79.4%)</td></tr>
+</tbody></table>
+</main></body></html>
