@@ -106,7 +106,7 @@ nav.toc a:hover{text-decoration:underline}
 <ol>
   <li><strong>Emit the platform markers</strong> — <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> and <code>&lt;template for&gt;</code>.</li>
   <li><strong>Use a per-flush script fallback</strong> where native support is missing (the row that wins at 500 and 2,000 above).</li>
-  <li><strong>Stay on DPU for hard cases too</strong> — SVG/MathML, view-transition reveals, and resume/prerender should get declarative solutions (library fallbacks and/or platform fixes), not a permanent second protocol.</li>
+  <li><strong>Extend the script fallback for hard cases</strong> — SVG/MathML, view-transition reveals, and resume/prerender stay on the same markers; cover them with JS / platform fixes, not a second protocol.</li>
 </ol>
 <pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
 &lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
@@ -126,7 +126,7 @@ nav.toc a:hover{text-decoration:underline}
 </tr>
 <tr>
   <td>React fork PR</td>
-  <td>One implementation of the shape above (<code>$RP</code> fallback; SVG/MathML/VT/resume still on <code>$RC</code> today)</td>
+  <td>One implementation of the shape above — <code>$RP</code> for unsupported browsers; SVG/MathML/VT/resume still temporarily on <code>$RC</code> (extend with script / DPU-side fallback next)</td>
   <td><a href="https://github.com/MaxwellCohen/react/pull/25">MaxwellCohen/react#25</a></td>
 </tr>
 <tr>
@@ -137,13 +137,13 @@ nav.toc a:hover{text-decoration:underline}
 </tbody>
 </table></div>
 
-<h2 id="extend">Extend DPU — do not keep a parallel classic path</h2>
-<p>Today’s experiments often fall back to <code>$RC</code> for a few cases. The goal is the opposite: cover them with <code>&lt;template for&gt;</code> (and the script fallback) so libraries do not permanently ship two streaming protocols.</p>
+<h2 id="extend">Known gaps — cover with JS / script fallback</h2>
+<p>Do not keep a permanent classic path for these. Keep emitting <code>&lt;template for&gt;</code> + markers, and extend the <strong>script / JS fallback</strong> (and platform fixes where needed) so one protocol covers them.</p>
 <ul>
-  <li><strong>SVG / MathML:</strong> native patching can land the wrong namespace today — fix in the platform and/or a DPU-aware fallback that preserves foreign namespaces, not a return to hidden-node <code>$RC</code> for every SVG boundary.</li>
-  <li><strong>View-transition reveals:</strong> teach the declarative path (or a thin DPU-side helper) to participate in <code>startViewTransition</code> instead of routing those boundaries off DPU.</li>
-  <li><strong>Resume / prerender:</strong> resume should rehydrate the same markers and templates, not a separate classic instruction stream.</li>
-  <li><strong>Late styles / SRI:</strong> carry attributes through the declarative patch path so stylesheet boundaries stay on DPU.</li>
+  <li><strong>SVG / MathML:</strong> native patching can land the wrong namespace — a DPU-aware script fallback that preserves foreign namespaces (or a platform fix), not hidden-node <code>$RC</code>.</li>
+  <li><strong>View-transition reveals:</strong> teach <code>$RP</code> / a thin DPU-side helper to participate in <code>startViewTransition</code>.</li>
+  <li><strong>Resume / prerender:</strong> rehydrate the same markers and templates on resume; script fallback applies if native did not.</li>
+  <li><strong>Late styles / SRI:</strong> carry attributes through the declarative patch path (and the script fallback) so stylesheet boundaries stay on DPU.</li>
 </ul>
 
 <h2 id="links">Links</h2>
