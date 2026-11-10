@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HTML-first React: Results Summary</title>
-<meta name="description" content="Merge PR #24 and turn on enableFlightHtmlFirst: ~43% smaller downloads and higher throughput vs stock React main, with no UX/DX change.">
+<meta name="description" content="Merge PR #24 and turn on enableFlightHtmlFirst: ~43% smaller downloads vs stock React main for in-process Flight→SSR, with authors keeping the same components.">
 <style>
 :root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00}
 @media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a}}
@@ -41,91 +41,94 @@ summary{cursor:pointer;font-weight:600}
 </head>
 <body>
 <main>
-<p class="sub">HTML-first React &middot; vs stock React main &middot; 10 November 2026</p>
+<p class="sub">HTML-first React &middot; vs stock React main &middot; tip <code>c31090aa6e</code> &middot; 10 November 2026</p>
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
-<p> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> or a similar feature of, turn on <code>enableFlightHtmlFirst</code>, and having the framework opt into it. Compared with <b>stock React main</b> (same tip, flag off):</p>
+<p>Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightHtmlFirst</code> — no framework side channel required for in-process Flight→SSR. Compared with <b>stock React main</b> (same tip, flag off):</p>
 <ul>
 <li><b>~43% smaller</b> gzip HTML downloads across 41 pages (sum)</li>
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
-<li><b>~3×</b> server requests/sec on a patched framework host-row page (measured in Waku)</li>
+<li><b>~3×*</b> server requests/sec on a host-row page measured in Waku on an <em>older</em> tip — remeasure before treating as current</li>
 </ul>
-<p>And <b>no impact on user experience or developer experience</b>: same components, same hydration behaviour for correct pages, same APIs for authors. That is what the correctness corpus is for — 41/41 pages pass in Chromium, Firefox, and WebKit after the position, Suspense, and children rules landed.</p>
+<p>Authors keep the same components and APIs. Correct pages hydrate and interact like stock. The correctness corpus at this tip is <b>40/41</b> in Chromium: <code>head-hoistables</code> fails a strict head-DOM compare because zero-optin registry SSR does not flush Flight <code>:HL</code> preload hints the same way the explicit side channel does — unique resources and body content still match.</p>
 </div>
 
 <div class="stats">
 <div class="stat"><b>−43%</b><span>gzip download vs stock main</span></div>
 <div class="stat"><b>−79%</b><span>inlined Flight vs stock main</span></div>
 <div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>~3×</b><span>framework host-page throughput</span></div>
+<div class="stat"><b>~3×*</b><span>host-page throughput (older run)</span></div>
 </div>
 
 <h2>What changes</h2>
-<p>One experimental flag. Static Server Component host markup in host position (including Suspense children and Client Component <code>children</code>) is left out of the browser Flight payload and adopted from SSR HTML. Non-<code>children</code> props stay in the payload. Frameworks pass <code>onElidedRow</code> / <code>elidedRows</code>; optional <code>onElidedContentMissing</code> recovers if a stub mounts without server DOM.</p>
-<p>Nothing changes for apps until the flag is on <em>and</em> the framework opts in. Authors keep writing the same components.</p>
+<p>One experimental flag. Static Server Component host markup in host position (including Suspense children and Client Component <code>children</code>) is left out of the browser Flight payload and adopted from SSR HTML. Non-<code>children</code> props stay in the payload. In-process SSR claims elided rows from React's internal registry (stream <code>:Q</code> id); frameworks do not pass <code>onElidedRow</code> / <code>elidedRows</code>. Optional <code>onElidedContentMissing</code> recovers if a stub mounts without server DOM. SPA navigation / refetch <b>must</b> use <code>onElidedRow: false</code> for a full Flight payload that adopts existing DOM.</p>
+<p>Nothing changes for apps until the flag is on. Authors keep writing the same components.</p>
 
 <h2>Bytes vs stock main</h2>
-<p>41 scenarios, flag off vs on, same React tip based on <code>facebook/react</code> main. Sum across pages:</p>
+<p>41 scenarios, flag off vs on, tip <code>c31090aa6e</code> based on <code>facebook/react</code> main. Sum across pages:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Stock (flag off)</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>Gzip download</td><td class="n">1,023,743</td><td class="n">586,375</td><td class="n">−42.7%</td></tr>
-<tr><td>Raw HTML</td><td class="n">14,556,166</td><td class="n">7,250,850</td><td class="n">−50.2%</td></tr>
-<tr><td>Inlined Flight</td><td class="n">9,281,206</td><td class="n">1,975,890</td><td class="n">−78.7%</td></tr>
+<tr><td>Gzip download</td><td class="n">1,023,912</td><td class="n">586,660</td><td class="n">−42.7%</td></tr>
+<tr><td>Raw HTML</td><td class="n">14,555,816</td><td class="n">7,245,676</td><td class="n">−50.2%</td></tr>
+<tr><td>Inlined Flight</td><td class="n">9,280,856</td><td class="n">1,978,106</td><td class="n">−78.7%</td></tr>
 </tbody></table></div>
-<p class="cap">Per-page numbers: <a href="../examples/">examples index</a>. Benefit tracks how much static server markup sits in host position; all-client pages gain nothing (see <code>everything-client</code> at 0%).</p>
+<p class="cap">Per-page numbers: <a href="../examples/">examples index</a>. Benefit tracks how much static server markup sits in host position; <code>all-client</code> gains nothing useful (+0.6% gzip from the <code>:Q</code> row). Aggregate savings are dominated by a few heavy pages.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Example</th><th class="n">gzip</th><th class="n">inlined Flight</th></tr></thead>
 <tbody>
 <tr><td>wide-tree</td><td class="n">−79%</td><td class="n">−99.9%</td></tr>
 <tr><td>docs-sidebar-toc</td><td class="n">−59%</td><td class="n">−98%</td></tr>
-<tr><td>client-composition-slot</td><td class="n">−59%</td><td class="n">−95%</td></tr>
+<tr><td>client-composition-slot</td><td class="n">−59%</td><td class="n">−94%</td></tr>
 <tr><td>server-table-client-rows</td><td class="n">−50%</td><td class="n">−95%</td></tr>
 <tr><td>nested-layouts-context</td><td class="n">−41%</td><td class="n">−89%</td></tr>
-<tr><td>everything-client</td><td class="n">0%</td><td class="n">0%</td></tr>
+<tr><td>all-client</td><td class="n">+0.6%</td><td class="n">+15%</td></tr>
 </tbody></table></div>
 
 <h2>Throughput vs stock</h2>
-<p>With the flag on and a framework opted in (host-row 1000-row page): <b>3.19×</b> requests/sec vs stock React (about <b>+219%</b>), TTFB about half. Client-row pages save bytes but timing stays within noise. Flags on without framework opt-in do not move gzip and are not the proposal.</p>
-<p class="cap">Waku is the measurement vehicle here — chosen because it is easy to patch and has strong RSC support — not because the win is Waku-specific. Any framework that wires <code>onElidedRow</code> / <code>elidedRows</code> (and optional recovery) should see the same class of result.</p>
-<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.30×</b> less work (~<b>+30%</b> render throughput proxy) on a shared laptop — directional only; prefer the framework side-by-side numbers for server capacity.</p>
+<p>An older Waku host-row measurement (React <code>6ed2e62d21</code>, multi-flag + explicit opt-in) showed about <b>3.19×</b> requests/sec vs stock (~<b>+219%</b>), TTFB about half. That stack is <b>not</b> this tip’s zero-optin design — remeasure before quoting as current. Client-row pages save bytes but timing stays within noise.</p>
+<p class="cap">Waku is the measurement vehicle — chosen for strong RSC support — not because the win is Waku-specific. Any in-process Flight→SSR host with a flagged React build should see the same class of result; out-of-process sinks can still use <code>onElidedRow</code> / <code>elidedRows</code>.</p>
+<p>In-process Flight→Fizz render time across the 41 pages sums to about <b>1.29×</b> less work (~<b>+29%</b> render throughput proxy) on a shared laptop — directional only; prefer a fresh framework side-by-side for server capacity.</p>
 
-<h2>No UX / DX impact (correctness)</h2>
+<h2>Correctness (UX / DX)</h2>
 <ul>
 <li>Same public component model: authors do not mark trees or change JSX for the win.</li>
 <li>Hydration adopts server DOM for elided regions; interactive client islands keep working.</li>
-<li>41-page corpus in Chromium, Firefox, and WebKit: <b>41/41</b> pass (DOM compare now canonicalizes zero-length CSS units so remount <code>0px</code> matches server <code>0</code>).</li>
-<li>Deferred mounts (modal, ClientOnly) and Suspense client-render recover via <code>onElidedContentMissing</code> without blanking the page.</li>
+<li>41-page corpus: Chromium at tip is <b>40/41</b>. The remaining failure (<code>head-hoistables</code>) is head markup parity under zero-optin (<code>:HL</code> hint flush), not missing body content. DOM compare also canonicalizes style spacing / zero-length CSS units / attribute order.</li>
+<li>Deferred mounts (modal, ClientOnly) and Suspense client-render recover via framework-supplied <code>onElidedContentMissing</code> (without it, stubs suspend and report rather than blanking quietly).</li>
+<li>Head DOM is not always byte-identical under zero-optin; unique resources still match.</li>
 </ul>
 
 <h2>How it works</h2>
 <p>Today an RSC initial response ships the same static server markup twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With <code>enableFlightHtmlFirst</code>, React withholds static Server Component host trees that sit in <em>host position</em> (direct host children, including inside Suspense and as Client Component <code>children</code>) from the browser Flight stream. Non-<code>children</code> props stay in Flight so client components keep full props and hydrate normally.</p>
-<p>Elision only runs when the framework opts in. React needs a side channel: the server passes <code>onElidedRow</code> (JSON) or <code>onElidedValue</code> (live node for in-process SSR) so SSR still receives the markup and emits it as HTML; the client passes <code>elidedRows</code> so hydration adopts those DOM nodes instead of expecting them in the inlined payload. Optional <code>onElidedContentMissing</code> recovers if a stub would otherwise mount without server DOM (deferred mounts, mismatch remounts). The flag alone does nothing — without that handoff, withholding content would mean blank HTML or broken hydration.</p>
-<p>Initial load only: navigation/refetch responses are ordinary full Flight. Elided stubs use the same host tag as the full payload, so react-dom <em>adopts</em> the existing DOM on navigation (hydrates real children into the static island) instead of creating new nodes when the tag matches.</p>
+<p>With the flag on, React auto-elides into an internal registry keyed by a <code>:Q</code> row in the stream. The first in-process <code>createFrom*</code> claims it for SSR; the browser isolate has an empty registry and adopts HTML. Explicit <code>onElidedRow</code> / <code>onElidedValue</code> remain for out-of-process sinks. Optional <code>onElidedContentMissing</code> recovers if a stub would otherwise mount without server DOM (deferred mounts, mismatch remounts).</p>
+<p>SPA navigation/refetch must pass <code>onElidedRow: false</code> for a full Flight payload (auto-elision would leave stubs with no HTML). Elided stubs use the same host tag as the full payload, so react-dom <em>adopts</em> the existing DOM on navigation (hydrates real children into the static island) instead of creating new nodes when the tag matches.</p>
 
 <h2>Ask</h2>
 <ol>
-<li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, Suspense + children, no dedupe.</li>
-<li>Ship a framework opt-in (Waku was the patching prototype) so production gets the throughput number, not only the byte number.</li>
+<li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, Suspense + children, zero framework opt-in for in-process SSR.</li>
+<li>Ship a React build with the flag on; frameworks only need <code>onElidedRow: false</code> on SPA navigation responses (and optional recovery).</li>
+<li>Follow-ups: flush <code>:HL</code> under the registry path (restore 41/41), redeploy live demos from tip, remeasure Waku throughput.</li>
 </ol>
 
 <h2>Links</h2>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> — one-flag HTML-first (based on <code>facebook/react</code> main)</li>
-<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (full size @ <code>c7e2a925</code>)</li>
+<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (metrics @ tip <code>c31090aa6e</code>; live Workers may lag until redeploy)</li>
 <li><a href="https://html-first-react.pages.dev/summary/">Live summary</a> on Cloudflare Pages</li>
 <li><a href="https://html-first-react.pages.dev/examples/">Live examples</a> on Cloudflare Pages</li>
 <li>Earlier drafts (history only): <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a>–<a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a></li>
+<li><a href="../flight/">Historical Flight SSR table</a> (4-flag / pre one-flag era — not current)</li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
 <li>Baseline: React tip with <code>enableFlightHtmlFirst</code> off (stock behaviour for this feature), built from PR #24 rebased onto <code>facebook/react</code> main.</li>
-<li>Treatment: same tip, flag on. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
-<li>Framework throughput exemplar: stock React vs flag+patched Waku (picked for easy patching + solid RSC), 5 rotated rounds, host-row page (see waku-htmlfirst-bench RESULTS). Not Waku-limited.</li>
-<li>Browsers: Playwright Chromium, Firefox, WebKit for correctness.</li>
-<li>Fresh rerun 10 Nov 2026 @ <code>c7e2a925</code> (DOM adopt fix): metrics N=15 full size — gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
+<li>Treatment: same tip, flag on, zero-optin registry. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
+<li>Framework throughput exemplar (historical): stock React vs flag-on Waku at React <code>6ed2e62d21</code> with explicit opt-in — not re-run on <code>c31090aa6e</code>.</li>
+<li>Browsers: Playwright Chromium verified at tip (40/41); Firefox/WebKit green on earlier tips — re-run after <code>:HL</code> fix.</li>
+<li>Fresh metrics 10 Nov 2026 @ <code>c31090aa6e</code>: gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
 </ul></details>
 
 <footer>HTML-first React: Results Summary &middot; static page, no tracking.</footer>

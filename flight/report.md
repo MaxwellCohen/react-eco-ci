@@ -1,5 +1,7 @@
 # Flight SSR: flags off vs on
 
+> **Historical only.** Pre one-flag / multi-flag era. Current design: one flag `enableFlightHtmlFirst`, zero in-process opt-in — see [summary](../summary/) and [PR #24](https://github.com/MaxwellCohen/react/pull/24) tip `c31090aa6e`.
+
 - **off**: MaxwellCohen/react@rsc/5-html-first-flight (1930da7c), flags: none
 - **on**: MaxwellCohen/react@rsc/5-html-first-flight (1930da7c), flags: enableFlightHostElision, enableFlightLazyClientParser, enableFlightPayloadDedupe, enableFlightHtmlFirst
 
