@@ -24,9 +24,7 @@ const rows = vs.map(v => {
 mkdirSync('.build/streaming-index/public', {recursive: true});
 mkdirSync('.build/streaming-index/public/data', {recursive: true});
 
-const caseNote = existsSync('dpu/index.html')
-  ? `<p>Adoption case (numbers + proposal): see the <a href="https://maxwellcohen.github.io/react-eco-ci/dpu/">dpu case page</a> (PR against gh-pages).</p>`
-  : `<p>Adoption case: <a href="https://github.com/MaxwellCohen/react-eco-ci/pull/1">react-eco-ci#1</a> · React PR <a href="https://github.com/MaxwellCohen/react/pull/25">#25</a>.</p>`;
+const caseNote = `<p>The case for the wire format (numbers + approach): <a href="https://maxwellcohen.github.io/react-eco-ci/dpu/">dpu case page</a> · React PR <a href="https://github.com/MaxwellCohen/react/pull/25">#25</a>.</p>`;
 
 writeFileSync('.build/streaming-index/public/index.html', `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>react-eco-ci — Fizz streaming / DPU variants</title>
 <style>body{font:15px/1.45 system-ui,sans-serif;max-width:1000px;margin:24px auto;padding:0 16px;color:#18181b}table{border-collapse:collapse;width:100%}td{border-top:1px solid #e4e4e7;padding:10px 8px;vertical-align:top}small{color:#52525b}code{background:#f4f4f5;padding:0 4px;border-radius:4px}h2{margin-top:28px}</style>

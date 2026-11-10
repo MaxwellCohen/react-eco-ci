@@ -129,7 +129,7 @@ export default {
     }
     const skip = multi(q, 'skip').length ? multi(q, 'skip') : undefined;
     const group = q.get('group') || undefined;
-    if (group && !only) only = META.filter(x => x.group === group).map(x => x.id);
+    if (group && !only) only = META.filter(x => x.group === group && !x.solo).map(x => x.id);
     const props = {only, skip, version, scale, hydrate, mode, polyfill};
     const selected = new Set((only || DPU_SET).filter(id => !(skip || []).includes(id)));
     const nonce = q.get('csp') === 'strict' ? crypto.randomUUID().replace(/-/g, '') : '';

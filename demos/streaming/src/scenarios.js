@@ -19,7 +19,7 @@ const META = [
   {id: 'table-rows', group: 'edge-cases', title: 'Table rows', expected: 'Rows A and B land inside the same <tbody>.'},
   {id: 'select-options', group: 'edge-cases', title: 'Select options', expected: 'Options one/two/three; value stays 2.'},
   {id: 'list-items', group: 'edge-cases', title: 'List items', expected: 'Three <li> children.'},
-  {id: 'svg-namespace', group: 'edge-cases', title: 'SVG namespace', expected: 'Circle is SVG; has a non-zero box (native DPU may fail — classic path).'},
+  {id: 'svg-namespace', group: 'edge-cases', title: 'SVG namespace', expected: 'Circle is in the SVG namespace with a non-zero box ($RP reparses it after the patch).'},
   {id: 'mathml-namespace', group: 'edge-cases', title: 'MathML namespace', expected: 'mi/mo/mn in MathML namespace.'},
   {id: 'style-hoist', group: 'edge-cases', title: 'Inline style', expected: 'Text is tomato and bold.'},
   {id: 'foreign-object', group: 'edge-cases', title: 'foreignObject', expected: 'HTML paragraph inside SVG foreignObject.'},
@@ -42,9 +42,11 @@ const META = [
   {id: 'grid-100', group: 'stress', title: 'Grid 100', expected: '100 cells fill.'},
   {id: 'css-precedence', group: 'react', title: 'CSS precedence (React)', expected: 'Styled block turns green after slow stylesheet.'},
   {id: 'style-precedence', group: 'react', title: 'Style precedence (React)', expected: 'Late style with precedence paints blue.'},
+  // Rendering a <ViewTransition> switches the whole response to $RP(1,…), so it is not part of /dpu.
+  {id: 'view-transition', group: 'react', title: 'ViewTransition (React)', solo: true, expected: 'Fallback replaced inside <ViewTransition>; the completion is $RP(1,…) and a script-applied patch runs in startViewTransition.'},
 ];
 
-const DPU_SET = META.map(m => m.id);
+const DPU_SET = META.filter(m => !m.solo).map(m => m.id);
 const GROUPS = [...new Set(META.map(m => m.group))];
 
 export function createScenarios(React, ctx) {
@@ -150,6 +152,8 @@ export function createScenarios(React, ctx) {
       h('div', {key: 'd', id: 'styled', className: 'styled', 'data-testid': 'css-styled'}, 'Styled')]),
     'style-precedence': () => S('style-prec', 300, [h('style', {key: 's', href: 'late-1', precedence: 'default'}, '.sty{display:block;background-color:rgb(0,0,255)}'),
       h('div', {key: 'd', className: 'sty', 'data-testid': 'sty-styled'}, 'Late style')]),
+    'view-transition': () => h(React.ViewTransition || React.unstable_ViewTransition || React.Fragment, null,
+      h('div', {'data-testid': 'vt-stage'}, S('react-vt', 700, h('p', {'data-testid': 'vt-done'}, 'Revealed inside a ViewTransition')))),
   };
 
   function App({only, skip, version}) {
