@@ -85,6 +85,31 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 </table></div>
 <div class="note">Most of the 120 to 180 ms lag comes from Fizz's default batching window (<code>unstable_declarativeBatchMs</code>), not from DPU. With <code>batchMs=0</code>, every variant, including <code>$RP</code> and the polyfill, drops to 1 to 3 ms in all three browsers (Firefox: 2 ms for both; WebKit: 1 and 2 ms). So the <code>$RP</code> fallback and the polyfill cost nothing measurable beyond batching. Differences of around 300 ms in "last visible" just reflect which batch landed last. Results for the 16 and 100 boundary pages are in <a href="data/results.md">results.md</a>.</div>
 
+<h2>Script vs MutationObserver</h2>
+<p>The two ways to finish a streamed boundary in browsers without native DPU. <strong>MutationObserver:</strong> one observer in an init script watches for <code>&lt;template for&gt;</code> elements and applies each as it arrives (Preact PR #474, and the template-for polyfill used in the React runs). <strong>Script:</strong> each chunk carries its own tiny <code>&lt;script&gt;</code> that applies it directly, the way Fizz's <code>$RC</code>/<code>$RP</code> works (Preact PR #490, and the <code>$RP</code> fallback in React).</p>
+<h3>Preact: #474 (observer) vs #490 (script), medians</h3>
+<div class="tw"><table>
+<tr><th></th><th>main</th><th>#474 observer</th><th>#490 script</th></tr>
+<tr><td>Patch lag Chromium, 16 / 60 / 100 boundaries (ms)</td><td>-2 / 0 / 7</td><td>-2 / 0 / 0</td><td>0 / 1 / 5</td></tr>
+<tr><td>Patch lag Firefox (ms)</td><td>25 / 22 / 28</td><td>11 / 12 / 17</td><td>-2 / 1 / 6</td></tr>
+<tr><td>Patch lag WebKit (ms)</td><td>-4 / 4 / 10</td><td>-3 / -3 / 6</td><td>1 / 1 / 11</td></tr>
+<tr><td>Patched to interactive, client script after stream (C / F / W, ms)</td><td>103 / 102 / 106</td><td>90 / 81 / 114</td><td>106 / 121 / 104</td></tr>
+<tr><td>Same, client script mid-stream</td><td>12 / 12 / 14</td><td>11 / 15 / 15</td><td>16 / 13 / 14</td></tr>
+<tr><td>Longest stall in any cell (ms, single outliers)</td><td>956</td><td>158</td><td>46</td></tr>
+<tr><td>Fixed cost, first boundary (raw B)</td><td>1319</td><td>1190</td><td>883</td></tr>
+<tr><td>Per boundary raw / gzip / brotli (B)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
+<tr><td>60 / 100 boundary page, gzip (B)</td><td>6839 / 7367</td><td>7062 / 7680</td><td>7154 / 7851</td></tr>
+</table></div>
+<h3>React: <code>$RP</code> script fallback vs polyfill (observer), 60 boundaries, median patch lag (ms)</h3>
+<div class="tw"><table>
+<tr><th>Browser</th><th>Script (<code>$RP</code>), default batching</th><th>Observer (polyfill), default batching</th><th>Script, <code>batchMs=0</code></th><th>Observer, <code>batchMs=0</code></th></tr>
+<tr><td>Chromium (native off)</td><td class="n">178</td><td class="n">178</td><td class="n">2</td><td class="n">1</td></tr>
+<tr><td>Firefox</td><td class="n">124</td><td class="n">125</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>WebKit</td><td class="n">123</td><td class="n">124</td><td class="n">1</td><td class="n">2</td></tr>
+</table></div>
+<p><strong>What the numbers say.</strong> Speed: no meaningful difference. Differences under about 16 ms are noise, and in React the two are within 1 ms of each other. The script is slightly lower in Firefox in the Preact runs (about 10 ms), which is the only gap that stands out. Size: the script costs more per boundary (about +24 raw and +2.7 gzip bytes over the observer, because every chunk carries its own call) but much less up front (about 300 bytes less once per page). Past roughly 100 boundaries the observer page is smaller; at 16 boundaries the script page is. Interactivity: when client JS loads after the stream, the observer got the counter clickable sooner in Firefox (81 vs 121 ms); I haven't looked at the spread across runs, so treat that as a hint.</p>
+<p><strong>What differs by design.</strong> The observer is one mechanism for the whole page, and chunks are plain markup. The script makes control flow explicit and lets the harness see per chunk whether the browser had already applied the template natively (we use that in the React runs: the <code>$RP</code> call count and "ids that still had a template" columns in <a href="data/results.md">results.md</a>). The Preact script variant defines a <code>window.$RC</code> global, which might collide with React's on a page that mixes the two. I haven't tested that.</p>
+
 <h2>Method and limitations</h2>
 <ul>
 <li>Correctness: 26 checks (28 for React). <code>hydrate=off</code> tests the stream and polyfill on their own. <code>late</code> runs after hydration, which can hide a patch that failed.</li>
