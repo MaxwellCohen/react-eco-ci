@@ -1,6 +1,6 @@
 name: streaming
-# Builds each variant in versions.json (repo + ref + forced flags) and deploys it as its own
-# Cloudflare Worker, react-eco-stream-<variant>, so the streamed HTML can be compared live.
+# Builds each variant in versions.json and deploys it as react-eco-stream-<variant>,
+# then builds/deploys the index Worker react-eco-stream-index.
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,12 @@ on:
         required: false
   push:
     branches: [main]
-    paths: [versions.json, demos/streaming/**, scripts/build-stream.mjs, .github/workflows/streaming.yml]
+    paths:
+      - versions.json
+      - demos/streaming/**
+      - scripts/build-stream.mjs
+      - scripts/build-stream-index.mjs
+      - .github/workflows/streaming.yml
 jobs:
   variants:
     runs-on: ubuntu-latest
@@ -39,7 +44,50 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 11 }
       - run: node scripts/build-stream.mjs ${{ matrix.variant }}
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: streaming-${{ matrix.variant }}
+          path: .build/streaming-${{ matrix.variant }}
       - name: Deploy to Cloudflare
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
         working-directory: .build/streaming-${{ matrix.variant }}
+        run: npx wrangler deploy
+  index:
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Download builds
+        uses: actions/download-artifact@v4
+        with:
+          path: .build
+          pattern: streaming-*
+          merge-multiple: false
+      - name: Flatten artifacts
+        run: |
+          mkdir -p .build
+          for d in .build/streaming-*; do
+            # download-artifact may nest as .build/streaming-X/streaming-X or .build/streaming-X
+            if [ -d "$d" ] && [ ! -f "$d/src/version.json" ]; then
+              inner=$(find "$d" -mindepth 1 -maxdepth 1 -type d | head -1)
+              if [ -n "$inner" ] && [ -f "$inner/src/version.json" ]; then
+                rm -rf "/tmp/flat-$(basename "$d")"
+                mv "$inner" "/tmp/flat-$(basename "$d")"
+                rm -rf "$d"
+                mv "/tmp/flat-$(basename "$d")" "$d"
+              fi
+            fi
+          done
+          ls -la .build
+          find .build -name version.json
+      - run: node scripts/build-stream-index.mjs
+      - name: Deploy index
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        working-directory: .build/streaming-index
         run: npx wrangler deploy
