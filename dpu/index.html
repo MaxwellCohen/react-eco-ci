@@ -14,15 +14,14 @@ th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:n
 td.n{text-align:right;font-variant-numeric:tabular-nums}code{font-size:.9em}
 </style></head><body><main>
 <h1>Declarative Partial Updates for streaming SSR: Preact and React results</h1>
-<p class="mut">Evidence for how <code>preact-render-to-string</code> and React Fizz can stream Suspense completions with
-<a href="https://developer.chrome.com/blog/declarative-partial-updates">DPU</a> (<code>&lt;template for&gt;</code>, <code>&lt;?start&gt;</code>).
-Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, harness and write-ups were produced with Claude (Anthropic) via Claude Code, directed by the repo owner. Scenario expectations are proposals to review, not ground truth.</p>
+<p class="mut">How should <code>preact-render-to-string</code> and React Fizz stream Suspense results to the browser? This page collects what we measured for
+<a href="https://developer.chrome.com/blog/declarative-partial-updates">DPU</a> (<code>&lt;template for&gt;</code>, <code>&lt;?start&gt;</code>), tested in Chromium, Firefox and WebKit with Playwright. Everything ran on one machine on one day. Claude (via Claude Code) wrote the test pages, the harness and these notes, working from my direction. The checks encode what I think the right behavior is, so please challenge them.</p>
 
-<div class="note"><strong>Headline.</strong>
+<div class="note"><strong>The short version</strong>
 <ul>
-<li><strong>Preact:</strong> any DPU variant fixes real <code>main</code> bugs (table rows, SVG/MathML namespaces): 26/26 vs 23/26 checks with no client JS. PR #474 as opened has two defects (a <code>foreignObject</code> main-thread hang; the last boundary lost in Firefox/WebKit when hydration starts right after the stream). No timing penalty otherwise; +3 to +6 gzip bytes per boundary.</li>
-<li><strong>React Fizz:</strong> the DPU branch passes all 28 checks stream-only in Chromium (native, <code>$RP</code> fallback and polyfill with native support disabled), Firefox and WebKit. Remaining <code>hydrate=late</code> failure (<code>nested-template</code>) also fails on the baseline, so it is not DPU-related.</li>
-<li><strong>Open for standards discussion:</strong> strict CSP in non-native browsers (inline fallback scripts carry no nonce), and the cost of repeating boundary ids across marker systems.</li>
+<li><strong>Preact:</strong> both DPU approaches fix real bugs in <code>main</code> (table rows, SVG and MathML namespaces). With no client JS they pass 26 of 26 checks, where <code>main</code> passes 23. PR #474 as first opened has two problems: a boundary inside <code>foreignObject</code> hangs the page, and in Firefox and WebKit the last boundary can go missing if hydration starts right after the stream. Otherwise there's no timing cost, and each boundary adds about 3 to 6 gzip bytes.</li>
+<li><strong>React Fizz:</strong> the DPU branch passes all 28 checks without hydration in Chromium (native, the <code>$RP</code> fallback, and the polyfill with native support turned off), Firefox and WebKit. One check, <code>nested-template</code>, fails after hydration, but it fails on the baseline too, so DPU isn't the cause.</li>
+<li><strong>Worth discussing:</strong> strict CSP in browsers without native support (the inline fallback scripts have no nonce), and the extra bytes from writing each boundary id several times.</li>
 </ul></div>
 
 <h2>Links</h2>
@@ -31,7 +30,7 @@ Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, h
 <tr><td>preact-render-to-string PR #490 (React-style init script)</td><td><a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a> (open)</td></tr>
 <tr><td>Preact comparison repo, full report</td><td><a href="https://github.com/MaxwellCohen/preact-eco-ci">MaxwellCohen/preact-eco-ci</a>, <a href="data/preact-REPORT.md">REPORT.md</a>, <a href="data/preact-DATA.md">DATA.md</a></td></tr>
 <tr><td>Preact live pages per variant</td><td><a href="https://preact-eco-index.to-email-max.workers.dev">landing page</a></td></tr>
-<tr><td>React Fizz branch (<code>enableFizzDeclarativePatching</code>)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/declarative-patching">fizz/declarative-patching</a> (commit 522abbf0cf; fixture 71111fb9b4). <span class="mut">No upstream React PR is open yet.</span></td></tr>
+<tr><td>React Fizz branch (<code>enableFizzDeclarativePatching</code>)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/declarative-patching">fizz/declarative-patching</a> (commit 522abbf0cf; fixture 71111fb9b4). <span class="mut">There's no upstream React PR yet.</span></td></tr>
 <tr><td>React Fizz branch (<code>$RC</code> script fallback)</td><td><a href="https://github.com/MaxwellCohen/react/tree/fizz/4-script-fallback">fizz/4-script-fallback</a></td></tr>
 <tr><td>React cross-browser raw results</td><td><a href="data/results.md">results.md</a>, <a href="data/compare.json">compare.json</a>, <a href="data/react-bench-firefox.json">Firefox</a>, <a href="data/react-bench-webkit.json">WebKit</a>, <a href="data/react-bench-chromium.json">Chromium</a>, <a href="data/react-harness/">harness</a></td></tr>
 <tr><td>Preact raw timing</td><td><a href="data/preact-bench-firefox.json">Firefox</a>, <a href="data/preact-bench-webkit.json">WebKit</a>, <a href="data/preact-bench-chromium.json">Chromium</a></td></tr>
@@ -39,7 +38,7 @@ Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, h
 </table>
 
 <h2>Preact: main vs PR #474 vs PR #490</h2>
-<p class="mut">Interleaved, 5 iterations per cell, deployed Cloudflare Workers. Patch lag = patch visible minus (responseStart + server delay), medians for 16 / 60 / 100 boundaries. Chromium used native DPU; Firefox and WebKit used the polyfill.</p>
+<p class="mut">Five runs per cell, interleaved, on deployed Cloudflare Workers. Patch lag is how long after the server sent a chunk the content became visible; the three numbers are medians for 16, 60 and 100 boundaries. Chromium used native DPU. Firefox and WebKit used the polyfill.</p>
 <div class="tw"><table>
 <tr><th></th><th>main</th><th>#474</th><th>#490</th></tr>
 <tr><td>Correct DOM, stream only (26 checks × 3 browsers)</td><td class="bad">23/26</td><td class="ok">26/26</td><td class="ok">26/26</td></tr>
@@ -52,10 +51,10 @@ Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, h
 <tr><td>Per boundary raw / gzip / brotli (B, est.)</td><td>106.8 / 14.6 / 5.7</td><td>108.4 / 17.4 / 6.9</td><td>132.3 / 20.1 / 8.2</td></tr>
 <tr><td>Strict CSP, templates unapplied (C/F/W)</td><td>0/0/0 (fallbacks stay)</td><td>0 / 112 / 112</td><td>0 / 112 / 112</td></tr>
 </table></div>
-<p>Defects in PR #474 as opened (reproducible with <code>/s/foreign-object</code> and <code>/s/popcorning</code>): a boundary inside <code>&lt;svg&gt;&lt;foreignObject&gt;</code> freezes the page in all three browsers; in Firefox and WebKit the last streamed boundary is missing when hydration runs right after the stream. Cause not root-caused (hypothesis: race between the final patch and observer teardown). Why <code>main</code> compresses better: the boundary id is written more times (3 vs 4 to 5), each extra copy costing ≈2.9 gzip bytes; see the <a href="data/preact-REPORT.md">full report</a>.</p>
+<p>The two problems in PR #474 as opened can be reproduced at <code>/s/foreign-object</code> and <code>/s/popcorning</code>. A boundary inside <code>&lt;svg&gt;&lt;foreignObject&gt;</code> freezes the page in all three browsers. In Firefox and WebKit, the last streamed boundary goes missing when hydration runs right after the stream. I haven't found the root cause; my guess is a race between the final patch and the observer shutting down. As for size, <code>main</code> compresses a bit better because it writes the boundary id three times where the DPU variants write it four or five. Each extra copy costs about 2.9 gzip bytes. The <a href="data/preact-REPORT.md">full report</a> has the details.</p>
 
 <h2>React Fizz: declarative patching in Firefox and WebKit</h2>
-<p class="mut">Fixture <code>flight-ssr-bench</code> at React commit 71111fb9b4 (branch <code>fizz/declarative-patching</code>), the 26 Preact checks ported plus 2 React-only (<code>x-css-precedence</code>, <code>x-style-precedence</code>), and an isolated <code>foreignObject</code> page. Browsers: Chromium 156.0.8078.4, Firefox 157.0, WebKit 27.2 (Playwright). Variants: <strong>baseline</strong> (<code>$RC</code>), <strong>decl-native</strong> (Chromium DPU), <strong>decl-$RP</strong> (DPU markup, <code>$RP</code> script fallback), <strong>decl+polyfill</strong> (template-for polyfill). In Chromium, native DPU was disabled with <code>--disable-blink-features=DocumentPatching</code> to exercise the fallbacks.</p>
+<p class="mut">These runs use the <code>flight-ssr-bench</code> fixture at React commit 71111fb9b4 (branch <code>fizz/declarative-patching</code>). I ported the 26 Preact checks, added 2 React-specific ones (<code>x-css-precedence</code>, <code>x-style-precedence</code>), and kept an isolated <code>foreignObject</code> page. Browsers were Chromium 156.0.8078.4, Firefox 157.0 and WebKit 27.2 from Playwright. The variants are: <strong>baseline</strong> (<code>$RC</code>), <strong>decl-native</strong> (Chromium DPU), <strong>decl-$RP</strong> (DPU markup, <code>$RP</code> script fallback), <strong>decl+polyfill</strong> (template-for polyfill). To test the fallbacks in Chromium, I turned native DPU off with <code>--disable-blink-features=DocumentPatching</code>.</p>
 <h3>Correctness (checks passed)</h3>
 <div class="tw"><table>
 <tr><th>Browser</th><th>Variant</th><th>Stream only (<code>hydrate=off</code>)</th><th>After hydration (<code>hydrate=late</code>)</th></tr>
@@ -70,7 +69,7 @@ Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, h
 <tr><td>decl-$RP</td><td class="ok">28/28</td><td>27/28</td></tr>
 <tr><td>decl+polyfill</td><td class="ok">28/28</td><td>27/28</td></tr>
 </table></div>
-<p>The one <code>hydrate=late</code> failure is <code>nested-template</code> (an inert <code>&lt;template&gt;</code> in streamed content) and it fails identically on the baseline in all three browsers, so it is a React hydration behaviour, not introduced by DPU. <code>foreignObject</code> is fine in every cell. No page errors in any cell; no leftover <code>template[for]</code> or fallbacks.</p>
+<p>The only failure after hydration is <code>nested-template</code> (an inert <code>&lt;template&gt;</code> inside streamed content). It fails the same way on the baseline in all three browsers, so DPU didn't introduce it. <code>foreignObject</code> works everywhere, and no cell had page errors, leftover <code>template[for]</code> elements or leftover fallbacks.</p>
 
 <h3>Timing: many-boundaries (60), medians over 5 interleaved runs (ms)</h3>
 <div class="tw"><table>
@@ -86,14 +85,14 @@ Chromium, Firefox and WebKit via Playwright, one machine, one day. Test pages, h
 <tr><td>decl-$RP</td><td class="n">123</td><td class="n">302</td><td class="n">1531</td><td class="n">5</td></tr>
 <tr><td>decl+polyfill</td><td class="n">124</td><td class="n">303</td><td class="n">1534</td><td class="n">5</td></tr>
 </table></div>
-<div class="note">Lag of 120 to 180 ms here is dominated by the Fizz declarative batching window (<code>unstable_declarativeBatchMs</code>, default). With <code>batchMs=0</code> every variant, including <code>$RP</code> and the polyfill, shows 1 to 3 ms median lag in all three browsers (e.g. Firefox <code>decl-$RP-b0</code> 2 ms, <code>decl+polyfill-b0</code> 2 ms; WebKit 1 and 2 ms). So the <code>$RP</code> fallback and the polyfill add no measurable cost beyond batching. "Last visible" differences of ~300 ms between rows reflect which boundary batch landed last and are within the batching granularity. Popcorning (16) and grid-100 (100) results are in <a href="data/results.md">results.md</a>.</div>
+<div class="note">Most of the 120 to 180 ms lag comes from Fizz's default batching window (<code>unstable_declarativeBatchMs</code>), not from DPU. With <code>batchMs=0</code>, every variant, including <code>$RP</code> and the polyfill, drops to 1 to 3 ms in all three browsers (Firefox: 2 ms for both; WebKit: 1 and 2 ms). So the <code>$RP</code> fallback and the polyfill cost nothing measurable beyond batching. Differences of around 300 ms in "last visible" just reflect which batch landed last. Results for the 16 and 100 boundary pages are in <a href="data/results.md">results.md</a>.</div>
 
 <h2>Method and limitations</h2>
 <ul>
-<li>Correctness: 26 checks (+2 for React), <code>hydrate=off</code> judges stream/polyfill alone; <code>late</code> runs after hydration and can mask failed patches.</li>
-<li>Timing: 5 iterations, variants interleaved in random order; patch lag via MutationObserver plus a 16 ms layout scan, so resolution is about 16 ms. Differences under that are noise.</li>
-<li>One machine, local server for React (deployed Workers for Preact), no throttling or real wire compression. Not measured: low-end CPU, >100 boundaries, bfcache, buffering proxies.</li>
-<li>Preact variants <code>local-end-stamp</code> and <code>local-react-style</code> in the full report come from unpushed commits.</li>
-<li>Strict CSP with inline fallbacks is unsolved by every variant in browsers without native DPU.</li>
+<li>Correctness: 26 checks (28 for React). <code>hydrate=off</code> tests the stream and polyfill on their own. <code>late</code> runs after hydration, which can hide a patch that failed.</li>
+<li>Timing: 5 runs with variants interleaved in random order. Patch lag is read from a MutationObserver plus a 16 ms layout scan, so it's only accurate to about 16 ms. Smaller differences are noise.</li>
+<li>One machine. React ran against a local server and Preact against deployed Workers, with no throttling and no real wire compression. I didn't measure low-end CPUs, more than 100 boundaries, bfcache or buffering proxies.</li>
+<li>Two Preact variants in the full report, <code>local-end-stamp</code> and <code>local-react-style</code>, come from commits I haven't pushed.</li>
+<li>None of the variants solve strict CSP in browsers without native DPU, because the inline fallbacks can't carry a nonce.</li>
 </ul>
 </main></body></html>
