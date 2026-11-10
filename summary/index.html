@@ -41,7 +41,7 @@ summary{cursor:pointer;font-weight:600}
 </head>
 <body>
 <main>
-<p class="sub">HTML-first React &middot; vs stock React main &middot; tip <code>c31090aa6e</code> &middot; 10 November 2026</p>
+<p class="sub">HTML-first React &middot; vs stock React main &middot; tip <code>a4fb364cf6</code> &middot; 10 November 2026</p>
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
@@ -51,7 +51,7 @@ summary{cursor:pointer;font-weight:600}
 <li><b>~79% less</b> inlined Flight (the JS payload in the document)</li>
 <li><b>No Waku throughput win on tip</b> (fresh host-row ≈ <b>1.02×</b>, within noise) — Flight not shrinking under Waku’s tree today</li>
 </ul>
-<p>Authors keep the same components and APIs. Correct pages hydrate and interact like stock. The correctness corpus at this tip is <b>40/41</b> in Chromium: <code>head-hoistables</code> fails a strict head-DOM compare because zero-optin registry SSR does not flush Flight <code>:HL</code> preload hints the same way the explicit side channel does — unique resources and body content still match.</p>
+<p>Authors keep the same components and APIs. Correct pages hydrate and interact like stock. The correctness corpus at this tip is <b>41/41</b> in Chromium — including <code>head-hoistables</code> (registry SSR applies Flight <code>:HL</code> preload hints into Fizz).</p>
 </div>
 
 <div class="stats">
@@ -66,7 +66,7 @@ summary{cursor:pointer;font-weight:600}
 <p>Nothing changes for apps until the flag is on. Authors keep writing the same components.</p>
 
 <h2>Bytes vs stock main</h2>
-<p>41 scenarios, flag off vs on, tip <code>c31090aa6e</code> based on <code>facebook/react</code> main. Sum across pages:</p>
+<p>41 scenarios, flag off vs on, tip <code>a4fb364cf6</code> based on <code>facebook/react</code> main (byte metrics measured at <code>c31090aa6e</code>; unchanged by the <code>:HL</code> flush fix). Sum across pages:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Stock (flag off)</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
@@ -95,7 +95,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>Same public component model: authors do not mark trees or change JSX for the win.</li>
 <li>Hydration adopts server DOM for elided regions; interactive client islands keep working.</li>
-<li>41-page corpus: Chromium at tip is <b>40/41</b>. The remaining failure (<code>head-hoistables</code>) is head markup parity under zero-optin (<code>:HL</code> hint flush), not missing body content. DOM compare also canonicalizes style spacing / zero-length CSS units / attribute order.</li>
+<li>41-page corpus: Chromium at tip is <b>41/41</b> (including <code>head-hoistables</code> after the registry <code>:HL</code> flush fix). DOM compare also canonicalizes style spacing / zero-length CSS units / attribute order.</li>
 <li>Deferred mounts (modal, ClientOnly) and Suspense client-render recover via framework-supplied <code>onElidedContentMissing</code> (without it, stubs suspend and report rather than blanking quietly).</li>
 <li>Head DOM is not always byte-identical under zero-optin; unique resources still match.</li>
 </ul>
@@ -109,13 +109,13 @@ summary{cursor:pointer;font-weight:600}
 <ol>
 <li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, Suspense + children, zero framework opt-in for in-process SSR.</li>
 <li>Ship a React build with the flag on; frameworks only need <code>onElidedRow: false</code> on SPA navigation responses (and optional recovery).</li>
-<li>Follow-ups: flush <code>:HL</code> under the registry path (restore 41/41), redeploy live demos from tip, restore Waku host-position elision so throughput can move.</li>
+<li>Follow-ups: redeploy live demos from tip <code>a4fb364cf6</code>, restore Waku host-position elision so throughput can move.</li>
 </ol>
 
 <h2>Links</h2>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> — one-flag HTML-first (based on <code>facebook/react</code> main)</li>
-<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (metrics @ tip <code>c31090aa6e</code>; live Workers may lag until redeploy)</li>
+<li><a href="../examples/">Scenario examples</a> — each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (metrics @ tip <code>a4fb364cf6</code>; live Workers may lag until redeploy)</li>
 <li><a href="https://html-first-react.pages.dev/summary/">Live summary</a> on Cloudflare Pages</li>
 <li><a href="https://html-first-react.pages.dev/examples/">Live examples</a> on Cloudflare Pages</li>
 <li>Earlier drafts (history only): <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a>–<a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a></li>
@@ -127,8 +127,8 @@ summary{cursor:pointer;font-weight:600}
 <li>Baseline: React tip with <code>enableFlightHtmlFirst</code> off (stock behaviour for this feature), built from PR #24 rebased onto <code>facebook/react</code> main.</li>
 <li>Treatment: same tip, flag on, zero-optin registry. 41 scenarios × full size; gzip/brotli/Flight bytes; N=15 interleaved in-process renders for timing.</li>
 <li>Framework throughput: tip rerun 10 Nov 2026 @ React <code>3ae8a1410b</code> + Waku <code>908ab031</code> → <b>1.02×</b> host-row (no elision under Waku tree). Historical 3.19× @ <code>6ed2e62d21</code> only.</li>
-<li>Browsers: Playwright Chromium verified at tip (40/41); Firefox/WebKit green on earlier tips — re-run after <code>:HL</code> fix.</li>
-<li>Fresh metrics 10 Nov 2026 @ <code>c31090aa6e</code>: gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
+<li>Browsers: Playwright Chromium verified at tip (41/41); Firefox/WebKit green on earlier tips — re-run on this tip.</li>
+<li>Fresh metrics 10 Nov 2026 @ <code>c31090aa6e</code> (byte corpus; tip now <code>a4fb364cf6</code>): gzip <b>−42.7%</b>, Flight <b>−78.7%</b>, HTML <b>−50.2%</b>.</li>
 </ul></details>
 
 <footer>HTML-first React: Results Summary &middot; static page, no tracking.</footer>
