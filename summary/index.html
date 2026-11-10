@@ -46,53 +46,69 @@ footer{color:var(--mut);font-size:.85rem;margin-top:3em}
 </head>
 <body>
 <main>
-<p class="sub">Flight / RSC experiment summary for decision makers &middot; measured 2026-11-09</p>
+<p class="sub">HTML-first React experiments &middot; measured 9 November 2026</p>
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
-<p><b>Bottom line.</b> React Server Components pages send their content twice on first load. For the part of a page produced by server code, we can stop doing that. Our test pages get <b>up to 68% smaller</b> over the wire (48% on the 1000-row page), with byte counts that reproduced exactly on a fresh rerun. It only takes effect when a framework opts in; Waku (patched locally) shows -55% / -46% / -33% client gzip on three page shapes.</p>
-<p>Byte counts were re-measured from scratch and reproduced to within 0.01% to 0.04%. Timing gains are small and noisy; the case rests on bytes. See <a href="#limits">risks and limits</a>.</p>
-<p><b>Recommendation:</b> pursue the Flight HTML-first work with a framework opt-in, using Waku as the reference integration.</p>
+<p><b>Short version.</b> When a React Server Components page loads, it sends its content to the browser twice. We found a way to skip the second copy for the parts the server renders. On our test pages that makes the download up to 68% smaller, and the server can handle up to 1.85 times as many requests. It only works if the framework turns it on, and we got it working in Waku with a small local patch.</p>
+<p><b>What I'd do:</b> keep going with this, and use Waku as the first real framework to build it into.</p>
 </div>
 
 <div class="stats">
-<div class="stat"><b class="good">-68%</b><span>gzip HTML, host-heavy page (45.4 KB to 14.4 KB)</span></div>
-<div class="stat"><b class="good">-48%</b><span>gzip HTML, 1000-row page (141 KB to 73.6 KB)</span></div>
-<div class="stat"><b class="good">-55%</b><span>Waku host page gzip, with opt-in patch</span></div>
-<div class="stat"><b class="good">0.01-0.04%</b><span>drift in byte counts between original run and fresh rerun</span></div>
+<div class="stat"><b class="good">-68%</b><span>download size, content-heavy page (45.4 KB to 14.4 KB compressed)</span></div>
+<div class="stat"><b class="good">-48%</b><span>download size, 1000-row page (141 KB to 73.6 KB compressed)</span></div>
+<div class="stat"><b class="good">-55%</b><span>Waku host-element page, with the patch</span></div>
+<div class="stat"><b class="good">1.85x</b><span>requests per second, content-heavy page (server side)</span></div>
 </div>
 
-<h2>1. The problem</h2>
-<ul>
-<li>An RSC page is delivered as HTML (Fizz) so the browser can paint, plus an inlined copy of the same content in Flight format so React can hydrate. Static markup (inline CSS, JSON-LD, plain elements) rides along twice and is dead weight the second time.</li>
-<li>Flight is <b>37% to 76%</b> of the document on our stock test pages (Waku: 48% to 54%).</li>
-</ul>
+<h2>The problem</h2>
+<p>A server-rendered React page arrives in two forms at once. One is plain HTML, so the browser can show something right away. The other is an inlined copy in a format called Flight, which React uses to wake the page up in the browser (that step is called hydration).</p>
+<p>For anything static, like inline CSS, structured data or plain markup, the second copy is dead weight. On our test pages Flight was 37% to 76% of the whole document. In Waku it was 48% to 54%.</p>
 
-<h2>2. The proposal</h2>
-<p><b>The HTML is the source of truth on first load. Flight is for navigation and actions.</b> All flags are default off; nothing changes unless a framework opts in.</p>
+<h2>The idea</h2>
+<p>Treat the HTML as the truth on first load. Use Flight only for navigation and actions after that. Nothing changes unless a framework asks for it, because every flag is off by default. There are three pieces:</p>
 <ol>
-<li><b>Host elision</b>: static host elements rendered by server components are not repeated in the initial Flight payload.</li>
-<li><b>Payload dedupe</b>: long repeated strings and reference paths are sent once.</li>
-<li><b>HTML-first</b>: static <code>&lt;style&gt;</code> and JSON-LD blocks stay out of Flight, and in-process SSR hands the live nodes over instead of re-serialising them. (An earlier iteration also had <code>unstable_pruneForBrowser</code>, an author assertion that a client component's props are unneeded in the browser. Commit 6ed2e62d21 on PR #21 removed it; client components now always keep full props. The measurements below were taken before that removal, so the "pruned" Waku row reflects the removed variant.)</li>
+<li><b>Host elision.</b> "Elision" just means leaving something out. Plain elements (div, table, td) that a server component renders are left out of the first Flight payload, since the HTML already has them.</li>
+<li><b>Payload dedupe.</b> Long strings and paths that repeat get sent once and referenced after that.</li>
+<li><b>HTML-first.</b> Static CSS and JSON-LD blocks stay out of Flight too. When the server renders and sends HTML in the same process, it hands React the live nodes instead of re-serialising them.</li>
 </ol>
+<p>One thing we dropped: an earlier version had <code>unstable_pruneForBrowser</code>, where the author promised a client component's props weren't needed in the browser. If the author got it wrong, the UI went dead. Commit 6ed2e62d21 on PR #21 removed it. Client components now always keep their full props. The measurements below were taken just before that removal, so the Waku "pruned" row is from the version we deleted.</p>
 
-<h2>3. Evidence</h2>
-<h3>3a. Flight: bytes before and after (exact, reproduced on rerun)</h3>
+<h2>What we measured</h2>
+<h3>Download size (these numbers reproduced exactly on a fresh rerun)</h3>
 <svg viewBox="0 0 680 184" role="img" aria-label="Document size over the wire (gzip), percent of today. Elision 32 percent, html-first 52 percent, dedupe 93 percent of baseline." class="chart"><title>Document size over the wire (gzip), percent of today</title><text x="182" y="17.4" text-anchor="end" class="lbl">Host-only page: today</text><rect x="190" y="2" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="17.4" class="val">100%</text><text x="182" y="47.4" text-anchor="end" class="lbl">Host-only: elision</text><rect x="190" y="32" width="126.8" height="22" rx="3" class="a"/><text x="322.8" y="47.4" class="val">32%</text><text x="182" y="77.4" text-anchor="end" class="lbl">1000-row page: today</text><rect x="190" y="62" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="77.4" class="val">100%</text><text x="182" y="107.4" text-anchor="end" class="lbl">1000-row page: html-first</text><rect x="190" y="92" width="208.6" height="22" rx="3" class="a"/><text x="404.6" y="107.4" class="val">52%</text><text x="182" y="137.4" text-anchor="end" class="lbl">Client-row table: today</text><rect x="190" y="122" width="400.0" height="22" rx="3" class="b"/><text x="596.0" y="137.4" class="val">100%</text><text x="182" y="167.4" text-anchor="end" class="lbl">Client-row table: dedupe</text><rect x="190" y="152" width="370.9" height="22" rx="3" class="a"/><text x="566.9" y="167.4" class="val">93%</text></svg>
-<p class="cap">Gzip document size as a percent of today's. Lower is better.</p>
+<p class="cap">Compressed (gzip) document size as a percent of today's. gzip is the compression nearly every server applies. Lower is better.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Page</th><th class="n">HTML before</th><th class="n">HTML after</th><th class="n">gzip before</th><th class="n">gzip after</th><th class="n">Inlined Flight</th></tr></thead>
 <tbody>
-<tr><td>Host-only, elision</td><td class="n">594,098</td><td class="n">140,946</td><td class="n">45,354</td><td class="n">14,373</td><td class="n">453,371 to 219</td></tr>
+<tr><td>Content-heavy page, elision</td><td class="n">594,098</td><td class="n">140,946</td><td class="n">45,354</td><td class="n">14,373</td><td class="n">453,371 to 219</td></tr>
 <tr><td>1000-row page, html-first</td><td class="n">1,697,955</td><td class="n">1,085,376</td><td class="n">141,142</td><td class="n">73,609</td><td class="n">627,671 to 15,092</td></tr>
 <tr><td>Client-row table, dedupe</td><td class="n">2,383,414</td><td class="n">1,975,460</td><td class="n">135,190</td><td class="n">125,339</td><td class="n">1,651,179 to 1,243,225</td></tr>
 </tbody></table></div>
-<p>The visual-only floor (plain Fizz, no Flight) for the 1000-row page is 1,070,284 B / 69,996 gzip, so html-first lands within about 5% of it. Elision does nothing for client-component rows; only dedupe helps there.</p>
-<p>Speed effects are small: browser hydration median 141.6 to 132.3 ms (-6.6%, distributions overlap, not statistically solid); server render about -17% to -20% on the 1000-row page (within-process ratio).</p>
+<p>For the 1000-row page, plain HTML with no Flight at all is 69,996 bytes compressed, so we land within about 5% of the floor. Elision does nothing when every row is a client component. Only dedupe helps there, and only a little (-7%).</p>
 
-<h3>3b. Waku: flags alone do nothing, framework opt-in does</h3>
+<h3>Server throughput</h3>
+<svg viewBox="0 0 680 154" role="img" aria-label="Requests per second at 16 connections, relative to today. Host-heavy page up to 1.85 times, 1000-row page 1.07 to 1.32 times, client-row table about 1.06 times, within noise." class="chart"><title>Requests per second at 16 connections, relative to today</title><text x="182" y="17.4" text-anchor="end" class="lbl">Host-heavy page: elision</text><rect x="190" y="2" width="370.0" height="22" rx="3" class="a"/><text x="566.0" y="17.4" class="val">1.85x</text><text x="182" y="47.4" text-anchor="end" class="lbl">Host-heavy page: all three</text><rect x="190" y="32" width="326.0" height="22" rx="3" class="a"/><text x="522.0" y="47.4" class="val">1.63x</text><text x="182" y="77.4" text-anchor="end" class="lbl">1000-row page: html-first, JSON</text><rect x="190" y="62" width="214.0" height="22" rx="3" class="c"/><text x="410.0" y="77.4" class="val">1.07x</text><text x="182" y="107.4" text-anchor="end" class="lbl">1000-row page: html-first, live</text><rect x="190" y="92" width="264.0" height="22" rx="3" class="a"/><text x="460.0" y="107.4" class="val">1.32x</text><text x="182" y="137.4" text-anchor="end" class="lbl">Client-row table: all three</text><rect x="190" y="122" width="212.0" height="22" rx="3" class="c"/><text x="408.0" y="137.4" class="val">1.06x</text></svg>
+<p class="cap">Requests per second at 16 simultaneous connections, compared to today's build in the same round. Taller is better. Gold bars are within noise.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Page</th><th>Variant</th><th class="n">Req/s (min to max)</th><th class="n">vs today</th><th class="n">p50 / p99 ms</th></tr></thead>
+<tbody>
+<tr><td>Content-heavy</td><td>today</td><td class="n">61.2 (60.0 to 62.2)</td><td class="n">1.00</td><td class="n">239 / 525</td></tr>
+<tr><td></td><td>elision</td><td class="n">112.8 (111.2 to 114.2)</td><td class="n good">1.85x</td><td class="n">128 / 287</td></tr>
+<tr><td></td><td>all three</td><td class="n">99.8 (99.1 to 100.1)</td><td class="n good">1.63x</td><td class="n">145 / 318</td></tr>
+<tr><td>1000-row page</td><td>today</td><td class="n">57.5 (56.8 to 57.7)</td><td class="n">1.00</td><td class="n">257 / 629</td></tr>
+<tr><td></td><td>html-first, JSON rows</td><td class="n">61.5 (59.6 to 62.0)</td><td class="n good">1.07x</td><td class="n">239 / 523</td></tr>
+<tr><td></td><td>html-first, live rows</td><td class="n">75.9 (74.6 to 77.1)</td><td class="n good">1.32x</td><td class="n">193 / 417</td></tr>
+<tr><td>Client-row table</td><td>today</td><td class="n">26.8 (22.8 to 27.8)</td><td class="n">1.00</td><td class="n">535 / 3066</td></tr>
+<tr><td></td><td>all three</td><td class="n">28.3 (23.4 to 29.7)</td><td class="n">1.06x (0.96 to 1.17)</td><td class="n">499 / 2699</td></tr>
+</tbody></table></div>
+<p><b>Where it helps:</b> content-heavy pages, where the server does about half the CPU work per request and sends 76% fewer bytes. The 1000-row page gets a smaller boost, mostly when rows are handed over live. <b>Where it doesn't:</b> client-component rows. We saw no real change there. <b>Where it hurts:</b> nowhere that we could measure. With the flags on but html-first not in use, the page ran at 0.98x, which is noise.</p>
+<p>One small oddity: on the content-heavy page, adding dedupe on top of elision was a bit slower (1.64x vs 1.85x, and it repeated every round). That page has almost nothing for dedupe to remove, so it's pure overhead there. And even the best version is still well short of plain HTML, which served 1.7x to 5.7x as many requests. Some serialisation cost is left.</p>
+<p><b>How much to trust this:</b> I ran everything on a laptop that had other apps open, so treat the absolute numbers loosely. The comparisons are fair, though. All variants ran side by side in the same rounds, 7 rounds of 15 seconds each, and the host-heavy and 1000-row results varied by only 1% to 3% round to round. The client-row table was much noisier (about 20% spread), so "no change" is the most I'd say there. Servers ran on Node 22.9.</p>
+
+<h3>Waku: turning the flags on does nothing by itself</h3>
 <svg viewBox="0 0 680 202" role="img" aria-label="Waku client-delivered gzip bytes, percent of flags-off. Flags alone change under 1 percent; with the framework opt-in patch the pages shrink 55, 46 and 33 percent." class="chart"><title>Waku client-delivered gzip bytes, percent of flags-off</title><text x="182" y="13.899999999999999" text-anchor="end" class="lbl">Host rows: stock</text><rect x="190" y="2" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="13.899999999999999" class="val">100%</text><text x="182" y="35.9" text-anchor="end" class="lbl">Host rows: flags only</text><rect x="190" y="24" width="400.2" height="17" rx="3" class="c"/><text x="596.2" y="35.9" class="val">100%</text><text x="182" y="57.9" text-anchor="end" class="lbl">Host rows: + Waku opt-in</text><rect x="190" y="46" width="178.8" height="17" rx="3" class="a"/><text x="374.8" y="57.9" class="val">45%</text><text x="182" y="79.9" text-anchor="end" class="lbl">Pruned rows: stock</text><rect x="190" y="68" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="79.9" class="val">100%</text><text x="182" y="101.9" text-anchor="end" class="lbl">Pruned rows: flags only</text><rect x="190" y="90" width="397.5" height="17" rx="3" class="c"/><text x="593.5" y="101.9" class="val">99%</text><text x="182" y="123.9" text-anchor="end" class="lbl">Pruned rows: + Waku opt-in</text><rect x="190" y="112" width="217.2" height="17" rx="3" class="a"/><text x="413.2" y="123.9" class="val">54%</text><text x="182" y="145.9" text-anchor="end" class="lbl">Client rows: stock</text><rect x="190" y="134" width="400.0" height="17" rx="3" class="b"/><text x="596.0" y="145.9" class="val">100%</text><text x="182" y="167.9" text-anchor="end" class="lbl">Client rows: flags only</text><rect x="190" y="156" width="397.5" height="17" rx="3" class="c"/><text x="593.5" y="167.9" class="val">99%</text><text x="182" y="189.9" text-anchor="end" class="lbl">Client rows: + Waku opt-in</text><rect x="190" y="178" width="268.7" height="17" rx="3" class="a"/><text x="464.7" y="189.9" class="val">67%</text></svg>
-<p class="cap">Gzip HTML bytes as a percent of flags-off, 1000-row pages with 244 KB inline CSS. Single sample per cell, bytes only, no timing. Not re-run in the fresh rerun.</p>
+<p class="cap">Compressed bytes as a percent of flags-off, 1000-row pages with 244 KB of inline CSS. One sample per cell, bytes only, not re-run in the fresh rerun.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Page</th><th class="n">Flags off</th><th class="n">Flags on, no opt-in</th><th class="n">Flags on, patched Waku</th><th class="n">Change</th></tr></thead>
 <tbody>
@@ -100,9 +116,9 @@ footer{color:var(--mut);font-size:.85rem;margin-top:3em}
 <tr><td>Pruned rows</td><td class="n">130,041</td><td class="n">129,231</td><td class="n">70,606</td><td class="n good">-46%</td></tr>
 <tr><td>Client rows (unpruned)</td><td class="n">130,136</td><td class="n">129,327</td><td class="n">87,433</td><td class="n good">-33%</td></tr>
 </tbody></table></div>
-<p>The Waku patch is a small local change that makes Waku pass the elision callbacks and resolve elided rows on the client. It is not published.</p>
+<p>The framework has to opt in. Our local Waku patch makes it pass the "leave this out" callbacks and fill the gaps back in on the client. It isn't published.</p>
 
-<h3>3c. Live demos</h3>
+<h3>Try it yourself</h3>
 <ul class="links">
 <li>Framework fixture: <a href="https://react-eco-fw-on.to-email-max.workers.dev/">flags on</a> &middot; <a href="https://react-eco-fw-off.to-email-max.workers.dev/">flags off</a></li>
 <li>Waku (1000-row table): <a href="https://react-eco-waku-1930da7c-on.to-email-max.workers.dev/table">flags on</a> &middot; <a href="https://react-eco-waku-1930da7c-off.to-email-max.workers.dev/table">flags off</a></li>
@@ -110,48 +126,47 @@ footer{color:var(--mut);font-size:.85rem;margin-top:3em}
 </ul>
 
 <section class="honest" id="honesty">
-<h2>4. How much to trust the numbers</h2>
+<h2>What we're sure of, and what we're not</h2>
 <ul>
-<li><b>Bytes are exact.</b> HTML, gzip and inlined-Flight sizes reproduced on a fresh rerun within 0.01% to 0.04%.</li>
-<li><b>Timing is noisy.</b> The machine was not fully quiet, and the same code drifted 20% to 50% between processes. Only within-process ratios are used; cross-build throughput comparisons are left out as unreliable.</li>
-<li><b>Hydration gain is small.</b> 141.6 to 132.3 ms (-6.6%, about 9 ms, versus about 16 ms in the first run); the distributions overlap, so treat it as a small improvement, not a solid one.</li>
-<li><b>Server render</b> ratio reproduced (-17% to -20% vs -24%), but absolute milliseconds were 1.2x to 1.8x higher than the first run.</li>
-<li><b>Waku was not re-run.</b> Single sample per cell, bytes only, no timing.</li>
-<li>Node 26, Chrome 157 only. No Firefox or WebKit.</li>
+<li><b>Sure:</b> the byte counts. We re-measured from scratch and they matched the first run to within 0.01% to 0.04%.</li>
+<li><b>Fairly sure:</b> the server throughput gains on content-heavy pages. They're large next to the noise.</li>
+<li><b>Less sure:</b> speed in the browser. Hydration got faster, 141.6 ms to 132.3 ms (about 6%), but the two sets of runs overlap, so I'd call it a small improvement at best. It was about 16 ms in the first run.</li>
+<li><b>Timing is noisy:</b> the same code ran 20% to 50% differently between separate processes on this machine. That's why we only compare things measured side by side.</li>
+<li><b>Not tested:</b> Waku speed (we only checked bytes), and anything other than Chrome. No Firefox or Safari.</li>
 </ul>
 </section>
 
-<h2 id="limits">5. Risks and limits</h2>
+<h2 id="limits">Risks and limits</h2>
 <ul>
-<li><b>Client-component props are the floor.</b> Only server-component output is elided; client components keep full props (the 1000-row client-row page only gets dedupe, -7% gzip).</li>
-<li><b>Elision is static-only.</b> Anything with a client component inside keeps its host skeleton.</li>
-<li><b>Framework opt-in is mandatory.</b> Flags alone change under 1% (Waku measured +0.06% to -0.6%).</li>
-<li><b>Navigation still gets full Flight</b>, and an elided region remounts on the first client navigation. Static prerendered pages are unaffected.</li>
-<li><b>Dedupe reverses an upstream protocol decision</b> and needs React maintainer sign-off.</li>
-<li><b>Pruning was an author assertion</b> (wrong means inert UI). It has been dropped from the current PR for that reason.</li>
-<li><b>Chrome only.</b> No Firefox or WebKit runs. <b>Nothing is merged upstream.</b></li>
+<li><b>Client components set the floor.</b> Only what server components render can be left out. Client components keep all their props.</li>
+<li><b>Static only.</b> A section with a client component inside keeps its outer skeleton.</li>
+<li><b>The framework must opt in.</b> Flags alone change under 1%.</li>
+<li><b>Navigation is unchanged.</b> Clicking to another page still gets the full Flight payload, and a trimmed section is rebuilt from scratch on the first navigation. Pages built ahead of time (static prerender) aren't affected.</li>
+<li><b>Dedupe reverses an upstream decision.</b> The React maintainers chose not to do this in the protocol, so they need to agree.</li>
+<li><b>Chrome only so far, and nothing is merged upstream.</b></li>
 </ul>
 
-<h2>6. Decisions and next steps</h2>
+<h2>What I'd ask for</h2>
 <ol>
-<li><b>Recommended:</b> continue the Flight HTML-first stack (PRs #12 to #15, #21) and agree a framework opt-in contract, with Waku as the reference integration. Turn the local Waku patch into a proposal for Waku maintainers.</li>
-<li>Get maintainer feedback on payload dedupe, since it changes a protocol decision.</li>
-<li>Before any rollout: re-run Waku with timing, and test Firefox and WebKit.</li>
+<li><b>Keep building the Flight HTML-first stack</b> (PRs #12 to #15 and #21), and agree how a framework opts in. Use Waku as the first real integration and turn the local patch into a proposal for its maintainers.</li>
+<li><b>Ask the React maintainers about dedupe</b> before investing more, since it changes a protocol choice.</li>
+<li><b>Before any rollout,</b> measure Waku's timing and test Firefox and Safari.</li>
 </ol>
 
-<h2>7. Links</h2>
+<h2>Links</h2>
 <ul class="links">
-<li>Flight PRs on MaxwellCohen/react: <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a> baseline fixture, <a href="https://github.com/MaxwellCohen/react/pull/13">#13</a> host elision, <a href="https://github.com/MaxwellCohen/react/pull/14">#14</a> lazy client parser, <a href="https://github.com/MaxwellCohen/react/pull/15">#15</a> dedupe, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a> HTML-first</li>
+<li>PRs on MaxwellCohen/react: <a href="https://github.com/MaxwellCohen/react/pull/12">#12</a> baseline fixture, <a href="https://github.com/MaxwellCohen/react/pull/13">#13</a> host elision, <a href="https://github.com/MaxwellCohen/react/pull/14">#14</a> lazy client parser, <a href="https://github.com/MaxwellCohen/react/pull/15">#15</a> dedupe, <a href="https://github.com/MaxwellCohen/react/pull/21">#21</a> HTML-first</li>
 <li><a href="https://maxwellcohen.github.io/react-eco-ci/">Other reports (CI site)</a></li>
 </ul>
 
 <details><summary>Method and environment</summary>
 <ul>
-<li>Apple M3, 16 GB, macOS 26.6.2, Node v26.13.0 (fixture asks for 20/22), Chrome 157.0.8103.39, headless, Chromium only.</li>
-<li>Flight: branch <code>rsc/5-html-first-flight</code> at 1930da7cf8, four production builds with flags off / elision / elision+dedupe / all. Flags are compile-time, so each is a separate build.</li>
-<li>Test page: 244 KB inline CSS, 143 KB JSON-LD, 1000-row table, every 100th row interactive. Hydration verified to adopt the same DOM nodes (1000/1000), zero console problems.</li>
-<li>Byte counts are deterministic apart from 0.01% to 0.03% jitter. Timing drifted 20% to 50% across processes, so only within-process ratios are reported.</li>
-<li>Waku numbers come from an earlier measurement, not re-run: single sample per cell, bytes only.</li>
+<li>Apple M3, 16 GB, macOS 26.6.2. Chrome 157.0.8103.39, headless, Chromium only. Byte counts and browser tests ran on Node 26.13; the throughput test ran on Node 22.9.</li>
+<li>Flight: branch <code>rsc/5-html-first-flight</code> at 1930da7cf8, four production builds (flags off, elision, elision+dedupe, all). Flags are compile-time, so each is its own build.</li>
+<li>Test page: 244 KB inline CSS, 143 KB JSON-LD, 1000-row table, every 100th row interactive. Hydration adopted the same DOM nodes (1000/1000), with no console problems.</li>
+<li>Throughput: four servers side by side, one process each, with a separate load-generator process. 10 s warm-up, then 7 rounds of 15 s at 16 connections, with run order alternating each round. Ratios are per round against today's build. Latency at 1 connection and p99 are in the raw results. Zero request errors. Other apps (Task Manager, T3 Code) were using 20% to 50% of a core during the run.</li>
+<li>Byte counts are deterministic apart from 0.01% to 0.03% jitter. Browser and render timings drifted 20% to 50% across separate processes, so only same-run ratios are used.</li>
+<li>Waku numbers come from an earlier measurement: one sample per cell, bytes only.</li>
 <li>Not measured: Firefox, WebKit, Waku timing.</li>
 </ul></details>
 
