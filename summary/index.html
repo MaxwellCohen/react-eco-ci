@@ -49,8 +49,8 @@ summary{cursor:pointer;font-weight:600}
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
-<p><b>Short version.</b> An RSC first load sends the same static content twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With one experimental flag and a framework opt-in, static Server Component host markup in host position is left out of that Flight copy and adopted from the HTML. Across a 41-page corpus the gzip download is <b>42% smaller</b> overall. Dedupe is out of this proposal; it is orthogonal to upstream Flight dedupe work.</p>
-<p><b>What I'd do:</b> review <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (one flag + Suspense), keep Waku as the first real opt-in, and treat client-<code>children</code> elision as a follow-up.</p>
+<p><b>Short version.</b> An RSC first load sends the same static content twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With one experimental flag and a framework opt-in, static Server Component host markup in host position — including Suspense children and Client Component <code>children</code> — is left out of that Flight copy and adopted from the HTML. Across a 41-page corpus (before children elision) gzip was <b>42% smaller</b> overall; children elision restores the common provider/layout case that had dropped to zero. Dedupe is out of this proposal.</p>
+<p><b>What I'd do:</b> review <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (one flag + Suspense + children), keep Waku as the first real opt-in.</p>
 </div>
 
 <div class="stats">
@@ -66,12 +66,12 @@ summary{cursor:pointer;font-weight:600}
 <h2>The idea (one flag)</h2>
 <p>One compile-time flag: <code>enableFlightHtmlFirst</code>. When a framework opts in:</p>
 <ol>
-<li>Static host elements that a Server Component renders in <b>host position</b> (including inside Suspense children) are withheld from the browser Flight stream.</li>
-<li>SSR receives those rows via <code>onElidedRow</code> / <code>onElidedValue</code> and renders them into HTML.</li>
-<li>The browser client gets <code>elidedRows</code> and adopts the server DOM for stubs on hydration.</li>
-<li>If a boundary or the root client-renders instead (server error, hydration mismatch), stubs suspend and call optional <code>onElidedContentMissing</code> so the framework can re-render from a full payload. Without it, the page stays non-blank.</li>
+<li>Static host elements in <b>host position</b> are withheld from the browser Flight stream: Server Component output, children of host tags and Suspense, and <code>children</code> of Client Components (layouts / composition slots).</li>
+<li>Non-<code>children</code> props (Tabs <code>panels</code>, Suspense <code>fallback</code>, …) stay in the payload.</li>
+<li>SSR receives withheld rows via <code>onElidedRow</code> / <code>onElidedValue</code>; the browser adopts server DOM for stubs on hydration.</li>
+<li>If a stub mounts without server DOM (modal, ClientOnly, or a boundary/root that client-renders), it suspends and calls optional <code>onElidedContentMissing</code> so the framework can re-render from a full payload. Without it, the page stays non-blank.</li>
 </ol>
-<p><b>Not in this proposal:</b> a separate host-elision-only mode (it saved no bytes alone and slowed Waku TTFB without opt-in), payload dedupe (draft <a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>; leave that to upstream), and the lazy client parser (draft <a href="https://github.com/MaxwellCohen/react/pull/14">#14</a>).</p>
+<p><b>Not in this proposal:</b> a separate host-elision-only mode, payload dedupe (draft <a href="https://github.com/MaxwellCohen/react/pull/15">#15</a>), and the lazy client parser (draft <a href="https://github.com/MaxwellCohen/react/pull/14">#14</a>).</p>
 
 <h2>41-page corpus (after correctness fixes + Suspense)</h2>
 <p>Each page is rendered with flags off and with HTML-first on, hydrated in a real browser, interacted with, and compared after a full-Flight navigation. Builds include the position fix and Suspense support.</p>
@@ -91,7 +91,7 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>docs-sidebar-toc</td><td class="n good">−59%</td><td>text + structure</td></tr>
 <tr><td>server-table-client-rows</td><td class="n good">−50%</td><td>few client cells</td></tr>
 <tr><td>marketing CSS + JSON-LD</td><td class="n good">−49%</td><td>style / data blocks</td></tr>
-<tr><td>nested client context providers</td><td class="n">0%</td><td>server content is not host-position</td></tr>
+<tr><td>nested client context providers</td><td class="n">0% → targeted</td><td>was zero before children elision; now host-position again</td></tr>
 <tr><td>everything-client</td><td class="n">0%</td><td>nothing to elide</td></tr>
 <tr><td>repeated-long-strings</td><td class="n bad">+12%</td><td>gzip regression; raw HTML still smaller</td></tr>
 </tbody></table></div>
@@ -112,7 +112,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li><b>Sure:</b> byte counts on the corpus are deterministic (aside from a few Suspense pages with timing-dependent HTML). Cross-browser correctness after the fixes.</li>
 <li><b>Fairly sure:</b> Waku host-row byte and throughput gains with the opt-in patch.</li>
-<li><b>Trade-offs to name honestly:</b> recovery and the first client navigation remount elided regions (same class of remount React already does when it client-renders a boundary, plus a network round trip for missing data). Server content passed only as client <code>children</code> is not elided yet, so provider-wrapped apps may see little benefit until that follow-up.</li>
+<li><b>Trade-offs to name honestly:</b> recovery and the first client navigation remount elided regions (plus a network round trip when a stub mounts without server DOM — modals, ClientOnly). That cost sits on interaction/error paths, not on the common always-rendered layout case.</li>
 <li><b>Less sure / noisy:</b> absolute render timings on a shared laptop; treat ratios as rough.</li>
 </ul>
 </section>
@@ -129,7 +129,7 @@ summary{cursor:pointer;font-weight:600}
 <ol>
 <li>Review <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>: one flag, Suspense support, no dedupe.</li>
 <li>Use Waku as the first real integration of the opt-in shape.</li>
-<li>Defer client-<code>children</code> elision until the recovery path is agreed.</li>
+<li>Re-measure the 41-page corpus on the children-elision tip and publish updated gzip numbers.</li>
 </ol>
 
 <h2>Links</h2>
