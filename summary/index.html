@@ -46,7 +46,7 @@ summary{cursor:pointer;font-weight:600}
 
 <div class="answer">
 <p>On first load, an RSC page sends its static markup twice: as HTML, so the browser can paint, and again inside the Flight payload the browser inlines to hydrate. For content that never changes on the client, the second copy is wasted bandwidth, and it costs the server time to produce.</p>
-<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one option. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/b6a74b6c1e"><code>b6a74b6c1e</code></a>).</p>
+<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one option. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/f51a169b4d"><code>f51a169b4d</code></a>).</p>
 </div>
 
 <div class="stats">
@@ -108,16 +108,15 @@ summary{cursor:pointer;font-weight:600}
 <h2>Limits</h2>
 <ul>
 <li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework must pass <code>onElidedContentMissing</code> and refetch a full payload; without it the page reports an uncaught error.</li>
-<li>Rows that nothing in-process consumes are released only when the request is aborted. A response that is only ever sent to a browser, with the option on, keeps its rows in memory.</li>
 <li>Preload links hoisted into <code>&lt;head&gt;</code> can differ from stock. The resources that matter are the same.</li>
 <li>The savings scale with the amount of static server markup on a page. Expect many real pages to look like the median, not like the largest cases.</li>
 </ul>
 
 <h2>Links</h2>
 <ul class="links">
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/b6a74b6c1e"><code>b6a74b6c1e</code></a>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/f51a169b4d"><code>f51a169b4d</code></a>)</li>
 <li><a href="../examples/">Examples</a>: all 41 test pages, each with a live demo</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/b6a74b6c1e/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
+<li><a href="https://github.com/MaxwellCohen/react/blob/f51a169b4d/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
 <li><a href="https://github.com/MaxwellCohen/wakujs/commit/382e73ae">Waku patch</a> (one commit on branch <code>rsc-html-first-optin</code>)</li>
 </ul>
 
