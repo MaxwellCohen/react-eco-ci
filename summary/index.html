@@ -34,6 +34,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .cap{color:var(--mut);font-size:.85rem;margin:0 0 1em}
 .links li{margin:.3em 0}
 code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+pre{overflow-x:auto;background:color-mix(in srgb,var(--fg) 6%,transparent);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:.8em 0;line-height:1.5}
+pre code{background:none;padding:0;border-radius:0;font-size:.82em;white-space:pre}
 footer{color:var(--mut);font-size:.85rem;margin-top:3em}
 details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:.7em 0}
 summary{cursor:pointer;font-weight:600}
@@ -46,7 +48,7 @@ summary{cursor:pointer;font-weight:600}
 
 <div class="answer">
 <p>On first load, an RSC page sends its static markup twice: as HTML, so the browser can paint, and again inside the Flight payload the browser inlines to hydrate. For content that never changes on the client, the second copy is wasted bandwidth, and it costs the server time to produce.</p>
-<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one option. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/f51a169b4d"><code>f51a169b4d</code></a>).</p>
+<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one server option and, for full safety, one client callback. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/df356153a6"><code>df356153a6</code></a>).</p>
 </div>
 
 <div class="stats">
@@ -90,14 +92,14 @@ summary{cursor:pointer;font-weight:600}
 </tbody></table></div>
 
 <h2>Throughput on Waku</h2>
-<p>The test page is a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was chosen because it is easy to patch and has good RSC support; the feature does not depend on it. The patch is one line: the HTML render passes <code>elideStaticHosts: true</code>. Figures are medians over 5 rounds on one laptop, with the order of the servers rotated each round.</p>
+<p>The test page is a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was chosen because it is easy to patch and has good RSC support; the feature does not depend on it. The patch has two parts: the HTML render passes <code>elideStaticHosts: true</code>, and the root refetches the initial payload when React reports that elided content is needed. Figures are medians over 5 rounds on one laptop, with the order of the servers rotated each round.</p>
 <div class="tablewrap"><table>
 <thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Waku</th><th class="n">Flag on, patched Waku</th></tr></thead>
 <tbody>
-<tr><td>Requests/s</td><td class="n">1.00</td><td class="n">1.00</td><td class="n">3.21&times; (3.10&ndash;3.24)</td></tr>
-<tr><td>TTFB</td><td class="n">1.00</td><td class="n">0.98</td><td class="n">0.43&times;</td></tr>
+<tr><td>Requests/s</td><td class="n">1.00</td><td class="n">1.00</td><td class="n">3.18&times; (3.13&ndash;3.22)</td></tr>
+<tr><td>TTFB</td><td class="n">1.00</td><td class="n">0.97</td><td class="n">0.45&times;</td></tr>
 <tr><td>Inlined Flight</td><td class="n">823,655 B</td><td class="n">823,655 B</td><td class="n">18,978 B</td></tr>
-<tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,460 B</td><td class="n">60,890 B</td></tr>
+<tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,460 B</td><td class="n">60,889 B</td></tr>
 </tbody></table></div>
 <p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock: forgetting the option loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, since those rows cannot be elided. Next.js was not tried.</p>
 
@@ -107,22 +109,51 @@ summary{cursor:pointer;font-weight:600}
 
 <h2>Limits</h2>
 <ul>
-<li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework must pass <code>onElidedContentMissing</code> and refetch a full payload; without it the page reports an uncaught error.</li>
+<li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework must pass <code>onElidedContentMissing</code> and refetch a full payload. The Waku patch does, and a modal that mounts its static children after a click then shows them as it does on stock. Without it the page reports an uncaught error that names the element.</li>
 <li>Preload links hoisted into <code>&lt;head&gt;</code> can differ from stock. The resources that matter are the same.</li>
 <li>The savings scale with the amount of static server markup on a page. Expect many real pages to look like the median, not like the largest cases.</li>
 </ul>
 
+<h2>Try it yourself</h2>
+<p>Both parts are on GitHub and nothing needs publishing: the React part is a branch of a React fork, and the Waku part is a branch of a Waku fork. The <a href="https://github.com/MaxwellCohen/react-eco-ci">react-eco-ci</a> repo builds them together into a Waku demo, in CI or on your machine.</p>
+<ul class="links">
+<li><b>React:</b> <a href="https://github.com/MaxwellCohen/react/tree/df356153a6">branch <code>rsc/html-first-one-flag</code> at <code>df356153a6</code></a> (<a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>). Build it with the flag forced on; the exact command is in the README below.</li>
+<li><b>Waku:</b> <a href="https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...62e75f5f">the patch against upstream Waku</a> (branch <a href="https://github.com/MaxwellCohen/wakujs/tree/rsc-html-first-optin"><code>rsc-html-first-optin</code></a>, two small changes in <code>render.ts</code> and <code>client-runtime.tsx</code>).</li>
+<li><b>One place to run both:</b> <a href="https://github.com/MaxwellCohen/react-eco-ci#try-static-host-elision">react-eco-ci, &ldquo;Try static host elision&rdquo;</a>, with the CI inputs and the local steps.</li>
+<li><b>In CI:</b> run the <a href="https://github.com/MaxwellCohen/react-eco-ci/actions/workflows/react-build.yml"><code>react-build</code> workflow</a> with the React repo and ref, the flag, and the Waku fork and ref. It deploys the demo to a Cloudflare Worker (needs the pkg-pr-new app and Cloudflare secrets).</li>
+</ul>
+<p>Locally, with Node 22, yarn and pnpm:</p>
+<pre><code>git clone https://github.com/MaxwellCohen/react-eco-ci.git
+git clone --branch rsc/html-first-one-flag https://github.com/MaxwellCohen/react.git
+git clone --branch rsc-html-first-optin https://github.com/MaxwellCohen/wakujs.git
+
+# React with the flag on
+cd react &amp;&amp; yarn install --frozen-lockfile
+node ../react-eco-ci/scripts/force-flags.mjs . enableFlightStaticHostElision
+RELEASE_CHANNEL=experimental node ./scripts/rollup/build.js \
+  react/index,react/jsx,react.react-server,react/src/jsx/ReactJSXServer.js,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server,scheduler,react-is,react-server-dom-webpack/ \
+  --type=NODE_DEV,NODE_PROD
+cd ..
+
+# pack React and the patched Waku, build the demo, run it
+cd react-eco-ci
+node scripts/pack-local.mjs ../react/build/node_modules ../wakujs
+node scripts/build-variant.mjs waku static-host-elision
+cd .build/waku-static-host-elision
+npx wrangler dev --config dist/server/wrangler.json --port 8787</code></pre>
+<p>Then open <code>/table</code> and view the source: the inlined Flight payload is a fraction of the stock size and contains <code>$J</code> stubs. Open <code>/late-modal</code> and click &ldquo;open&rdquo;: the content was not in the first payload, and appears because Waku refetches it. For the stock comparison, build React without the <code>force-flags.mjs</code> line and leave the Waku checkout out of <code>pack-local.mjs</code>. I ran these steps from a clean copy of react-eco-ci against local builds of both; I did not run the CI path.</p>
+
 <h2>Links</h2>
 <ul class="links">
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/f51a169b4d"><code>f51a169b4d</code></a>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/df356153a6"><code>df356153a6</code></a>)</li>
 <li><a href="../examples/">Examples</a>: all 41 test pages, each with a live demo</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/f51a169b4d/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
-<li><a href="https://github.com/MaxwellCohen/wakujs/commit/382e73ae">Waku patch</a> (one commit on branch <code>rsc-html-first-optin</code>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/blob/df356153a6/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
 <li>The baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
+<li>Byte figures for the 41 pages were measured at <code>31b26561f1</code>; later commits on the branch change only the lifetime of unclaimed rows, an error message and documentation. The Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>.</li>
 <li>Byte counts are deterministic for most pages. A few vary slightly between runs because of generated ids, so the last digits can change on a rerun.</li>
 <li>Waku: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds, ratios taken within each round against stock. Chromium 156 for the browser checks.</li>
 </ul></details>
