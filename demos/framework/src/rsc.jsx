@@ -1,5 +1,5 @@
 // RSC environment (bundled with the `react-server` condition). Exposes the page and the Flight render.
-import { renderToReadableStream, registerClientReference, registerServerReference, decodeAction, decodeFormState, decodeReply, unstable_pruneForBrowser } from 'react-server-dom-webpack/server.edge';
+import { renderToReadableStream, registerClientReference, registerServerReference, decodeAction, decodeFormState, decodeReply } from 'react-server-dom-webpack/server.edge';
 import { Suspense } from 'react';
 import { generateProducts, makeCss, makeJsonLd } from './data.js';
 
@@ -49,11 +49,11 @@ export const clientManifest = {
   FormCounter: { id: 'FormCounter', chunks: [], name: '*' },
 };
 // A slow server component: with streaming, the shell is sent first and this arrives `ms` later.
-async function Reviews({ ms, prune }) {
+async function Reviews({ ms }) {
   await new Promise(r => setTimeout(r, ms));
-  // Stateless client rows inside a late boundary: with early hydration the client may render these (as pruned stubs when
-  // the framework opts in) before or after the server DOM for the boundary has streamed in.
-  const more = generateProducts(300).map(p => { const row = <Row key={`r${p.id}`} {...p} id={undefined} />; return prune ? prune(row, 'tr') : row; });
+  // Client rows inside a late boundary: with early hydration the client may render these before or after the server DOM
+  // for the boundary has streamed in.
+  const more = generateProducts(300).map(p => <Row key={`r${p.id}`} {...p} id={undefined} />);
   return (
     <section id="reviews">
       <h2>Reviews</h2>
@@ -64,9 +64,8 @@ async function Reviews({ ms, prune }) {
 }
 const css = makeCss(), jsonLd = makeJsonLd();
 
-// The same page for both frameworks. `prune` is the author's assertion that stateless rows do nothing in the
-// browser (only used by the opted-in framework; the other passes null so every row ships as ordinary Flight).
-function makePage(prune) {
+// The same page for the plain and the opted-in framework; only the render options differ.
+function makePage() {
   return function Page({ itemCount, delayMs }) {
     const products = generateProducts(itemCount);
     return (
@@ -84,16 +83,15 @@ function makePage(prune) {
             <table className="product-table">
               <tbody>
                 {products.map((p, i) => {
-                  const row = <Row key={p.id} {...p} />;
                   if (i % 100 === 99) return <tr key={p.id} className="table-row"><td colSpan={7}><Counter label={`Row ${i}`} /></td></tr>;
-                  return prune ? prune(row, 'tr') : row;
+                  return <Row key={p.id} {...p} />;
                 })}
               </tbody>
             </table>
           </Suspense>
           {delayMs > 0 && (
             <Suspense fallback={<p id="reviews-fallback">Loading reviews…</p>}>
-              <Reviews ms={delayMs} prune={prune} />
+              <Reviews ms={delayMs} />
             </Suspense>
           )}
         </body>
@@ -101,8 +99,8 @@ function makePage(prune) {
     );
   };
 }
-const PagePlain = makePage(null);
-const PageOptIn = makePage(unstable_pruneForBrowser);
+const PagePlain = makePage();
+const PageOptIn = PagePlain;
 
 export function render(optIn, itemCount, delayMs, options) {
   const Page = optIn ? PageOptIn : PagePlain;
@@ -110,11 +108,11 @@ export function render(optIn, itemCount, delayMs, options) {
 }
 
 // /form-counter: a form-action counter (useActionState + <form action> + formAction props) on a page that also has content
-// the opt-in features can act on: inline CSS and JSON-LD (elided), stateless client rows (pruned) and, with ?delay=, a
-// late Suspense boundary. The counter is interactive, so it must NOT be pruned and has to hydrate normally.
-function makeCounterPage(prune) {
+// elision can act on: inline CSS and JSON-LD, client rows and, with ?delay=, a late Suspense boundary. The counter is
+// interactive and has to hydrate normally.
+function makeCounterPage() {
   return function PageCounter({ delayMs }) {
-    const rows = generateProducts(200).map(p => { const row = <Row key={p.id} {...p} />; return prune ? prune(row, 'tr') : row; });
+    const rows = generateProducts(200).map(p => <Row key={p.id} {...p} />);
     return (
       <html lang="en">
         <head>
@@ -132,7 +130,7 @@ function makeCounterPage(prune) {
           </Suspense>
           {delayMs > 0 && (
             <Suspense fallback={<p id="reviews-fallback">Loading reviews…</p>}>
-              <Reviews ms={delayMs} prune={prune} />
+              <Reviews ms={delayMs} />
             </Suspense>
           )}
         </body>
@@ -140,8 +138,8 @@ function makeCounterPage(prune) {
     );
   };
 }
-const PageCounterPlain = makeCounterPage(null);
-const PageCounterOptIn = makeCounterPage(unstable_pruneForBrowser);
+const PageCounterPlain = makeCounterPage();
+const PageCounterOptIn = PageCounterPlain;
 export function renderCounter(optIn, delayMs, options) {
   const Page = optIn ? PageCounterOptIn : PageCounterPlain;
   return renderToReadableStream(<Page delayMs={delayMs} />, clientManifest, options);
