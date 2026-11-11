@@ -105,6 +105,7 @@ summary{cursor:pointer;font-weight:600}
 
 <h2>Correctness</h2>
 <p>The 41 pages are loaded in Chromium with and without the flag. For each one the check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload, and it fails on any console or hydration error. All 41 pass at <code>31b26561f1</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier commits but have not been run on this one. The Waku page hydrates, its counters respond, it logs no errors, and a client navigation renders all 1000 rows.</p>
+<p>The same kind of check also runs in CI on Linux, with the flag off and on, in real Chromium. The latest <a href="https://maxwellcohen.github.io/react-eco-ci/flight/">CI report</a> covers 10 page variants at <code>df356153a6</code>: every one adopts 1000 of 1000 rows from the server HTML, logs no console problems and no recoverable hydration errors, and navigates correctly.</p>
 <p>On a client navigation the full payload contains real elements where the stubs were. React builds fresh DOM for those regions rather than reusing the old DOM, whose content may not match the new page. Client components keep their state.</p>
 
 <h2>Limits</h2>
