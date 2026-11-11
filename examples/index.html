@@ -26,23 +26,13 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
 a{color:var(--acc)}
 code{font-size:.88em}
 </style></head><body><main>
-<p class="sub"><a href="../summary/">&larr; Summary</a> &middot; vs stock React main &middot; 41 scenarios &middot; measured at <code>31b26561f1</code> &middot; live size <code>full</code></p>
-<h1>HTML-first scenario examples</h1>
-<div class="answer">
-<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightStaticHostElision</code>, and have the framework pass <code>elideStaticHosts: true</code> on the Flight render that feeds HTML SSR. Versus stock React main (flag off): about <b>43% smaller</b> gzip downloads across this corpus and about <b>79% less</b> inlined Flight, with about <b>3.2&times;</b> Waku host-page throughput. The correctness corpus below (hydrated and post-interaction DOM equal to stock, no console errors, SPA navigation) is what shows there is no UX or DX change.</p>
-</div>
-<div class="stats">
-<div class="stat"><b>−43%</b><span>gzip HTML download (41 pages, sum)</span></div>
-<div class="stat"><b>−79%</b><span>inlined Flight (JS payload)</span></div>
-<div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>3.21&times;</b><span>Waku host-page req/s</span></div>
-</div>
-<p>Baseline is <b>stock React main</b> (same build, flag off), not other experimental stacks. Each name opens a <b>live Cloudflare Workers demo</b> (HTML-first on, full corpus size, rebuilt from <code>31b26561f1</code>). The gzip column is the flag-on page size and its change vs stock; 7 pages are slightly larger (worst: <code>repeated-long-strings</code> +12.4%), and the median page saves 7.8%.</p>
+<p class="sub"><a href="../summary/">&larr; Summary</a> &middot; 41 test pages &middot; measured at <code>31b26561f1</code></p>
+<h1>HTML-first examples</h1>
+<p>Each page below is a server-rendered test page used to check that <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> neither breaks hydration nor changes what the user sees. Every name opens a live demo (the flag on, full size), and the source link next to it shows the page's code. The <code>/off/</code> version of each demo is the same page with the flag off, if you want to compare.</p>
+<p>The gzip column is the size of the whole document with the flag on, followed by the change against the flag-off size. Most pages shrink; a few get slightly larger, either because there is little static markup to remove or because the registry row costs more than it saves. Overall the 41 pages go from 1,023,906 to 586,852 gzipped bytes (&minus;42.7%) and from 9,280,754 to 1,977,902 bytes of inlined Flight (&minus;78.7%). The median page saves 7.8%.</p>
 <ul class="links">
-<li><a href="https://react-eco-html-first.to-email-max.workers.dev/">Live demos index</a> (Cloudflare Workers; <code>all</code> = flag on, <code>off</code> = stock)</li>
-<li><a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag/fixtures/flight-ssr-bench">Fixture directory</a> on PR #24 (<code>rsc/html-first-one-flag</code> @ <code>31b26561f1</code>)</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/HTML-FIRST.md">HTML-FIRST.md</a></li>
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a></li>
+<li><a href="https://react-eco-html-first.to-email-max.workers.dev/">Demo index</a> (<code>/all/&lt;page&gt;</code> flag on, <code>/off/&lt;page&gt;</code> flag off)</li>
+<li><a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag/fixtures/flight-ssr-bench">Test fixture</a> and <a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/HTML-FIRST.md">design notes</a></li>
 <li><a href="../summary/">Results summary</a></li>
 </ul>
 <h2 id="static">static</h2>
