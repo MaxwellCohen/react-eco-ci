@@ -43,7 +43,9 @@ run('node', [cli, 'install', '--with-deps', 'chromium'], fx, { NODE_PATH: join(p
 const e2e = spawnSync('node', ['e2e/run.js', '--rows=1000'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
 writeFileSync(join(res, 'e2e.log'), (e2e.stdout || '') + (e2e.stderr || ''));
 writeFileSync(join(res, 'e2e.jsonl'), (e2e.stdout || '').split('\n').filter(l => l.startsWith('{')).join('\n'));
-const bench = spawnSync('node', ['bench-inproc.js', '--rows=1000', '--n=60'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
+// The bench keeps several MB-sized pages per iteration and needs about 3-4 GB even on stock React, which is the default
+// Node heap limit; without more heap it can run out of memory on the flag-off arm.
+const bench = spawnSync('node', ['--max-old-space-size=8192', 'bench-inproc.js', '--rows=1000', '--n=60'], { cwd: fx, env, encoding: 'utf8', maxBuffer: 1 << 26 });
 writeFileSync(join(res, 'inproc.txt'), (bench.stdout || '') + (bench.stderr || ''));
 writeFileSync(join(res, 'meta.json'), JSON.stringify({ variant: name, repo: v.repo, ref: v.ref, sha, flags: v.flags, e2eExit: e2e.status, inprocExit: bench.status }, null, 2));
 console.log(`e2e exit ${e2e.status}, inproc exit ${bench.status}`);
