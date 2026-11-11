@@ -37,6 +37,12 @@ on:
       next_ref:
         description: Branch/ref of the Next.js fork
         default: canary
+      waku_repo:
+        description: Waku fork to build and use instead of the template's Waku (blank = the template's npm version; e.g. MaxwellCohen/wakujs)
+        required: false
+      waku_ref:
+        description: Branch/ref of the Waku fork
+        default: main
 
 permissions:
   contents: read
@@ -145,8 +151,36 @@ jobs:
           npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json next-output.json ./next-src/packages/next
           echo "url=$(jq -r '.packages[] | select(.name=="next") | .url' next-output.json)" >> "$GITHUB_OUTPUT"
 
+  waku-fork:
+    if: ${{ inputs.waku_repo != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      url: ${{ steps.pub.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.waku_repo }}
+          ref: ${{ inputs.waku_ref }}
+          path: waku-src
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: waku-src/package.json
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: pnpm install --frozen-lockfile
+        working-directory: waku-src
+      - run: pnpm --filter waku run compile
+        working-directory: waku-src
+      - name: Publish waku to pkg.pr.new
+        id: pub
+        run: |
+          npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json waku-output.json ./waku-src/packages/waku
+          echo "url=$(jq -r '.packages[] | select(.name=="waku") | .url' waku-output.json)" >> "$GITHUB_OUTPUT"
+
   demos:
-    needs: [publish, next-fork]
+    needs: [publish, next-fork, waku-fork]
     if: ${{ !cancelled() && needs.publish.result == 'success' }}
     runs-on: ubuntu-latest
     env:
@@ -169,6 +203,13 @@ jobs:
           NEXT_URL: ${{ needs.next-fork.outputs.url || inputs.next_url }}
         run: |
           jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json
+          mv tmp.json react-urls.json
+      - name: Add Waku fork URL
+        if: ${{ needs.waku-fork.outputs.url != '' }}
+        env:
+          WAKU_URL: ${{ needs.waku-fork.outputs.url }}
+        run: |
+          jq --arg u "$WAKU_URL" '. + {waku: $u}' react-urls.json > tmp.json
           mv tmp.json react-urls.json
       - run: node scripts/build-variant.mjs ${{ matrix.template }} ${{ needs.publish.outputs.label }}
       - name: Deploy to Cloudflare

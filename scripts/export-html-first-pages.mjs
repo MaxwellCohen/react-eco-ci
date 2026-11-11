@@ -133,7 +133,7 @@ table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #e4e4e7;pad
 a{color:#0b57d0}</style>
 <h1>HTML-first Flight — live scenario demos</h1>
 <p>Same corpus as <a href="https://html-first-react.pages.dev/examples/">the examples index</a>, pre-rendered and hosted on Cloudflare Workers.
-<code>all</code> = <code>enableFlightHtmlFirst</code> on (zero framework opt-in — React's internal registry); <code>off</code> = stock flags-off. Size: <code>${esc(size)}</code>.</p>
+<code>all</code> = <code>enableFlightStaticHostElision</code> on and the render opted in with <code>elideStaticHosts: true</code>; <code>off</code> = the flag off. Size: <code>${esc(size)}</code>.</p>
 <p>Source: <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> · fixture <code>flight-ssr-bench</code>.</p>
 <table><thead><tr><th>Scenario</th><th>Live</th></tr></thead><tbody>
 ${rows}
