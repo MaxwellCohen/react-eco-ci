@@ -45,7 +45,8 @@ summary{cursor:pointer;font-weight:600}
 <h1>HTML-first React: results</h1>
 
 <div class="answer">
-<p>An RSC page's first response sends its static markup twice: once as HTML and once inside the Flight payload that the browser uses to hydrate. The reference implementation, <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (final version <code>b248e1e4ae</code>), adds a flag, <code>enableFlightStaticHostElision</code>, that leaves static Server Component output out of the browser's copy. Across 41 test pages it cuts the gzipped download by 43% and the inlined Flight payload by 79%. In a Waku page with a 1000-row server-rendered table it raises throughput 3.2&times;. The framework change needed is one option.</p>
+<p>On first load, an RSC page sends its static markup twice: as HTML, so the browser can paint, and again inside the Flight payload the browser inlines to hydrate. For content that never changes on the client, the second copy is wasted bandwidth, and it costs the server time to produce.</p>
+<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one option. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/b6a74b6c1e"><code>b6a74b6c1e</code></a>).</p>
 </div>
 
 <div class="stats">
@@ -55,13 +56,19 @@ summary{cursor:pointer;font-weight:600}
 <div class="stat"><b>3.2&times;</b><span>Waku table page, requests/s</span></div>
 </div>
 
-<h2>What it does</h2>
-<p>With the flag on, Flight does not put static host markup into the payload the browser receives. It writes a small stub, and the browser adopts the DOM that the HTML already contains. SSR still gets the full content, handed over through an internal registry, so the HTML is complete.</p>
-<p>The static markup that qualifies is plain output of Server Components in places where React renders it in place: host element children, Suspense children, Client Component <code>children</code>, and the entries of a root element map such as <code>{page, layout}</code>. Client Components are never elided, and neither are props other than <code>children</code>, since the client can render those later with no server DOM behind them. Forms, inputs, images, SVG and head elements are never elided either.</p>
-<p>Nothing is elided unless the framework asks. It passes <code>elideStaticHosts: true</code> on the Flight render that feeds HTML SSR. Navigation, refetch and action responses do not pass it, so they are ordinary full payloads. React cannot tell where a stream is going, because the bytes are the same either way, but frameworks already can: Waku serves RSC requests under an <code>RSC/</code> URL prefix, and Next.js sends an <code>RSC: 1</code> header.</p>
+<h2>How it works</h2>
+<p>With <code>enableFlightStaticHostElision</code> on, Flight does not write static host markup into the payload the browser receives. It writes a small stub instead, and the browser adopts the DOM that the HTML already contains. SSR still needs the real content to write that HTML, so Flight hands it over through an internal registry.</p>
+<p>Markup qualifies when it is plain output of a Server Component in a place React renders in place:</p>
+<ul>
+<li>children of host elements and of Suspense boundaries,</li>
+<li><code>children</code> of Client Components (layouts, slots),</li>
+<li>the entries of a root element map such as <code>{page, layout}</code>.</li>
+</ul>
+<p>Client Components are never elided. Neither are props other than <code>children</code>, because the client can render those later with no server DOM behind them, nor forms, inputs, images, SVG or head elements.</p>
+<p>The feature is opt-in per request. The framework passes <code>elideStaticHosts: true</code> on the Flight render that feeds HTML SSR, and leaves it off everywhere else, so navigation, refetch and action responses stay ordinary full payloads. React cannot tell where a stream is going, because the bytes are identical either way. Frameworks can: Waku serves RSC requests under an <code>RSC/</code> URL prefix, and Next.js sends an <code>RSC: 1</code> header.</p>
 
-<h2>Bytes: 41 test pages</h2>
-<p>Each page is rendered with the flag off and on at full size. Gzip and brotli are of the whole document, and Flight is the payload inlined in <code>&lt;script&gt;</code> tags. The table sums all 41 pages.</p>
+<h2>Bytes across 41 test pages</h2>
+<p>Each page is rendered at full size with the flag off and on. Gzip and brotli are of the whole document, and Flight is the payload inlined in <code>&lt;script&gt;</code> tags. The table sums all 41 pages.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Flag off</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
@@ -70,7 +77,7 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>Inlined Flight</td><td class="n">9,280,754</td><td class="n">1,977,902</td><td class="n">&minus;78.7%</td></tr>
 <tr><td>Brotli</td><td class="n">479,414</td><td class="n">286,520</td><td class="n">&minus;40.2%</td></tr>
 </tbody></table></div>
-<p class="cap">The total is dominated by a few pages: the five largest savings account for about 80% of the gzip bytes saved. The median page saves 7.8%. Nine pages are within &plusmn;1%, and seven get slightly larger, the worst being <code>repeated-long-strings</code> at +12.4%. A page with nothing to elide, like <code>all-client</code>, pays about 0.6% for the registry row. Per-page numbers are on the <a href="../examples/">examples page</a>.</p>
+<p class="cap">The total is dominated by a few pages: the five largest savings make up about 80% of the gzip bytes saved. The median page saves 7.8%, nine pages are within &plusmn;1%, and seven get slightly larger, the worst being <code>repeated-long-strings</code> at +12.4%. A page with nothing to elide, like <code>all-client</code>, pays about 0.6% for the registry row. Per-page numbers are on the <a href="../examples/">examples page</a>.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Page</th><th class="n">gzip</th><th class="n">inlined Flight</th></tr></thead>
 <tbody>
@@ -82,8 +89,8 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>all-client</td><td class="n">+0.6%</td><td class="n">+15%</td></tr>
 </tbody></table></div>
 
-<h2>Throughput: Waku</h2>
-<p>The test is a Waku page with a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was used because it is easy to patch and has good RSC support; the feature does not depend on it. Results are medians over 5 rounds on one laptop, with the order of the servers rotated each round. The patch is one line: the HTML render passes <code>elideStaticHosts: true</code>.</p>
+<h2>Throughput on Waku</h2>
+<p>The test page is a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was chosen because it is easy to patch and has good RSC support; the feature does not depend on it. The patch is one line: the HTML render passes <code>elideStaticHosts: true</code>. Figures are medians over 5 rounds on one laptop, with the order of the servers rotated each round.</p>
 <div class="tablewrap"><table>
 <thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Waku</th><th class="n">Flag on, patched Waku</th></tr></thead>
 <tbody>
@@ -92,33 +99,32 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>Inlined Flight</td><td class="n">823,655 B</td><td class="n">823,655 B</td><td class="n">18,978 B</td></tr>
 <tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,460 B</td><td class="n">60,890 B</td></tr>
 </tbody></table></div>
-<p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock, so forgetting the option costs the savings but breaks nothing. A second page whose rows are Client Components gets 1.10&times;, since those rows cannot be elided. Next.js was not tried.</p>
+<p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock: forgetting the option loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, since those rows cannot be elided. Next.js was not tried.</p>
 
 <h2>Correctness</h2>
-<p>The 41 pages are loaded in real Chromium with and without the flag, and each check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload. It also fails on any console error or hydration error. All 41 pass at <code>31b26561f1</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed at earlier commits and have not been run on this one. The Waku page hydrates, its counters respond, there are no console errors, and navigation renders all 1000 rows.</p>
-<p>On a client navigation the full payload has real elements where the stubs were, so React creates fresh DOM for those regions instead of reusing the old DOM, whose content may not match the new page. Client components keep their state.</p>
+<p>The 41 pages are loaded in Chromium with and without the flag. For each one the check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload, and it fails on any console or hydration error. All 41 pass at <code>31b26561f1</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier commits but have not been run on this one. The Waku page hydrates, its counters respond, it logs no errors, and a client navigation renders all 1000 rows.</p>
+<p>On a client navigation the full payload contains real elements where the stubs were. React builds fresh DOM for those regions rather than reusing the old DOM, whose content may not match the new page. Client components keep their state.</p>
 
 <h2>Limits</h2>
 <ul>
-<li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework has to pass <code>onElidedContentMissing</code> and refetch a full payload. Without it the page reports an uncaught error.</li>
-<li>Rows that nothing in-process consumes are released only when the request is aborted, so a response that is only ever sent to a browser, with the option on, keeps its rows in memory.</li>
-<li>Preload links hoisted into <code>&lt;head&gt;</code> can differ from stock; the resources that matter are the same.</li>
-<li>The savings depend on how much static server markup a page has. Many real pages will land near the median, not the large cases.</li>
+<li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework must pass <code>onElidedContentMissing</code> and refetch a full payload; without it the page reports an uncaught error.</li>
+<li>Rows that nothing in-process consumes are released only when the request is aborted. A response that is only ever sent to a browser, with the option on, keeps its rows in memory.</li>
+<li>Preload links hoisted into <code>&lt;head&gt;</code> can differ from stock. The resources that matter are the same.</li>
+<li>The savings scale with the amount of static server markup on a page. Expect many real pages to look like the median, not like the largest cases.</li>
 </ul>
 
 <h2>Links</h2>
 <ul class="links">
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/b248e1e4ae"><code>b248e1e4ae</code></a>)</li>
-<li><a href="../examples/">Examples</a>: each of the 41 pages with a live demo</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/b248e1e4ae/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a> in the fixture directory</li>
+<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/b6a74b6c1e"><code>b6a74b6c1e</code></a>)</li>
+<li><a href="../examples/">Examples</a>: all 41 test pages, each with a live demo</li>
+<li><a href="https://github.com/MaxwellCohen/react/blob/b6a74b6c1e/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
 <li><a href="https://github.com/MaxwellCohen/wakujs/commit/382e73ae">Waku patch</a> (one commit on branch <code>rsc-html-first-optin</code>)</li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
-<li>Baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
-<li>Byte numbers are deterministic for most pages; a few pages vary slightly between runs because of generated ids, so the last digits can differ on a rerun.</li>
-<li>Render-time numbers (not shown here) come from interleaved in-process renders and are noisier than the byte numbers.</li>
+<li>The baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
+<li>Byte counts are deterministic for most pages. A few vary slightly between runs because of generated ids, so the last digits can change on a rerun.</li>
 <li>Waku: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds, ratios taken within each round against stock. Chromium 156 for the browser checks.</li>
 </ul></details>
 
