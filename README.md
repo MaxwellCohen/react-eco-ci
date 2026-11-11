@@ -13,9 +13,49 @@ The compiler install is required: `yarn build` compiles `eslint-plugin-react-hoo
 
 ## Try static host elision
 
-[`enableFlightStaticHostElision`](https://github.com/MaxwellCohen/react/pull/24) leaves static Server Component output out of the Flight payload the browser receives and adopts it from the HTML instead. Results and design: [summary](https://html-first-react.pages.dev/summary/). The demo is the `waku` template, built with the React branch `rsc/html-first-one-flag` (flag forced on) and the patched Waku branch `rsc-html-first-optin` ([the patch](https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...rsc-html-first-optin)). It has two pages worth opening: `/table` (a 1000-row server-rendered table, where most of the savings are) and `/late-modal` (static content that only mounts after a click, which needs the recovery in the Waku patch).
+[`enableFlightStaticHostElision`](https://github.com/MaxwellCohen/react/pull/24) leaves static Server Component output out of the Flight payload the browser receives and adopts it from the HTML instead. Results and design: [summary](https://html-first-react.pages.dev/summary/).
 
-**In CI.** Install the [pkg-pr-new GitHub App](https://github.com/apps/pkg-pr-new) on this repo, then run the [`react-build`](https://github.com/MaxwellCohen/react-eco-ci/actions/workflows/react-build.yml) workflow with:
+**Run the demo.** Needs Node 22 and npm; nothing is cloned or built.
+
+```sh
+npx degit MaxwellCohen/react-eco-ci/starters/waku-static-host-elision elision-demo
+cd elision-demo
+npm install
+npm run build
+npm start            # http://localhost:8080
+```
+
+In a second terminal, `npm run measure` prints the size of the two table pages next to what stock React and stock Waku send for the same pages (about 98% less inlined Flight and 54% less gzipped HTML for `/table-host`). The pages:
+
+- `/table-host`: a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. View the source: the inlined `__FLIGHT_DATA` is small and contains `$J` stubs.
+- `/table-client`: the same rows as Client Components, which are never elided, so the saving is smaller.
+- `/late-modal`: static content that only mounts after a click. It is not in the first payload, so the page refetches it. Click "open".
+
+I have only run `npm run build` and `npm start`, not `npm run dev`.
+
+**Use it in your own Waku app.** The packages are attached to the [`static-host-elision-df35615` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-df35615). They are React `df356153a6` built with the flag forced on, and a Waku based on upstream `b0d0a798` (1.0.0-rc.4) with [two small changes](https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...62e75f5f). Install them and override the two packages React depends on:
+
+```sh
+R=https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615
+npm install $R/react-19.3.0-static-host-elision.tgz $R/react-dom-19.3.0-static-host-elision.tgz \
+  $R/react-server-dom-webpack-19.3.0-static-host-elision.tgz $R/waku-1.0.0-rc.4-static-host-elision.tgz
+```
+
+```json
+"overrides": {
+  "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-19.3.0-static-host-elision.tgz",
+  "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-dom-19.3.0-static-host-elision.tgz",
+  "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/scheduler-0.28.0-static-host-elision.tgz",
+  "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-is-19.3.0-static-host-elision.tgz",
+  "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-server-dom-webpack-19.3.0-static-host-elision.tgz"
+}
+```
+
+The app has to work on Waku 1.0.0-rc.4. These are experimental builds for evaluation, not for production.
+
+**Build the packages yourself.** The same packages can be built in CI or locally.
+
+*In CI.* Install the [pkg-pr-new GitHub App](https://github.com/apps/pkg-pr-new) on this repo, then run the [`react-build`](https://github.com/MaxwellCohen/react-eco-ci/actions/workflows/react-build.yml) workflow with:
 
 | input | value |
 |---|---|
@@ -27,32 +67,21 @@ The compiler install is required: `yarn build` compiles `eslint-plugin-react-hoo
 | `waku_repo` | `MaxwellCohen/wakujs` |
 | `waku_ref` | `rsc-html-first-optin` |
 
-It builds React with the flag forced on, builds and publishes the patched Waku, and deploys the demo as a Cloudflare Worker (this needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; without them the deploy is skipped and the build still runs). Run it once more without `flags`, `waku_repo` and `waku_ref` for the stock comparison. `flight-versions.json` has the same two variants (`off`, `on`) for the `flight` and `framework` workflows.
+It builds React with the flag forced on, builds the Waku fork, publishes both to pkg.pr.new in one command (pkg.pr.new allows one publish per workflow run), and deploys the `waku` template as a Cloudflare Worker (this needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; without them the deploy is skipped). `flight-versions.json` has the same two variants (`off`, `on`) for the `flight` and `framework` workflows.
 
-**Locally.** You need Node 22, yarn and pnpm.
+*Locally.* You need Node 22, yarn and pnpm, and this repo, the [React fork](https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag) and the [Waku fork](https://github.com/MaxwellCohen/wakujs/tree/rsc-html-first-optin) checked out side by side.
 
 ```sh
-# 1. React with the flag on
-git clone --branch rsc/html-first-one-flag https://github.com/MaxwellCohen/react.git && cd react
-yarn install --frozen-lockfile
+cd react && yarn install --frozen-lockfile
 node ../react-eco-ci/scripts/force-flags.mjs . enableFlightStaticHostElision
 RELEASE_CHANNEL=experimental node ./scripts/rollup/build.js \
   react/index,react/jsx,react.react-server,react/src/jsx/ReactJSXServer.js,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server,scheduler,react-is,react-server-dom-webpack/ \
   --type=NODE_DEV,NODE_PROD                                  # output: build/node_modules
-cd ..
-
-# 2. The patched Waku
-git clone --branch rsc-html-first-optin https://github.com/MaxwellCohen/wakujs.git
-
-# 3. Pack both and build the demo
-cd react-eco-ci
+cd ../react-eco-ci
 node scripts/pack-local.mjs ../react/build/node_modules ../wakujs   # writes .tgz/ and react-urls.json
 node scripts/build-variant.mjs waku static-host-elision             # builds .build/waku-static-host-elision
-cd .build/waku-static-host-elision
-npx wrangler dev --config dist/server/wrangler.json --port 8787
+cd .build/waku-static-host-elision && npx wrangler dev --config dist/server/wrangler.json --port 8787
 ```
-
-Open `http://localhost:8787/table` and view the source: the inlined `__FLIGHT_DATA` is a fraction of the stock size and holds `$J` stubs. Open `/late-modal`, click "open", and the content appears (it was not in the first payload; Waku refetches it). For the stock comparison, repeat from step 3 with a React build made without the `force-flags.mjs` line and without passing the Waku checkout to `pack-local.mjs`.
 
 The framework side of this is two small changes, both in the Waku patch: the HTML render passes `elideStaticHosts: true`, and the root passes `onElidedContentMissing` for the initial payload and refetches it in full when React asks.
 

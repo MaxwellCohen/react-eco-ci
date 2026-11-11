@@ -101,8 +101,27 @@ jobs:
       - run: yarn build -r=${{ inputs.channel }}
         if: ${{ inputs.reuse_run == '' }}
         working-directory: react-src
+      # pkg.pr.new allows one publish per workflow run, so a Waku fork is built here and published together with React.
+      - uses: actions/checkout@v4
+        if: ${{ inputs.reuse_run == '' && inputs.waku_repo != '' }}
+        with:
+          repository: ${{ inputs.waku_repo }}
+          ref: ${{ inputs.waku_ref }}
+          path: waku-src
+      - uses: pnpm/action-setup@v4
+        if: ${{ inputs.reuse_run == '' && inputs.waku_repo != '' }}
+        with:
+          package_json_file: waku-src/package.json
+      - name: Build the Waku fork
+        if: ${{ inputs.reuse_run == '' && inputs.waku_repo != '' }}
+        working-directory: waku-src
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter waku run compile
       - name: Publish to pkg.pr.new
         if: ${{ inputs.reuse_run == '' }}
+        env:
+          EXTRA_PACKAGE_DIRS: ${{ inputs.waku_repo != '' && 'waku-src/packages/waku' || '' }}
         run: node scripts/publish-react.mjs react-src/build/oss-${{ inputs.channel }}
       - uses: actions/upload-artifact@v4
         with:
@@ -151,36 +170,8 @@ jobs:
           npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json next-output.json ./next-src/packages/next
           echo "url=$(jq -r '.packages[] | select(.name=="next") | .url' next-output.json)" >> "$GITHUB_OUTPUT"
 
-  waku-fork:
-    if: ${{ inputs.waku_repo != '' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    outputs:
-      url: ${{ steps.pub.outputs.url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.waku_repo }}
-          ref: ${{ inputs.waku_ref }}
-          path: waku-src
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: waku-src/package.json
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: pnpm install --frozen-lockfile
-        working-directory: waku-src
-      - run: pnpm --filter waku run compile
-        working-directory: waku-src
-      - name: Publish waku to pkg.pr.new
-        id: pub
-        run: |
-          npx --yes pkg-pr-new@latest publish --pnpm --no-compact --no-template --comment=off --json waku-output.json ./waku-src/packages/waku
-          echo "url=$(jq -r '.packages[] | select(.name=="waku") | .url' waku-output.json)" >> "$GITHUB_OUTPUT"
-
   demos:
-    needs: [publish, next-fork, waku-fork]
+    needs: [publish, next-fork]
     if: ${{ !cancelled() && needs.publish.result == 'success' }}
     runs-on: ubuntu-latest
     env:
@@ -203,13 +194,6 @@ jobs:
           NEXT_URL: ${{ needs.next-fork.outputs.url || inputs.next_url }}
         run: |
           jq --arg u "$NEXT_URL" '. + {next: $u}' react-urls.json > tmp.json
-          mv tmp.json react-urls.json
-      - name: Add Waku fork URL
-        if: ${{ needs.waku-fork.outputs.url != '' }}
-        env:
-          WAKU_URL: ${{ needs.waku-fork.outputs.url }}
-        run: |
-          jq --arg u "$WAKU_URL" '. + {waku: $u}' react-urls.json > tmp.json
           mv tmp.json react-urls.json
       - run: node scripts/build-variant.mjs ${{ matrix.template }} ${{ needs.publish.outputs.label }}
       - name: Deploy to Cloudflare

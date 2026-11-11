@@ -1,0 +1,27 @@
+{
+  "name": "waku-static-host-elision",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "waku dev",
+    "build": "waku build",
+    "start": "waku start",
+    "measure": "node scripts/measure.mjs"
+  },
+  "dependencies": {
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-19.3.0-static-host-elision.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-dom-19.3.0-static-host-elision.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-server-dom-webpack-19.3.0-static-host-elision.tgz",
+    "waku": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/waku-1.0.0-rc.4-static-host-elision.tgz"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5"
+  },
+  "overrides": {
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-19.3.0-static-host-elision.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-dom-19.3.0-static-host-elision.tgz",
+    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/scheduler-0.28.0-static-host-elision.tgz",
+    "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-is-19.3.0-static-host-elision.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-server-dom-webpack-19.3.0-static-host-elision.tgz"
+  }
+}
