@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HTML-first React: Results Summary</title>
-<meta name="description" content="Merge PR #24 and turn on enableFlightStaticHostElision: ~43% smaller downloads vs stock React main on the scenario corpus; Waku tip throughput is unchanged until host-position elision applies.">
+<meta name="description" content="A flag that leaves static Server Component output out of the browser's Flight payload: about 43% smaller gzipped downloads across 41 test pages and 3.2x throughput on a Waku table page. Reference implementation: React PR #24.">
 <style>
 :root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00}
 @media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a}}
@@ -45,7 +45,7 @@ summary{cursor:pointer;font-weight:600}
 <h1>HTML-first React: results</h1>
 
 <div class="answer">
-<p>An RSC page's first response sends its static markup twice: once as HTML and once inside the Flight payload that the browser uses to hydrate. <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> adds a flag, <code>enableFlightStaticHostElision</code>, that leaves static Server Component output out of the browser's copy. Across 41 test pages it cuts the gzipped download by 43% and the inlined Flight payload by 79%. In a Waku page with a 1000-row server-rendered table it raises throughput 3.2&times;. The framework change needed is one option.</p>
+<p>An RSC page's first response sends its static markup twice: once as HTML and once inside the Flight payload that the browser uses to hydrate. The reference implementation, <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (final version <code>b248e1e4ae</code>), adds a flag, <code>enableFlightStaticHostElision</code>, that leaves static Server Component output out of the browser's copy. Across 41 test pages it cuts the gzipped download by 43% and the inlined Flight payload by 79%. In a Waku page with a 1000-row server-rendered table it raises throughput 3.2&times;. The framework change needed is one option.</p>
 </div>
 
 <div class="stats">
@@ -108,15 +108,15 @@ summary{cursor:pointer;font-weight:600}
 
 <h2>Links</h2>
 <ul class="links">
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, based on <code>facebook/react</code> main</li>
+<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/b248e1e4ae"><code>b248e1e4ae</code></a>)</li>
 <li><a href="../examples/">Examples</a>: each of the 41 pages with a live demo</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a> in the fixture directory</li>
-<li><a href="https://github.com/MaxwellCohen/wakujs/tree/rsc-html-first-optin">Waku patch</a> (branch <code>rsc-html-first-optin</code>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/blob/b248e1e4ae/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a> in the fixture directory</li>
+<li><a href="https://github.com/MaxwellCohen/wakujs/commit/382e73ae">Waku patch</a> (one commit on branch <code>rsc-html-first-optin</code>)</li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
-<li>Baseline is the same React build with the flag off. Both builds come from PR #24 rebased onto <code>facebook/react</code> main.</li>
+<li>Baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
 <li>Byte numbers are deterministic for most pages; a few pages vary slightly between runs because of generated ids, so the last digits can differ on a rerun.</li>
 <li>Render-time numbers (not shown here) come from interleaved in-process renders and are noisier than the byte numbers.</li>
 <li>Waku: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds, ratios taken within each round against stock. Chromium 156 for the browser checks.</li>
