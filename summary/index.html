@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HTML-first React: Results Summary</title>
-<meta name="description" content="Merge PR #24 and turn on enableFlightHtmlFirst: ~43% smaller downloads vs stock React main on the scenario corpus; Waku tip throughput is unchanged until host-position elision applies.">
+<meta name="description" content="Merge PR #24 and turn on enableFlightStaticHostElision: ~43% smaller downloads vs stock React main on the scenario corpus; Waku tip throughput is unchanged until host-position elision applies.">
 <style>
 :root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b;--bad:#b3261e;--warn-bg:#fff4e5;--warn-line:#e08a00}
 @media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a;--bad:#ff8a80;--warn-bg:#2a2112;--warn-line:#d08a1a}}
@@ -41,14 +41,14 @@ summary{cursor:pointer;font-weight:600}
 </head>
 <body>
 <main>
-<p class="sub">HTML-first React &middot; vs stock React main &middot; tip <code>65f36f67d9</code> (measured at <code>8dd5e5f61d</code>) &middot; 10 November 2026</p>
+<p class="sub">HTML-first React &middot; vs stock React main &middot; measured at <code>31b26561f1</code> &middot; 10 November 2026</p>
 <h1>HTML-first React: Results Summary</h1>
 
 <div class="answer">
-<p>Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightHtmlFirst</code>, and have the framework pass <code>onElidedRow: true</code> on the one Flight render that feeds HTML SSR. Compared with <b>stock React main</b> (same tip, flag off):</p>
+<p>Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightStaticHostElision</code>, and have the framework pass <code>elideStaticHosts: true</code> on the one Flight render that feeds HTML SSR. Compared with <b>stock React main</b> (same tip, flag off):</p>
 <ul>
 <li><b>~43% smaller</b> gzip HTML downloads across 41 pages (sum), <b>~79% less</b> inlined Flight (the JS payload in the document)</li>
-<li><b>~3.2&times; Waku host-page throughput</b> (3.19&times;, range 3.15&ndash;3.24, TTFB 0.48&times;) with a one-line framework change</li>
+<li><b>~3.2&times; Waku host-page throughput</b> (3.21&times;, range 3.10&ndash;3.24, TTFB 0.43&times;) with a one-line framework change</li>
 <li><b>No change for users or authors:</b> same components and APIs; the 41-page correctness corpus passes in Chromium</li>
 </ul>
 </div>
@@ -57,11 +57,11 @@ summary{cursor:pointer;font-weight:600}
 <div class="stat"><b>&minus;43%</b><span>gzip download vs stock main</span></div>
 <div class="stat"><b>&minus;79%</b><span>inlined Flight vs stock main</span></div>
 <div class="stat"><b>&minus;50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>3.19&times;</b><span>Waku host-page req/s</span></div>
+<div class="stat"><b>3.21&times;</b><span>Waku host-page req/s</span></div>
 </div>
 
 <h2>What changes</h2>
-<p>One experimental flag, off by default. With it on, a request elides only when the framework opts in with <code>onElidedRow: true</code>. Static Server Component host markup in host position (host children, Suspense children, Client Component <code>children</code>, and the entries of a root element map such as <code>{page, layout}</code>) is then left out of the browser Flight payload and adopted from the SSR HTML. Non-<code>children</code> props (<code>panels</code>, <code>fallback</code>, &hellip;) stay in the payload.</p>
+<p>One experimental flag, off by default. With it on, a request elides only when the framework opts in with <code>elideStaticHosts: true</code>. Static Server Component host markup in host position (host children, Suspense children, Client Component <code>children</code>, and the entries of a root element map such as <code>{page, layout}</code>) is then left out of the browser Flight payload and adopted from the SSR HTML. Non-<code>children</code> props (<code>panels</code>, <code>fallback</code>, &hellip;) stay in the payload.</p>
 <p>Nothing changes for apps until the flag is on, and nothing is elided unless the framework opts in, so responses that go straight to the browser (navigation, refetch, action results) are never elided by accident.</p>
 
 <h2>Bytes vs stock main</h2>
@@ -69,10 +69,10 @@ summary{cursor:pointer;font-weight:600}
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Stock (flag off)</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>Gzip download</td><td class="n">1,023,890</td><td class="n">586,846</td><td class="n">&minus;42.7%</td></tr>
-<tr><td>Raw HTML</td><td class="n">14,555,561</td><td class="n">7,252,811</td><td class="n">&minus;50.2%</td></tr>
-<tr><td>Inlined Flight</td><td class="n">9,280,601</td><td class="n">1,977,851</td><td class="n">&minus;78.7%</td></tr>
-<tr><td>Brotli</td><td class="n">479,331</td><td class="n">286,455</td><td class="n">&minus;40.2%</td></tr>
+<tr><td>Gzip download</td><td class="n">1,023,906</td><td class="n">586,852</td><td class="n">&minus;42.7%</td></tr>
+<tr><td>Raw HTML</td><td class="n">14,555,714</td><td class="n">7,252,862</td><td class="n">&minus;50.2%</td></tr>
+<tr><td>Inlined Flight</td><td class="n">9,280,754</td><td class="n">1,977,902</td><td class="n">&minus;78.7%</td></tr>
+<tr><td>Brotli</td><td class="n">479,414</td><td class="n">286,520</td><td class="n">&minus;40.2%</td></tr>
 </tbody></table></div>
 <p class="cap">Per-page numbers: <a href="../examples/">examples index</a>. Benefit tracks how much static server markup sits in host position: <code>all-client</code> gains nothing (+0.6% gzip from the <code>:Q</code> row). Aggregate savings are dominated by a few pages (the top five account for ~80% of bytes saved); the median page saves 7.8% gzip, 9 of 41 pages are within &plusmn;1%, and 7 pages are slightly larger (worst: <code>repeated-long-strings</code> +12.4%).</p>
 <div class="tablewrap"><table>
@@ -87,14 +87,14 @@ summary{cursor:pointer;font-weight:600}
 </tbody></table></div>
 
 <h2>Throughput vs stock</h2>
-<p>Waku host-row page (1000 rows), React <code>8dd5e5f61d</code> + Waku <code>e0a74383</code>, 5 rotated rounds, 0 request errors:</p>
+<p>Waku host-row page (1000 rows), React <code>31b26561f1</code> + Waku <code>382e73ae</code>, 5 rotated rounds, 0 request errors:</p>
 <div class="tablewrap"><table>
 <thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Waku</th><th class="n">Flag on + one-line opt-in</th></tr></thead>
 <tbody>
-<tr><td>req/s</td><td class="n">1.00</td><td class="n">1.01</td><td class="n"><b>3.19&times;</b></td></tr>
-<tr><td>TTFB</td><td class="n">1.00</td><td class="n">0.99</td><td class="n"><b>0.48&times;</b></td></tr>
+<tr><td>req/s</td><td class="n">1.00</td><td class="n">1.00</td><td class="n"><b>3.21&times;</b></td></tr>
+<tr><td>TTFB</td><td class="n">1.00</td><td class="n">0.98</td><td class="n"><b>0.43&times;</b></td></tr>
 <tr><td>Inlined Flight</td><td class="n">823,655 B</td><td class="n">823,655 B</td><td class="n">18,978 B (&minus;97.7%)</td></tr>
-<tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,466 B</td><td class="n">60,883 B (&minus;53.3%)</td></tr>
+<tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,460 B</td><td class="n">60,890 B (&minus;53.3%)</td></tr>
 </tbody></table></div>
 <p class="cap">Waku was the measurement vehicle because it is easy to patch and has strong RSC support, not because anything is Waku-specific. Its all-client-rows page gets 1.10&times;. Stock Waku with the flag on is byte-identical to stock and navigates correctly: forgetting the option means no win, not a broken page. Next.js was not measured. In-process Flight&rarr;Fizz render time across the 41 corpus pages sums to about <b>1.28&times;</b> less work (459.5 &rarr; 360.1 ms of medians, shared laptop, directional only).</p>
 
@@ -102,7 +102,7 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>Same public component model: authors do not mark trees or change JSX for the win.</li>
 <li>Hydration adopts server DOM for elided regions; interactive client islands keep working.</li>
-<li>41-page corpus: <b>41/41</b> in Chromium at <code>8dd5e5f61d</code> (hydrated and post-interaction DOM equal to stock, no console or hydration errors, SPA navigation to a full payload equal to the hydrated page). The DOM compare canonicalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier tips and were not re-run at this one.</li>
+<li>41-page corpus: <b>41/41</b> in Chromium at <code>31b26561f1</code> (hydrated and post-interaction DOM equal to stock, no console or hydration errors, SPA navigation to a full payload equal to the hydrated page). The DOM compare canonicalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier tips and were not re-run at this one.</li>
 <li>Waku: hydrates, counters interactive, 0 console errors, SPA navigation renders all 1000 rows.</li>
 <li>On navigation the full payload re-creates the elided regions (the old DOM is not trusted, because the new page can differ); client components keep their state.</li>
 <li>Deferred mounts (modal, ClientOnly) and Suspense client-render recover via the framework-supplied <code>onElidedContentMissing</code>. Without it the stub suspends and reports an uncaught error rather than blanking quietly, so it is recommended.</li>
@@ -110,21 +110,21 @@ summary{cursor:pointer;font-weight:600}
 </ul>
 
 <h2>How it works</h2>
-<p>Today an RSC initial response ships the same static server markup twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With <code>enableFlightHtmlFirst</code>, React withholds static Server Component host trees that sit in <em>host position</em> from the payload the browser receives and leaves a small <code>$J</code> stub. SSR and the browser need different things: SSR needs the withheld content to write the HTML, the browser only needs a stub because the HTML is already on the page.</p>
-<p>The framework opts in by passing <code>onElidedRow: true</code> on the Flight render that feeds SSR. React then collects the withheld rows in an internal registry keyed by a <code>:Q</code> row in the stream. The first in-process <code>createFrom*</code> claims it for SSR; the browser isolate has an empty registry, sees the stubs, and adopts the HTML. A function <code>onElidedRow</code> / <code>onElidedValue</code> is the override for out-of-process consumers.</p>
+<p>Today an RSC initial response ships the same static server markup twice: Fizz HTML to paint, and an inlined Flight payload to hydrate. With <code>enableFlightStaticHostElision</code>, React withholds static Server Component host trees that sit in <em>host position</em> from the payload the browser receives and leaves a small <code>$J</code> stub. SSR and the browser need different things: SSR needs the withheld content to write the HTML, the browser only needs a stub because the HTML is already on the page.</p>
+<p>The framework opts in by passing <code>elideStaticHosts: true</code> on the Flight render that feeds SSR. React then collects the withheld rows in an internal registry keyed by a <code>:Q</code> row in the stream. The first in-process <code>createFrom*</code> claims it for SSR; the browser isolate has an empty registry, sees the stubs, and adopts the HTML. An <code>elideStaticHosts: {onRow, onValue}</code> object is the override for out-of-process consumers.</p>
 <p>React cannot infer whether a stream is going to the browser: the stream is the same bytes either way. The framework already knows (Waku routes <code>RSC/</code> URLs separately; Next.js sends an <code>RSC: 1</code> header), which is why the opt-in is one option on the SSR-feeding render and every other response needs no change.</p>
 
 <h2>Ask</h2>
 <ol>
 <li>Land <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> on the fork / propose upstream: one flag, one per-request option, Suspense + children + root element maps.</li>
-<li>Ship a React build with the flag on; frameworks pass <code>onElidedRow: true</code> on the HTML-feeding Flight render (one line in Waku) and optionally wire <code>onElidedContentMissing</code>.</li>
+<li>Ship a React build with the flag on; frameworks pass <code>elideStaticHosts: true</code> on the HTML-feeding Flight render (one line in Waku) and optionally wire <code>onElidedContentMissing</code>.</li>
 <li>Follow-ups: measure a Next.js integration; re-run Firefox/WebKit at the final tip.</li>
 </ol>
 
 <h2>Links</h2>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> &mdash; one-flag HTML-first (based on <code>facebook/react</code> main)</li>
-<li><a href="../examples/">Scenario examples</a> &mdash; each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (rebuilt from <code>8dd5e5f61d</code>)</li>
+<li><a href="../examples/">Scenario examples</a> &mdash; each name opens a <a href="https://react-eco-html-first.to-email-max.workers.dev/">live CF Workers demo</a> (rebuilt from <code>31b26561f1</code>)</li>
 <li><a href="https://github.com/MaxwellCohen/wakujs/tree/rsc-html-first-optin">Waku patch</a> (<code>rsc-html-first-optin</code>, one commit of opt-in)</li>
 <li><a href="https://html-first-react.pages.dev/summary/">Live summary</a> on Cloudflare Pages</li>
 <li><a href="https://html-first-react.pages.dev/examples/">Live examples</a> on Cloudflare Pages</li>
@@ -133,10 +133,10 @@ summary{cursor:pointer;font-weight:600}
 
 <details><summary>Method</summary>
 <ul>
-<li>Baseline: the same React build with <code>enableFlightHtmlFirst</code> off (stock behaviour for this feature), PR #24 rebased onto <code>facebook/react</code> main.</li>
+<li>Baseline: the same React build with <code>enableFlightStaticHostElision</code> off (stock behaviour for this feature), PR #24 rebased onto <code>facebook/react</code> main.</li>
 <li>Treatment: same tip, flag on, framework opted in. 41 scenarios &times; full size; whole-document gzip/brotli, raw HTML, summed inlined <code>&lt;script&gt;</code> Flight bytes; N=15 interleaved in-process renders for timing.</li>
 <li>Framework throughput: Waku host-row page, autocannon 16 connections &times; 10 s after a 10 s warm-up, 5 rounds with rotated order, ratios taken within each round against stock.</li>
-<li>Browsers: Playwright Chromium 156 for the corpus at <code>8dd5e5f61d</code>.</li>
+<li>Browsers: Playwright Chromium 156 for the corpus at <code>31b26561f1</code>.</li>
 <li>Byte counts for a few pages vary slightly run to run (non-deterministic ids), so aggregates can differ in the last digits between reruns.</li>
 </ul></details>
 

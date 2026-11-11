@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HTML-first scenario examples</title>
-<meta name="description" content="Merge PR #24, turn on enableFlightHtmlFirst: ~43% smaller gzip downloads vs stock React main, with no UX/DX change.">
+<meta name="description" content="Merge PR #24, turn on enableFlightStaticHostElision: ~43% smaller gzip downloads vs stock React main, with no UX/DX change.">
 <style>
 :root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb;--good:#1a7f4b}
 @media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff;--good:#4cc38a}}
@@ -26,21 +26,21 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
 a{color:var(--acc)}
 code{font-size:.88em}
 </style></head><body><main>
-<p class="sub"><a href="../summary/">&larr; Summary</a> &middot; vs stock React main &middot; 41 scenarios &middot; tip <code>65f36f67d9</code> (measured at <code>8dd5e5f61d</code>) &middot; live size <code>full</code></p>
+<p class="sub"><a href="../summary/">&larr; Summary</a> &middot; vs stock React main &middot; 41 scenarios &middot; measured at <code>31b26561f1</code> &middot; live size <code>full</code></p>
 <h1>HTML-first scenario examples</h1>
 <div class="answer">
-<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightHtmlFirst</code>, and have the framework pass <code>onElidedRow: true</code> on the Flight render that feeds HTML SSR. Versus stock React main (flag off): about <b>43% smaller</b> gzip downloads across this corpus and about <b>79% less</b> inlined Flight, with about <b>3.2&times;</b> Waku host-page throughput. The correctness corpus below (hydrated and post-interaction DOM equal to stock, no console errors, SPA navigation) is what shows there is no UX or DX change.</p>
+<p><b>The claim.</b> Merge <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, turn on <code>enableFlightStaticHostElision</code>, and have the framework pass <code>elideStaticHosts: true</code> on the Flight render that feeds HTML SSR. Versus stock React main (flag off): about <b>43% smaller</b> gzip downloads across this corpus and about <b>79% less</b> inlined Flight, with about <b>3.2&times;</b> Waku host-page throughput. The correctness corpus below (hydrated and post-interaction DOM equal to stock, no console errors, SPA navigation) is what shows there is no UX or DX change.</p>
 </div>
 <div class="stats">
 <div class="stat"><b>−43%</b><span>gzip HTML download (41 pages, sum)</span></div>
 <div class="stat"><b>−79%</b><span>inlined Flight (JS payload)</span></div>
 <div class="stat"><b>−50%</b><span>uncompressed HTML</span></div>
-<div class="stat"><b>3.19&times;</b><span>Waku host-page req/s</span></div>
+<div class="stat"><b>3.21&times;</b><span>Waku host-page req/s</span></div>
 </div>
-<p>Baseline is <b>stock React main</b> (same build, flag off), not other experimental stacks. Each name opens a <b>live Cloudflare Workers demo</b> (HTML-first on, full corpus size, rebuilt from <code>8dd5e5f61d</code>). The gzip column is the flag-on page size and its change vs stock; 7 pages are slightly larger (worst: <code>repeated-long-strings</code> +12.4%), and the median page saves 7.8%.</p>
+<p>Baseline is <b>stock React main</b> (same build, flag off), not other experimental stacks. Each name opens a <b>live Cloudflare Workers demo</b> (HTML-first on, full corpus size, rebuilt from <code>31b26561f1</code>). The gzip column is the flag-on page size and its change vs stock; 7 pages are slightly larger (worst: <code>repeated-long-strings</code> +12.4%), and the median page saves 7.8%.</p>
 <ul class="links">
 <li><a href="https://react-eco-html-first.to-email-max.workers.dev/">Live demos index</a> (Cloudflare Workers; <code>all</code> = flag on, <code>off</code> = stock)</li>
-<li><a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag/fixtures/flight-ssr-bench">Fixture directory</a> on PR #24 (<code>rsc/html-first-one-flag</code> @ <code>65f36f67d9</code>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-one-flag/fixtures/flight-ssr-bench">Fixture directory</a> on PR #24 (<code>rsc/html-first-one-flag</code> @ <code>31b26561f1</code>)</li>
 <li><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/HTML-FIRST.md">HTML-FIRST.md</a></li>
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a></li>
 <li><a href="../summary/">Results summary</a></li>
@@ -91,7 +91,7 @@ code{font-size:.88em}
 <table><thead><tr><th>Example</th><th class="n">gzip vs stock</th></tr></thead><tbody>
 <tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-suspense-waterfall"><code>nested-suspense-waterfall</code></a><div class="t">Three nested async server components with staggered delays</div><div class=d>Nested Suspense waterfall (20/30/40 ms), static content at each level, client counter at the leaf.</div><div class="d"><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/src/scenarios/nested-suspense-waterfall.scenario.js">source</a> · <a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-suspense-waterfall">flags-off</a></div></td><td class="n">1247 (+0.6%)</td></tr>
 <tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/suspense-fallback-shown-late"><code>suspense-fallback-shown-late</code></a><div class="t">Suspense fallback shown only after hydration</div><div class=d>A client component suspends on user action (use() of a promise created on click, outside a transition) inside a server-rendered &lt;Suspense fallback={static markup}&gt;.</div><div class="d"><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/src/scenarios/suspense-fallback-shown-late.scenario.js">source</a> · <a href="https://react-eco-html-first.to-email-max.workers.dev/off/suspense-fallback-shown-late">flags-off</a></div></td><td class="n">652 (+0.3%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/suspense-many-boundaries"><code>suspense-many-boundaries</code></a><div class="t">Many independent Suspense boundaries</div><div class=d>size async server components, each in its own Suspense boundary, delay 5 + (index * 7) % 60 ms, static content inside.</div><div class="d"><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/src/scenarios/suspense-many-boundaries.scenario.js">source</a> · <a href="https://react-eco-html-first.to-email-max.workers.dev/off/suspense-many-boundaries">flags-off</a></div></td><td class="n">5143 (-7.8%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/suspense-many-boundaries"><code>suspense-many-boundaries</code></a><div class="t">Many independent Suspense boundaries</div><div class=d>size async server components, each in its own Suspense boundary, delay 5 + (index * 7) % 60 ms, static content inside.</div><div class="d"><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/src/scenarios/suspense-many-boundaries.scenario.js">source</a> · <a href="https://react-eco-html-first.to-email-max.workers.dev/off/suspense-many-boundaries">flags-off</a></div></td><td class="n">5149 (-8.0%)</td></tr>
 <tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/suspense-staggered"><code>suspense-staggered</code></a><div class="t">Suspense streaming with staggered boundaries</div><div class=d>size async server components, each in its own Suspense boundary, resolving after 5ms + 3ms * index.</div><div class="d"><a href="https://github.com/MaxwellCohen/react/blob/rsc/html-first-one-flag/fixtures/flight-ssr-bench/src/scenarios/suspense-staggered.scenario.js">source</a> · <a href="https://react-eco-html-first.to-email-max.workers.dev/off/suspense-staggered">flags-off</a></div></td><td class="n">1981 (-6.4%)</td></tr>
 </tbody></table><h2 id="table">table</h2>
 <table><thead><tr><th>Example</th><th class="n">gzip vs stock</th></tr></thead><tbody>
