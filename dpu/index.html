@@ -165,7 +165,7 @@ ul,ol{max-width:46em}
       <li><strong>Do not treat one reference implementation as normative.</strong> A React <code>$RP</code> helper, a Preact island observer, a no-server-hold flush, or a 300&nbsp;ms hold can all be compatible with the same wire format. Pick what fits the library’s streaming model; keep the HTML markers.</li>
     </ol>
     <pre class="wire">&lt;!-- illustrative wire — ids and bootstrap names are library-local --&gt;
-&lt;!--B:0--&gt;&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
+&lt;!--$?--&gt;&lt;?start name="B:0"&gt;Loading…&lt;?end&gt;&lt;!--/$--&gt;
 &lt;!-- later --&gt;
 &lt;template for="B:0"&gt;…content…&lt;/template&gt;
 &lt;script&gt;/* library fallback if native DPU did not apply */&lt;/script&gt;</pre>

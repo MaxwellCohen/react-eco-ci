@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Collector-Map PR head re-bench</title>
+<style>
+:root{color-scheme:light dark;--bg:#fafaf8;--fg:#1b1b1f;--mut:#5c5c66;--card:#fff;--line:#e2e2dc;--acc:#1f6feb}
+@media (prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#9a9aa6;--card:#1b1c21;--line:#2c2d34;--acc:#6aa5ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+.nav{color:var(--mut);font-size:.9rem;margin:0 0 1.2em}
+.nav a{color:var(--acc)}
+h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em}
+h2{font-size:1.25rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.5em 0 .35em}
+p,ul,ol{margin:.55em 0}
+a{color:var(--acc)}
+code{font-size:.88em;background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 4px;border-radius:4px}
+.tablewrap{overflow-x:auto;margin:.7em 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--fg) 5%,var(--card))}
+footer{color:var(--mut);font-size:.85rem;margin-top:3em}
+</style>
+</head>
+<body>
+<main>
+<p class="nav"><a href="../">← dpu</a> · <a href="collector-map-HEAD-RESULTS.md">raw .md</a></p>
+<h1>Collector-Map PR head re-bench (no server hold)</h1>
+<p>Date: 2026-11-12. Branch: <code>fizz/template-for-streaming</code>. Chromium 156, hydrate off unless noted.</p>
+<p>Two harnesses:</p>
+<ol><li><strong><code>react-bench-v2</code></strong> (earlier same day, head <code>18cce7d244</code>) — interleaved cost cells vs classic <code>$RC</code>, client <code>$RP</code> throttle.</li><li><strong>Replay</strong> (later same day, working tree after the ScriptDuration pass) — real Fizz HTML streamed into headless Chromium with one flush per boundary. Used to validate each micro-change.</li></ol>
+<h2>$RP size</h2>
+<div class="tablewrap"><table>
+<tr><th></th><th>raw</th><th>gzip≈</th></tr>
+<tr><td><code>$RC</code> (<code>completeBoundary</code>)</td><td>829</td><td>471</td></tr>
+<tr><td><code>$RP</code> at <code>18cce7d244</code> (collector Map + collect-only observer)</td><td>4518</td><td>1865</td></tr>
+<tr><td><code>$RP</code> after ScriptDuration pass</td><td><strong>4444</strong></td><td><strong>1911</strong></td></tr>
+</table></div>
+<h2>Document bytes (<code>/s/nbound</code>, head <code>18cce7d244</code>)</h2>
+<div class="tablewrap"><table>
+<tr><th></th><th>N=60 raw/gzip</th><th>N=500</th><th>N=2000</th></tr>
+<tr><td>classic <code>$RC</code></td><td>14048 / 1854</td><td>110424 / 10094</td><td>443924 / 38240</td></tr>
+<tr><td>collector <code>$RP</code></td><td>17221 / 3148</td><td>109455 / 10264</td><td>406166 / 34785 (−8.5% / −9.0%)</td></tr>
+</table></div>
+<h2>TaskDuration (ms, median) — <code>react-bench-v2</code> at <code>18cce7d244</code></h2>
+<div class="tablewrap"><table>
+<tr><th></th><th>N=60</th><th>N=500</th><th>N=2000</th></tr>
+<tr><td>classic <code>$RC</code></td><td>52.3</td><td>130</td><td>202</td></tr>
+<tr><td>collector <code>$RP</code></td><td>59.3 (ns)</td><td>165 (+35)</td><td>325 (+123)</td></tr>
+</table></div>
+<p>At that head, ScriptDuration dominated the gap (207 vs 22 at N=2000). Layout was <em>better</em> for <code>$RP</code> at N=2000 (−14 ms).</p>
+<h2>ScriptDuration pass (replay, after <code>18cce7d244</code>)</h2>
+<p>Kept after measuring each change:</p>
+<div class="tablewrap"><table>
+<tr><th>Change</th><th>Scenario</th><th>Before</th><th>After</th></tr>
+<tr><td>Collect each group&#x27;s templates at announce (walk back from <code>document.currentScript</code>); no document rescan on a miss</td><td>200 parents + nested child</td><td>3,930 ms</td><td>114 ms</td></tr>
+<tr><td><code>TreeWalker</code> instead of two live <code>NodeIterator</code>s</td><td>flat 2,000</td><td>149 ms</td><td>24 ms</td></tr>
+<tr><td>Swap nested <code>&lt;?start&gt;</code> / <code>&lt;?end&gt;</code> for comments before insert</td><td>500 parents + nested child</td><td>2,062 ms*</td><td>20 ms</td></tr>
+<tr><td>Drop page-lifetime collector on the inline path; external runtime disconnects at <code>DOMContentLoaded</code></td><td>flat 2,000</td><td>33 ms</td><td>21 ms</td></tr>
+<tr><td></td><td>30k DOM mutations after load</td><td>29.7 ms</td><td>13.0 ms</td></tr>
+<tr><td>One shared hydration observer per document</td><td>flat 2,000 + hydrate, task time</td><td>1,910 ms</td><td>261 ms</td></tr>
+<tr><td></td><td>observer callbacks</td><td>2.1 M</td><td>1.8 k</td></tr>
+</table></div>
+<p>\* At the previous head the 500-parent nested case often failed to finish loading within 30 s.</p>
+<p>Also in: <code>document.contains(marker)</code> → <code>marker.isConnected</code> (flush ~6.0 → 5.2 ms; fewer bytes).</p>
+<p>Reverted after measuring: <code>for…in</code> ownership check (flush 6.9 → 9.3 ms); <code>Range.deleteContents()</code> for fallback removal (flush 7 → 236 ms).</p>
+<h3>Progression (N≈2000 ScriptDuration / related)</h3>
+<div class="tablewrap"><table>
+<tr><th>head</th><th>note</th></tr>
+<tr><td>collector Map only (full document rescan per <code>$RP</code>)</td><td>TaskDuration 25112 ms (<code>react-bench-v2</code>)</td></tr>
+<tr><td>+ O(1) Map + collect-only observer</td><td>TaskDuration 434 ms</td></tr>
+<tr><td>+ defer template lookup to flush (<code>18cce7d244</code>)</td><td>TaskDuration 325 ms; ScriptDuration ~207 ms</td></tr>
+<tr><td>+ announce-time template walk / TreeWalker / PI→comment / no lifetime observer</td><td>flat ScriptDuration ~24 ms (≈ <code>$RC</code> 22 ms)</td></tr>
+<tr><td>+ shared hydration observer</td><td>hydrate task 1910 → 261 ms</td></tr>
+</table></div>
+<h2>Takeaway</h2>
+<p>Announce protocol is the right architecture (MutationObserver <em>apply</em> was parked).</p>
+<p>On the PR’s real no-hold client-throttle path, flat 2,000 ScriptDuration is now in line with classic <code>$RC</code>, and the nested document-rescan cliff is gone. The published −37…−55% equal-policy TaskDuration win still needs a server hold (or equivalent coalesce) — that table is a different policy from the PR head.</p>
+<p>Bytes win at ≥500 boundaries; bootstrap is larger at small N.</p>
+<footer>PR-head ScriptDuration notes for MaxwellCohen/react#25.</footer>
+</main>
+</body>
+</html>
