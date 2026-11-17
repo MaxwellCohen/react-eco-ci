@@ -79,16 +79,16 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>Inlined Flight</td><td class="n">9,280,754</td><td class="n">1,977,902</td><td class="n">&minus;78.7%</td></tr>
 <tr><td>Brotli</td><td class="n">479,414</td><td class="n">286,520</td><td class="n">&minus;40.2%</td></tr>
 </tbody></table></div>
-<p class="cap">The total is dominated by a few pages: the five largest savings make up about 80% of the gzip bytes saved. The median page saves 7.8%, nine pages are within &plusmn;1%, and seven get slightly larger, the worst being <code>repeated-long-strings</code> at +12.4%. A page with nothing to elide, like <code>all-client</code>, pays about 0.6% for the registry row. Per-page numbers are on the <a href="../examples/">examples page</a>.</p>
+<p class="cap">The total is dominated by a few pages: the five largest savings make up about 80% of the gzip bytes saved. The median page saves 7.8%, nine pages are within &plusmn;1%, and seven get slightly larger, the worst being <code>repeated-long-strings</code> at +12.4%. A page with nothing to elide, like <code>all-client</code>, pays a fixed cost for the registry row: 8 bytes of gzip and 56 bytes of Flight, which is +0.8% and +19% only because the page is so small. Per-page numbers are on the <a href="../examples/">examples page</a>. Sizes below are bytes, re-measured at <code>31b26561f1</code>; each page name opens its live demo with the flag on.</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Page</th><th class="n">gzip</th><th class="n">inlined Flight</th></tr></thead>
+<thead><tr><th>Page (live demo)</th><th class="n">gzip off</th><th class="n">gzip on</th><th class="n">Change</th><th class="n">Flight off</th><th class="n">Flight on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>wide-tree</td><td class="n">&minus;79%</td><td class="n">&minus;99.9%</td></tr>
-<tr><td>client-composition-slot</td><td class="n">&minus;59%</td><td class="n">&minus;94%</td></tr>
-<tr><td>docs-sidebar-toc</td><td class="n">&minus;59%</td><td class="n">&minus;98%</td></tr>
-<tr><td>server-table-client-rows</td><td class="n">&minus;50%</td><td class="n">&minus;95%</td></tr>
-<tr><td>nested-layouts-context</td><td class="n">&minus;41%</td><td class="n">&minus;89%</td></tr>
-<tr><td>all-client</td><td class="n">+0.6%</td><td class="n">+15%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/wide-tree">wide-tree</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/wide-tree">flag off</a>)</td><td class="n">129,349</td><td class="n">26,613</td><td class="n">&minus;79%</td><td class="n">724,260</td><td class="n">674</td><td class="n">&minus;99.9%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-composition-slot">client-composition-slot</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/client-composition-slot">flag off</a>)</td><td class="n">2,949</td><td class="n">1,178</td><td class="n">&minus;60%</td><td class="n">14,263</td><td class="n">736</td><td class="n">&minus;95%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/docs-sidebar-toc">docs-sidebar-toc</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/docs-sidebar-toc">flag off</a>)</td><td class="n">39,459</td><td class="n">16,335</td><td class="n">&minus;59%</td><td class="n">455,945</td><td class="n">9,228</td><td class="n">&minus;98%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/server-table-client-rows">server-table-client-rows</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/server-table-client-rows">flag off</a>)</td><td class="n">42,210</td><td class="n">21,194</td><td class="n">&minus;50%</td><td class="n">491,310</td><td class="n">22,669</td><td class="n">&minus;95%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-layouts-context">nested-layouts-context</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-layouts-context">flag off</a>)</td><td class="n">5,230</td><td class="n">3,070</td><td class="n">&minus;41%</td><td class="n">55,309</td><td class="n">5,633</td><td class="n">&minus;90%</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/all-client">all-client</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/all-client">flag off</a>)</td><td class="n">944</td><td class="n">952</td><td class="n">+0.8%</td><td class="n">302</td><td class="n">358</td><td class="n">+19%</td></tr>
 </tbody></table></div>
 
 <h2>Throughput on Waku</h2>
