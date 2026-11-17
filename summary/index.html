@@ -43,12 +43,12 @@ summary{cursor:pointer;font-weight:600}
 </head>
 <body>
 <main>
-<p class="sub">HTML-first React &middot; compared with stock React main &middot; measured at <code>31b26561f1</code> &middot; 10 November 2026</p>
+<p class="sub">HTML-first React &middot; compared with stock React main &middot; measured at <code>5a400f9164</code> &middot; 17 November 2026</p>
 <h1>HTML-first React: results</h1>
 
 <div class="answer">
 <p>On first load, an RSC page sends its static markup twice: as HTML, so the browser can paint, and again inside the Flight payload the browser inlines to hydrate. For content that never changes on the client, the second copy is wasted bandwidth, and it costs the server time to produce.</p>
-<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one server option and, for full safety, one client callback. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/df356153a6"><code>df356153a6</code></a>).</p>
+<p>This experiment adds a flag that leaves that content out of the second copy. Across 41 test pages it cuts the gzipped download by 43%. On a Waku page with a 1000-row table rendered by Server Components it raises throughput 3.2&times;. A framework turns it on with one server option and, for full safety, one client callback. The code is <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, a reference implementation (final version <a href="https://github.com/MaxwellCohen/react/tree/5a400f9164"><code>5a400f9164</code></a>).</p>
 </div>
 
 <div class="stats">
@@ -74,21 +74,21 @@ summary{cursor:pointer;font-weight:600}
 <div class="tablewrap"><table>
 <thead><tr><th>Metric</th><th class="n">Flag off</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>Gzip download</td><td class="n">1,023,906</td><td class="n">586,852</td><td class="n">&minus;42.7%</td></tr>
-<tr><td>Raw HTML</td><td class="n">14,555,714</td><td class="n">7,252,862</td><td class="n">&minus;50.2%</td></tr>
-<tr><td>Inlined Flight</td><td class="n">9,280,754</td><td class="n">1,977,902</td><td class="n">&minus;78.7%</td></tr>
-<tr><td>Brotli</td><td class="n">479,414</td><td class="n">286,520</td><td class="n">&minus;40.2%</td></tr>
+<tr><td>Gzip download</td><td class="n">1,021,269</td><td class="n">584,290</td><td class="n">&minus;42.8%</td></tr>
+<tr><td>Raw HTML</td><td class="n">14,552,634</td><td class="n">7,248,212</td><td class="n">&minus;50.2%</td></tr>
+<tr><td>Inlined Flight</td><td class="n">9,277,674</td><td class="n">1,973,252</td><td class="n">&minus;78.7%</td></tr>
+<tr><td>Brotli</td><td class="n">475,947</td><td class="n">284,031</td><td class="n">&minus;40.3%</td></tr>
 </tbody></table></div>
-<p class="cap">The total is dominated by a few pages: the five largest savings make up about 80% of the gzip bytes saved. The median page saves 7.8%, nine pages are within &plusmn;1%, and seven get slightly larger, the worst being <code>repeated-long-strings</code> at +12.4%. A page with nothing to elide, like <code>all-client</code>, pays a fixed cost for the registry row: 8 bytes of gzip and 56 bytes of Flight, which is +0.8% and +19% only because the page is so small. Per-page numbers are on the <a href="../examples/">examples page</a>. Sizes below are bytes, re-measured at <code>31b26561f1</code>; each page name opens its live demo with the flag on.</p>
+<p class="cap">The total is dominated by a few pages: the five largest savings make up about 81% of the gzip bytes saved. The median page saves 7.3%, ten pages are within &plusmn;1%, and two get larger: <code>nested-suspense-waterfall</code> at +0.7% and <code>repeated-long-strings</code> at +12.5%. A page with nothing to elide, like <code>all-client</code>, is byte-identical to stock: the registry id is written only once something is elided. Per-page numbers are on the <a href="../examples/">examples page</a>. Sizes below are bytes; each page name opens its live demo with the flag on.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Page (live demo)</th><th class="n">gzip off</th><th class="n">gzip on</th><th class="n">Change</th><th class="n">Flight off</th><th class="n">Flight on</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/wide-tree">wide-tree</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/wide-tree">flag off</a>)</td><td class="n">129,349</td><td class="n">26,613</td><td class="n">&minus;102,736 (&minus;79%)</td><td class="n">724,260</td><td class="n">674</td><td class="n">&minus;723,586 (&minus;99.9%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-composition-slot">client-composition-slot</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/client-composition-slot">flag off</a>)</td><td class="n">2,949</td><td class="n">1,178</td><td class="n">&minus;1,771 (&minus;60%)</td><td class="n">14,263</td><td class="n">736</td><td class="n">&minus;13,527 (&minus;95%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/docs-sidebar-toc">docs-sidebar-toc</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/docs-sidebar-toc">flag off</a>)</td><td class="n">39,459</td><td class="n">16,335</td><td class="n">&minus;23,124 (&minus;59%)</td><td class="n">455,945</td><td class="n">9,228</td><td class="n">&minus;446,717 (&minus;98%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/server-table-client-rows">server-table-client-rows</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/server-table-client-rows">flag off</a>)</td><td class="n">42,210</td><td class="n">21,194</td><td class="n">&minus;21,016 (&minus;50%)</td><td class="n">491,310</td><td class="n">22,669</td><td class="n">&minus;468,641 (&minus;95%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-layouts-context">nested-layouts-context</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-layouts-context">flag off</a>)</td><td class="n">5,230</td><td class="n">3,070</td><td class="n">&minus;2,160 (&minus;41%)</td><td class="n">55,309</td><td class="n">5,633</td><td class="n">&minus;49,676 (&minus;90%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/all-client">all-client</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/all-client">flag off</a>)</td><td class="n">944</td><td class="n">952</td><td class="n">+8 (+0.8%)</td><td class="n">302</td><td class="n">358</td><td class="n">+56 (+19%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/wide-tree">wide-tree</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/wide-tree">flag off</a>)</td><td class="n">129,349</td><td class="n">26,612</td><td class="n">&minus;102,737 (&minus;79%)</td><td class="n">724,260</td><td class="n">623</td><td class="n">&minus;723,637 (&minus;99.9%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-composition-slot">client-composition-slot</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/client-composition-slot">flag off</a>)</td><td class="n">2,949</td><td class="n">1,175</td><td class="n">&minus;1,774 (&minus;60%)</td><td class="n">14,263</td><td class="n">685</td><td class="n">&minus;13,578 (&minus;95%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/docs-sidebar-toc">docs-sidebar-toc</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/docs-sidebar-toc">flag off</a>)</td><td class="n">39,459</td><td class="n">16,334</td><td class="n">&minus;23,125 (&minus;59%)</td><td class="n">455,945</td><td class="n">9,177</td><td class="n">&minus;446,768 (&minus;98%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/server-table-client-rows">server-table-client-rows</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/server-table-client-rows">flag off</a>)</td><td class="n">42,210</td><td class="n">21,194</td><td class="n">&minus;21,016 (&minus;50%)</td><td class="n">491,310</td><td class="n">22,618</td><td class="n">&minus;468,692 (&minus;95%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-layouts-context">nested-layouts-context</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-layouts-context">flag off</a>)</td><td class="n">5,230</td><td class="n">3,070</td><td class="n">&minus;2,160 (&minus;41%)</td><td class="n">55,309</td><td class="n">5,582</td><td class="n">&minus;49,727 (&minus;90%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/all-client">all-client</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/all-client">flag off</a>)</td><td class="n">944</td><td class="n">944</td><td class="n">0 (0%)</td><td class="n">302</td><td class="n">302</td><td class="n">0 (0%)</td></tr>
 </tbody></table></div>
 
 <h2>Throughput on Waku</h2>
@@ -104,7 +104,7 @@ summary{cursor:pointer;font-weight:600}
 <p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock: forgetting the option loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, since those rows cannot be elided. Next.js was not tried.</p>
 
 <h2>Correctness</h2>
-<p>The 41 pages are loaded in Chromium with and without the flag. For each one the check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload, and it fails on any console or hydration error. All 41 pass at <code>31b26561f1</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier commits but have not been run on this one. The Waku page hydrates, its counters respond, it logs no errors, and a client navigation renders all 1000 rows.</p>
+<p>The 41 pages are loaded in Chromium with and without the flag. For each one the check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload, and it fails on any console or hydration error. All 41 pass at <code>5a400f9164</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order. Firefox and WebKit passed on earlier commits but have not been run on this one. The Waku page hydrates, its counters respond, it logs no errors, and a client navigation renders all 1000 rows.</p>
 <p>The same kind of check also runs in CI on Linux, with the flag off and on, in real Chromium. The latest <a href="https://maxwellcohen.github.io/react-eco-ci/flight/">CI report</a> covers 10 page variants at <code>df356153a6</code>: every one adopts 1000 of 1000 rows from the server HTML, logs no console problems and no recoverable hydration errors, and navigates correctly.</p>
 <p>On a client navigation the full payload contains real elements where the stubs were. React builds fresh DOM for those regions rather than reusing the old DOM, whose content may not match the new page. Client components keep their state.</p>
 
@@ -126,7 +126,7 @@ npm run measure      # in a second terminal</code></pre>
 <p><code>npm run measure</code> prints the size of the two table pages next to what stock React and stock Waku send for the same pages. Then open <code>/table-host</code> and view the source: the inlined Flight payload is small and contains <code>$J</code> stubs. Open <code>/late-modal</code> and click &ldquo;open&rdquo;: that content was not in the first payload, and appears because Waku refetches it. I have run <code>npm run build</code> and <code>npm start</code>, not <code>npm run dev</code>.</p>
 <p>To add the packages to your own Waku app, install the four tarballs from the release and override <code>scheduler</code> and <code>react-is</code> as well; the exact command and overrides are in the <a href="https://github.com/MaxwellCohen/react-eco-ci#try-static-host-elision">react-eco-ci README</a>. The app needs to work on Waku 1.0.0-rc.4, and these are experimental builds, not for production.</p>
 <ul class="links">
-<li><b>React part:</b> <a href="https://github.com/MaxwellCohen/react/tree/df356153a6">branch <code>rsc/html-first-one-flag</code> at <code>df356153a6</code></a> (<a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>), built with <code>enableFlightStaticHostElision</code> forced on.</li>
+<li><b>React part:</b> <a href="https://github.com/MaxwellCohen/react/tree/5a400f9164">branch <code>rsc/html-first-one-flag</code> at <code>5a400f9164</code></a> (<a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>), built with <code>enableFlightStaticHostElision</code> forced on.</li>
 <li><b>Waku part:</b> <a href="https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...62e75f5f">the patch against upstream Waku</a> (branch <a href="https://github.com/MaxwellCohen/wakujs/tree/rsc-html-first-optin"><code>rsc-html-first-optin</code></a>): two small changes, in <code>render.ts</code> and <code>client-runtime.tsx</code>.</li>
 <li><b>Packages and starter:</b> <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-df35615">release with the tarballs</a>, <a href="https://github.com/MaxwellCohen/react-eco-ci/tree/main/starters/waku-static-host-elision">the starter app</a>.</li>
 <li><b>Build them yourself:</b> the <a href="https://github.com/MaxwellCohen/react-eco-ci#try-static-host-elision">README</a> has the CI inputs for the <a href="https://github.com/MaxwellCohen/react-eco-ci/actions/workflows/react-build.yml"><code>react-build</code> workflow</a> and the local steps.</li>
@@ -134,15 +134,15 @@ npm run measure      # in a second terminal</code></pre>
 
 <h2>Links</h2>
 <ul class="links">
-<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/df356153a6"><code>df356153a6</code></a>)</li>
+<li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/5a400f9164"><code>5a400f9164</code></a>)</li>
 <li><a href="../examples/">Examples</a>: all 41 test pages, each with a live demo</li>
-<li><a href="https://github.com/MaxwellCohen/react/blob/df356153a6/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
+<li><a href="https://github.com/MaxwellCohen/react/blob/5a400f9164/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
 <li>The baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
-<li>Byte figures for the 41 pages were measured at <code>31b26561f1</code>; later commits on the branch change only the lifetime of unclaimed rows, an error message and documentation. The Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>.</li>
+<li>Byte figures and the Chromium check for the 41 pages were measured at <code>5a400f9164</code>. The Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>.</li>
 <li>Byte counts are deterministic for most pages. A few vary slightly between runs because of generated ids, so the last digits can change on a rerun.</li>
 <li>Waku: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds, ratios taken within each round against stock. Chromium 156 for the browser checks.</li>
 </ul></details>
