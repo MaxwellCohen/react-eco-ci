@@ -43,7 +43,7 @@ summary{cursor:pointer;font-weight:600}
 </head>
 <body>
 <main>
-<p class="sub">HTML-first React &middot; compared with stock React main &middot; November 18, 2026</p>
+<p class="sub">HTML-first React &middot; compared with the same React build with the feature off &middot; November 18, 2026</p>
 <h1>HTML-first React: results</h1>
 
 <div class="answer">
@@ -58,8 +58,19 @@ summary{cursor:pointer;font-weight:600}
 <div class="stat"><b>2.8&times;</b><span>Next.js table page, requests/s</span></div>
 </div>
 
+<h2>What the numbers compare</h2>
+<p>Turning the feature on takes two switches: a React flag, <code>enableFlightHTMLFirst</code>, and an option the framework passes when it renders HTML. Each result compares the same page in up to three setups. All three use the same React build from PR #24.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Setup</th><th>React flag</th><th>Framework asks for it</th><th>What it shows</th></tr></thead>
+<tbody>
+<tr><td><b>Baseline</b></td><td>off</td><td>yes or no, it makes no difference</td><td>What React sends today. Every saving and speedup on this page is measured against it.</td></tr>
+<tr><td><b>React flag only</b></td><td>on</td><td>no</td><td>Turning on the React flag alone changes nothing.</td></tr>
+<tr><td><b>HTML-first</b></td><td>on</td><td>yes</td><td>The feature working.</td></tr>
+</tbody></table></div>
+<p class="cap">"The framework asks for it" means the patched Waku, which asks on every HTML render, or the patched Next.js with <code>experimental.htmlFirstFlight: true</code>.</p>
+
 <h2>How it works</h2>
-<p>With the flag on, Flight writes a small stub in place of static host markup in the payload the browser receives. The browser adopts the matching DOM that the HTML already contains. SSR still needs the real content to write that HTML, so Flight hands it over through an internal registry.</p>
+<p>In the HTML-first setup, Flight writes a small stub in place of static host markup in the payload the browser receives. The browser adopts the matching DOM that the HTML already contains. SSR still needs the real content to write that HTML, so Flight hands it over through an internal registry.</p>
 <p>Markup qualifies when it is plain output of a Server Component in a position React renders in place:</p>
 <ul>
 <li>children of host elements, Fragments and Suspense boundaries</li>
@@ -67,7 +78,7 @@ summary{cursor:pointer;font-weight:600}
 <li>plain data around elements, such as a root element map (<code>{page, layout}</code>) or a framework's route tree</li>
 </ul>
 <p>Client Components are never stubbed. Neither are props other than <code>children</code>, because the client can render those later with no server DOM behind them. Forms, inputs, images, SVG, head elements and lone void elements such as <code>&lt;hr&gt;</code> are never stubbed either.</p>
-<p>The feature is opt-in per request. The framework passes <code>htmlFirst: true</code> on the Flight render that feeds HTML SSR, and leaves it off everywhere else. Navigation, refetch and action responses stay full payloads. React can't tell where a stream is going, because the bytes are the same either way, but frameworks can: Waku serves RSC requests under an <code>RSC/</code> URL prefix, and Next.js sends an <code>RSC: 1</code> header.</p>
+<p>The React flag alone doesn't change any output. The framework also has to pass <code>htmlFirst: true</code>, and only on the Flight render that feeds HTML SSR. Navigation, refetch and action responses stay full payloads. React can't tell where a stream is going, because the bytes are the same either way, but frameworks can: Waku serves RSC requests under an <code>RSC/</code> URL prefix, and Next.js sends an <code>RSC: 1</code> header.</p>
 
 <h3>What a stub does in the browser</h3>
 <ul>
@@ -79,41 +90,41 @@ summary{cursor:pointer;font-weight:600}
 </ul>
 
 <h2>Bytes across 41 test pages</h2>
-<p>Each page is rendered at full size with the flag off and on. Gzip and brotli are measured on the whole document. Flight is the payload inlined in <code>&lt;script&gt;</code> tags. The table sums all 41 pages.</p>
+<p>Each page is rendered at full size in the baseline and HTML-first setups. Gzip and brotli are measured on the whole document. Flight is the payload inlined in <code>&lt;script&gt;</code> tags. The table sums all 41 pages.</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Metric</th><th class="n">Flag off</th><th class="n">Flag on</th><th class="n">Change</th></tr></thead>
+<thead><tr><th>Metric</th><th class="n">Baseline</th><th class="n">HTML-first</th><th class="n">Change</th></tr></thead>
 <tbody>
 <tr><td>Gzip download</td><td class="n">1,021,269</td><td class="n">584,290</td><td class="n">&minus;42.8%</td></tr>
 <tr><td>Raw HTML</td><td class="n">14,552,634</td><td class="n">7,248,212</td><td class="n">&minus;50.2%</td></tr>
 <tr><td>Inlined Flight</td><td class="n">9,277,674</td><td class="n">1,973,252</td><td class="n">&minus;78.7%</td></tr>
 <tr><td>Brotli</td><td class="n">475,947</td><td class="n">284,031</td><td class="n">&minus;40.3%</td></tr>
 </tbody></table></div>
-<p class="cap">A few pages dominate the total. The five largest savings make up about 81% of the gzip bytes saved. The median page saves 7.3%, ten pages are within &plusmn;1%, and two get larger: <code>nested-suspense-waterfall</code> by 0.7% and <code>repeated-long-strings</code> by 12.5%. A page with nothing to stub, such as <code>all-client</code>, is byte-identical to stock. The table below lists a sample in bytes. Each page name opens its live demo with the flag on, and the <a href="../examples/">examples page</a> lists all 41.</p>
+<p class="cap">A few pages dominate the total. The five largest savings make up about 81% of the gzip bytes saved. The median page saves 7.3%, ten pages are within &plusmn;1%, and two get larger: <code>nested-suspense-waterfall</code> by 0.7% and <code>repeated-long-strings</code> by 12.5%. A page with nothing to stub, such as <code>all-client</code>, is byte-identical to the baseline. The table below lists a sample in bytes. Each page name opens its HTML-first demo, and the <a href="../examples/">examples page</a> lists all 41.</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Page (live demo)</th><th class="n">gzip off</th><th class="n">gzip on</th><th class="n">Change</th><th class="n">Flight off</th><th class="n">Flight on</th><th class="n">Change</th></tr></thead>
+<thead><tr><th>Page (live demo)</th><th class="n">Gzip, baseline</th><th class="n">Gzip, HTML-first</th><th class="n">Change</th><th class="n">Flight, baseline</th><th class="n">Flight, HTML-first</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/wide-tree">wide-tree</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/wide-tree">flag off</a>)</td><td class="n">129,349</td><td class="n">26,612</td><td class="n">&minus;102,737 (&minus;79%)</td><td class="n">724,260</td><td class="n">623</td><td class="n">&minus;723,637 (&minus;99.9%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-composition-slot">client-composition-slot</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/client-composition-slot">flag off</a>)</td><td class="n">2,949</td><td class="n">1,175</td><td class="n">&minus;1,774 (&minus;60%)</td><td class="n">14,263</td><td class="n">685</td><td class="n">&minus;13,578 (&minus;95%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/docs-sidebar-toc">docs-sidebar-toc</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/docs-sidebar-toc">flag off</a>)</td><td class="n">39,459</td><td class="n">16,334</td><td class="n">&minus;23,125 (&minus;59%)</td><td class="n">455,945</td><td class="n">9,177</td><td class="n">&minus;446,768 (&minus;98%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/server-table-client-rows">server-table-client-rows</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/server-table-client-rows">flag off</a>)</td><td class="n">42,210</td><td class="n">21,194</td><td class="n">&minus;21,016 (&minus;50%)</td><td class="n">491,310</td><td class="n">22,618</td><td class="n">&minus;468,692 (&minus;95%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-layouts-context">nested-layouts-context</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-layouts-context">flag off</a>)</td><td class="n">5,230</td><td class="n">3,070</td><td class="n">&minus;2,160 (&minus;41%)</td><td class="n">55,309</td><td class="n">5,582</td><td class="n">&minus;49,727 (&minus;90%)</td></tr>
-<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/all-client">all-client</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/all-client">flag off</a>)</td><td class="n">944</td><td class="n">944</td><td class="n">0 (0%)</td><td class="n">302</td><td class="n">302</td><td class="n">0 (0%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/wide-tree">wide-tree</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/wide-tree">baseline</a>)</td><td class="n">129,349</td><td class="n">26,612</td><td class="n">&minus;102,737 (&minus;79%)</td><td class="n">724,260</td><td class="n">623</td><td class="n">&minus;723,637 (&minus;99.9%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-composition-slot">client-composition-slot</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/client-composition-slot">baseline</a>)</td><td class="n">2,949</td><td class="n">1,175</td><td class="n">&minus;1,774 (&minus;60%)</td><td class="n">14,263</td><td class="n">685</td><td class="n">&minus;13,578 (&minus;95%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/docs-sidebar-toc">docs-sidebar-toc</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/docs-sidebar-toc">baseline</a>)</td><td class="n">39,459</td><td class="n">16,334</td><td class="n">&minus;23,125 (&minus;59%)</td><td class="n">455,945</td><td class="n">9,177</td><td class="n">&minus;446,768 (&minus;98%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/server-table-client-rows">server-table-client-rows</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/server-table-client-rows">baseline</a>)</td><td class="n">42,210</td><td class="n">21,194</td><td class="n">&minus;21,016 (&minus;50%)</td><td class="n">491,310</td><td class="n">22,618</td><td class="n">&minus;468,692 (&minus;95%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/nested-layouts-context">nested-layouts-context</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/nested-layouts-context">baseline</a>)</td><td class="n">5,230</td><td class="n">3,070</td><td class="n">&minus;2,160 (&minus;41%)</td><td class="n">55,309</td><td class="n">5,582</td><td class="n">&minus;49,727 (&minus;90%)</td></tr>
+<tr><td><a href="https://react-eco-html-first.to-email-max.workers.dev/all/all-client">all-client</a> (<a href="https://react-eco-html-first.to-email-max.workers.dev/off/all-client">baseline</a>)</td><td class="n">944</td><td class="n">944</td><td class="n">0 (0%)</td><td class="n">302</td><td class="n">302</td><td class="n">0 (0%)</td></tr>
 </tbody></table></div>
 
 <h2>Throughput on Waku</h2>
-<p>The test page is a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was picked because it's easy to patch and has good RSC support. The feature doesn't depend on it. The patch has two parts: the HTML render passes <code>htmlFirst: true</code>, and the root refetches the initial payload when React reports that stubbed content is missing.</p>
+<p>The test page is a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. Waku was picked because it's easy to patch and has good RSC support. The feature doesn't depend on it. The Waku patch is what asks for it, in two parts: the HTML render passes <code>htmlFirst: true</code>, and the root refetches the initial payload when React reports that stubbed content is missing.</p>
 <div class="tablewrap"><table>
-<thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Waku</th><th class="n">Flag on, patched Waku</th></tr></thead>
+<thead><tr><th></th><th class="n">Baseline</th><th class="n">React flag only</th><th class="n">HTML-first</th></tr></thead>
 <tbody>
 <tr><td>Requests/s</td><td class="n">1.00</td><td class="n">1.00</td><td class="n">3.18&times; (3.13&ndash;3.22)</td></tr>
 <tr><td>TTFB</td><td class="n">1.00</td><td class="n">0.97</td><td class="n">0.45&times;</td></tr>
 <tr><td>Inlined Flight</td><td class="n">823,655 B</td><td class="n">823,655 B</td><td class="n">18,978 B</td></tr>
 <tr><td>Gzip HTML</td><td class="n">130,459 B</td><td class="n">130,460 B</td><td class="n">60,889 B</td></tr>
 </tbody></table></div>
-<p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock, so forgetting the option loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, because those rows can't be stubbed. After the React changes Next.js needed, Waku's bytes are unchanged and its throughput is within noise: 3.26&times; against 3.30&times; in the same run.</p>
+<p class="cap">React flag only uses unpatched Waku, and its output is byte-identical to the baseline. A framework that doesn't ask for HTML-first output loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, because those rows can't be stubbed. After the React changes Next.js needed, Waku's bytes are unchanged and its throughput is within noise: 3.26&times; against 3.30&times; in the same run.</p>
 
 <h2>Next.js</h2>
-<p>Next.js 16.4.6 needs a patch of about 165 lines, on branch <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4"><code>html-first/16.4</code></a>. You turn it on with <code>experimental.htmlFirstFlight: true</code> in <code>next.config.js</code>. It's off by default, and with it off Next.js passes no new options and its output matches stock. With it on:</p>
+<p>Next.js 16.4.6 needs a patch of about 165 lines, on branch <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4"><code>html-first/16.4</code></a>. You turn it on with <code>experimental.htmlFirstFlight: true</code> in <code>next.config.js</code>. It's off by default. With it off, the patched Next.js doesn't ask for HTML-first output, so it behaves like unpatched Next.js. With it on:</p>
 <ul>
 <li><b>Dynamic pages and PPR resumes</b> pass <code>htmlFirst: true</code> on the HTML render. RSC requests, such as navigation, refresh and actions, still get full payloads.</li>
 <li><b>Prerendered pages</b> keep their stored payload complete for navigations and prefetches. The copy inlined into the HTML is that payload decoded and encoded again with static markup left out, the same way Next.js already re-encodes it for segment prefetches. No Server Component runs twice.</li>
@@ -122,7 +133,7 @@ summary{cursor:pointer;font-weight:600}
 </ul>
 <p>The test page is the same 1000-row table as on Waku, measured the same way. A second copy of it is prerendered at build time.</p>
 <div class="tablewrap"><table>
-<thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Next.js</th><th class="n">Flag on, patched Next.js</th></tr></thead>
+<thead><tr><th></th><th class="n">Baseline</th><th class="n">React flag only</th><th class="n">HTML-first</th></tr></thead>
 <tbody>
 <tr><td>Requests/s, dynamic</td><td class="n">1.00</td><td class="n">0.95</td><td class="n">2.79&times; (2.75&ndash;2.90)</td></tr>
 <tr><td>TTFB, dynamic</td><td class="n">1.00</td><td class="n">0.80</td><td class="n">0.40&times;</td></tr>
@@ -133,7 +144,7 @@ summary{cursor:pointer;font-weight:600}
 <tr><td>Main thread per <code>router.refresh()</code>, first and second</td><td class="n">18, 12 ms</td><td class="n">&ndash;</td><td class="n">19, 10 ms</td></tr>
 <tr><td>DOM nodes left after leaving the page</td><td class="n">256</td><td class="n">&ndash;</td><td class="n">75</td></tr>
 </tbody></table></div>
-<p class="cap">As on Waku, the React flag without the Next.js patch leaves the output unchanged. The page whose rows are Client Components is within noise of stock (1.06&times;). The prerendered page's stored payload stays complete (680,683 B, no stubs). With <code>cacheComponents</code>, a PPR page's inlined Flight drops from 125,425 B to 4,265 B, and a fully static page's from 125,259 B to 11,609 B. Live demos on Cloudflare Workers: stock <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/table">dynamic</a> and <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/static-table">prerendered</a>, patched <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/table">dynamic</a>, <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/static-table">prerendered</a> and <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/modal">modal</a>.</p>
+<p class="cap">React flag only uses unpatched Next.js, and as on Waku its output matches the baseline. The page whose rows are Client Components is within noise of the baseline (1.06&times;). The prerendered page's stored payload stays complete (680,683 B, no stubs). With <code>cacheComponents</code>, a PPR page's inlined Flight drops from 125,425 B to 4,265 B, and a fully static page's from 125,259 B to 11,609 B. Live demos on Cloudflare Workers: baseline <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/table">dynamic</a> and <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/static-table">prerendered</a>, HTML-first <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/table">dynamic</a>, <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/static-table">prerendered</a> and <a href="https://react-eco-next-126b0905-next-elide.to-email-max.workers.dev/modal">modal</a>.</p>
 
 <h3>What React needed for Next.js</h3>
 <p>With the first version of PR #24, Next.js left nothing out. These changes are now part of the PR (<a href="https://github.com/MaxwellCohen/react/compare/1558a92724...231161c38d">diff</a>), and each has a test that fails without it:</p>
@@ -156,24 +167,24 @@ summary{cursor:pointer;font-weight:600}
 
 <h2>Correctness</h2>
 <ul>
-<li><b>Next.js end-to-end tests:</b> 52 of Next.js's own suites, run in production mode with Turbopack against the patched Next.js with PR #24 vendored, pass 871 tests with none failing. They cover the app router, navigation, the back/forward and client caches, parallel and intercepted routes, server actions, static generation and ISR, error and not-found pages, metadata, Cache Components and PPR. React is vendored the way Next.js ships it: the canary build in its stable slots and the experimental build in its experimental slots.</li>
-<li><b>Next.js demo pages in Chromium:</b> the hydrated DOM matches stock, counters respond, and client navigation and Back make the same requests as stock. The modal shows its content with no extra request.</li>
-<li><b>41 test pages:</b> each page is loaded in Chromium with and without the flag. The check compares the hydrated DOM, the DOM after interaction and the DOM after a client navigation to a full payload. It fails on any console or hydration error. All 41 pass at the final commit. The comparison normalizes style spacing, zero-length CSS units and attribute order.</li>
+<li><b>Next.js end-to-end tests:</b> 52 of Next.js's own suites, run in production mode with Turbopack in the HTML-first setup, pass 871 tests with none failing. They cover the app router, navigation, the back/forward and client caches, parallel and intercepted routes, server actions, static generation and ISR, error and not-found pages, metadata, Cache Components and PPR. React is vendored the way Next.js ships it: the canary build in its stable slots and the experimental build in its experimental slots.</li>
+<li><b>Next.js demo pages in Chromium:</b> the hydrated DOM matches the baseline, counters respond, and client navigation and Back make the same requests as the baseline. The modal shows its content with no extra request.</li>
+<li><b>41 test pages:</b> each page is loaded in Chromium in the baseline and HTML-first setups. The check compares the hydrated DOM, the DOM after interaction and the DOM after a client navigation to a full payload. It fails on any console or hydration error. All 41 pass at <code>126b0905e5</code>. The comparison normalizes style spacing, zero-length CSS units and attribute order.</li>
 <li><b>Waku:</b> the page hydrates, its counters respond, it logs no errors, and a client navigation renders all 1000 rows.</li>
 <li><b>Not run on the final commit:</b> Firefox and WebKit passed on earlier commits only. The CI report on Linux covers 10 page variants at an earlier commit (<a href="https://maxwellcohen.github.io/react-eco-ci/flight/">report</a>).</li>
 </ul>
 
 <h2 id="tradeoffs">Trade-offs and limits</h2>
 <ul>
-<li><b>Reconciler check.</b> Keeping stubs on later full payloads adds a host config function, <code>instanceMatchesStaticElement</code>, and a check at the two places React's child reconciler replaces a child of a different type. It's about 40 lines, gated by the flag, and it only runs on stubbed stubs. Without it, the first refresh on the table page takes 46 ms of main thread and rebuilds 1,044 nodes. With it, the refresh takes 19 ms and changes no DOM, against 18 ms for stock. Two ways to avoid touching the reconciler were tested and both rebuilt the DOM: a stub rendered as a host element of the same tag, and a stub rendered as a dehydrated Suspense boundary.</li>
-<li><b>HTML snapshots.</b> While Next.js's router cache holds a page, each stubbed region keeps a string snapshot of its HTML, so Back can restore it without a request. This uses less memory than stock, which keeps the full element tree for the same page: 75 DOM nodes and 4.21 MB of JS heap remain after leaving the table page, against 256 nodes and 4.35 MB. Keeping the adopted nodes instead held about 14,000 detached nodes, and keeping nothing made Back refetch the route.</li>
+<li><b>Reconciler check.</b> Keeping stubs on later full payloads adds a host config function, <code>instanceMatchesStaticElement</code>, and a check at the two places React's child reconciler replaces a child of a different type. It's about 40 lines, gated by the flag, and it only runs on stubs. Without it, the first refresh on the table page takes 46 ms of main thread and rebuilds 1,044 nodes. With it, the refresh takes 19 ms and changes no DOM, against 18 ms for the baseline. Two ways to avoid touching the reconciler were tested and both rebuilt the DOM: a stub rendered as a host element of the same tag, and a stub rendered as a dehydrated Suspense boundary.</li>
+<li><b>HTML snapshots.</b> While Next.js's router cache holds a page, each stubbed region keeps a string snapshot of its HTML, so Back can restore it without a request. This uses less memory than the baseline, which keeps the full element tree for the same page: 75 DOM nodes and 4.21 MB of JS heap remain after leaving the table page, against 256 nodes and 4.35 MB. Keeping the adopted nodes instead held about 14,000 detached nodes, and keeping nothing made Back refetch the route.</li>
 <li><b>Recovery callback.</b> Frameworks should still pass <code>onMissingHTML</code>. Late rows cover content SSR never rendered, but a boundary that renders on the client after an error has no server DOM. Without the callback, the page reports an uncaught error that names the element.</li>
-<li><b>Preload links</b> hoisted into <code>&lt;head&gt;</code> can differ from stock. The resources that matter are the same.</li>
+<li><b>Preload links</b> hoisted into <code>&lt;head&gt;</code> can differ from the baseline. The resources that matter are the same.</li>
 <li><b>Savings scale with static markup.</b> Expect many real pages to look like the median page, not the largest cases.</li>
 </ul>
 
 <h2>Try it yourself</h2>
-<p>You need Node 22 and npm. Both starter apps install prebuilt packages from the <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-231161c"><code>html-first-flight-231161c</code> release</a>, so nothing is cloned or built. The release has React <code>231161c38d</code> with the flag on, the patched Next.js 16.4.6 and the patched Waku. Both starters have been tested with <code>npm run build</code> and <code>npm start</code>, not <code>npm run dev</code>. These are experimental builds, not for production.</p>
+<p>You need Node 22 and npm. Both starter apps install prebuilt packages from the <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-231161c"><code>html-first-flight-231161c</code> release</a>, so nothing is cloned or built. The release has React <code>231161c38d</code> with the React flag on, the patched Next.js 16.4.6 and the patched Waku. Both starters have been tested with <code>npm run build</code> and <code>npm start</code>, not <code>npm run dev</code>. These are experimental builds, not for production.</p>
 
 <h3>Next.js</h3>
 <pre><code>npx degit MaxwellCohen/react-eco-ci/starters/next-html-first-flight next-html-first
@@ -182,7 +193,7 @@ npm install
 npm run build
 npm start            # http://localhost:3000
 npm run measure      # in a second terminal</code></pre>
-<p>The starter's <code>next.config.mjs</code> sets <code>experimental.htmlFirstFlight: true</code>. <code>npm run measure</code> prints the size of <code>/table</code>, <code>/static-table</code> and <code>/client-rows</code> next to stock Next.js 16.4.6 with the same React build and the flag off. On <code>/table</code> it shows about 97% less inlined Flight and 49% less gzipped HTML. Open <code>/modal</code> and click the button: the static terms appear with no extra request. To use the packages in your own app, install the <code>next</code>, <code>react</code> and <code>react-dom</code> tarballs from the release, override <code>react</code>, <code>react-dom</code> and <code>scheduler</code> as the starter's <code>package.json</code> does, and set the config flag. The app must work on Next.js 16.4.</p>
+<p>The starter's <code>next.config.mjs</code> sets <code>experimental.htmlFirstFlight: true</code>. <code>npm run measure</code> prints the size of <code>/table</code>, <code>/static-table</code> and <code>/client-rows</code> next to the baseline: Next.js 16.4.6 with the same React build and the React flag off. On <code>/table</code> it shows about 97% less inlined Flight and 49% less gzipped HTML. Open <code>/modal</code> and click the button: the static terms appear with no extra request. To use the packages in your own app, install the <code>next</code>, <code>react</code> and <code>react-dom</code> tarballs from the release, override <code>react</code>, <code>react-dom</code> and <code>scheduler</code> as the starter's <code>package.json</code> does, and set the config flag. The app must work on Next.js 16.4.</p>
 
 <h3>Waku</h3>
 <pre><code>npx degit MaxwellCohen/react-eco-ci/starters/waku-html-first-flight waku-html-first
@@ -191,7 +202,7 @@ npm install
 npm run build
 npm start            # http://localhost:8080
 npm run measure      # in a second terminal</code></pre>
-<p><code>npm run measure</code> prints the size of the two table pages next to what stock React and stock Waku send for the same pages. Open <code>/table-host</code> and view the source: the inlined Flight payload is small and contains <code>$J</code> stubs. To add the packages to your own Waku app, install the four tarballs from the release and override <code>scheduler</code> and <code>react-is</code> as well. The <a href="https://github.com/MaxwellCohen/react-eco-ci#try-html-first-flight">react-eco-ci README</a> has the exact command and overrides. The app must work on Waku 1.0.0-rc.4.</p>
+<p><code>npm run measure</code> prints the size of the two table pages next to the baseline numbers for the same pages. Open <code>/table-host</code> and view the source: the inlined Flight payload is small and contains <code>$J</code> stubs. To add the packages to your own Waku app, install the four tarballs from the release and override <code>scheduler</code> and <code>react-is</code> as well. The <a href="https://github.com/MaxwellCohen/react-eco-ci#try-html-first-flight">react-eco-ci README</a> has the exact command and overrides. The app must work on Waku 1.0.0-rc.4.</p>
 
 <h2>Links</h2>
 <ul class="links">
@@ -205,10 +216,10 @@ npm run measure      # in a second terminal</code></pre>
 
 <details><summary>Method</summary>
 <ul>
-<li>The baseline is the same React build with the flag off. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
+<li>The baseline is the same React build with the React flag off, which gives the same output as React main. Both builds come from the PR #24 branch, rebased onto <code>facebook/react</code> main.</li>
 <li>Byte figures for the 41 pages were measured at <code>5a400f9164</code> and repeated with the rules Next.js needed (<code>cbf8821a69</code>). Only <code>fragments-arrays-keys</code> changed, by 19 bytes. A few pages vary slightly between runs because of generated ids.</li>
-<li>Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>. Load is autocannon with 16 connections for 10 s after a 10 s warm-up, over 5 rounds on one laptop. Server order rotates each round, and ratios are taken within each round against stock.</li>
-<li>Next.js figures use <code>next start</code> with Turbopack and the same load. Stock is PR #24 with the flag off, vendored into Next.js 16.4.6. Throughput uses React <code>604c7e5239</code>, which includes late rows. Refresh cost is Chrome's main-thread script, layout and style time, median of 5. Memory is Chrome's DOM node count and JS heap after a forced garbage collection, median of 3. Later commits change only browser-side behavior and the Cache Components paths.</li>
+<li>Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>. Load is autocannon with 16 connections for 10 s after a 10 s warm-up, over 5 rounds on one laptop. Server order rotates each round, and ratios are taken within each round against the baseline.</li>
+<li>Next.js figures use <code>next start</code> with Turbopack and the same load. The baseline is PR #24 with the React flag off, vendored into unpatched Next.js 16.4.6. Throughput uses React <code>604c7e5239</code>, which includes late rows. Refresh cost is Chrome's main-thread script, layout and style time, median of 5. Memory is Chrome's DOM node count and JS heap after a forced garbage collection, median of 3. Later commits change only browser-side behavior and the Cache Components paths.</li>
 <li>Next.js end-to-end tests and the Chromium checks ran at React <code>126b0905e5</code> and Next.js <code>586943daca</code>, and again after the rename (React <code>231161c38d</code>, Next.js <code>c19d05febc</code>, with <code>experimental.htmlFirstFlight</code> on): 871 passed, none failed. With it off, <code>rsc-basic</code>, <code>actions</code> and <code>navigation</code> passed 172 tests with none failing. The rename changed names only, so the earlier byte and timing figures still apply. Earlier commits used the names <code>enableFlightStaticHostElision</code>, <code>elideStaticHosts</code> and <code>onElidedContentMissing</code>. Runs that vendored the experimental build into every slot failed 2 <code>rsc-basic</code> tests, which require React's version to contain <code>-canary-</code>.</li>
 <li>Chromium 156 for the browser checks.</li>
 </ul></details>
