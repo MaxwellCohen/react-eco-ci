@@ -53,6 +53,20 @@ npm install $R/react-19.3.0-static-host-elision.tgz $R/react-dom-19.3.0-static-h
 
 The app has to work on Waku 1.0.0-rc.4. These are experimental builds for evaluation, not for production.
 
+**Run the Next.js demo.** It uses a patched Next.js 16.4.6 ([`html-first/16.4`](https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4)) with React `126b0905e5` vendored, from the [`static-host-elision-next-126b090` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-next-126b090).
+
+```sh
+npx degit MaxwellCohen/react-eco-ci/starters/next-static-host-elision next-elision-demo
+cd next-elision-demo
+npm install
+npm run build
+npm start            # http://localhost:3000
+```
+
+In a second terminal, `npm run measure` prints the size of `/table`, `/static-table` and `/client-rows` next to stock Next.js 16.4.6 with the same React build and the flag off. `/modal` shows static server children that mount after a click, with no extra request.
+
+To use it in your own Next.js app, install the `next`, `react` and `react-dom` tarballs from the release and override `react`, `react-dom` and `scheduler` with them, as the starter's `package.json` does. The app must work on Next.js 16.4.
+
 **Build the packages yourself.** The same packages can be built in CI or locally.
 
 *In CI.* Install the [pkg-pr-new GitHub App](https://github.com/apps/pkg-pr-new) on this repo, then run the [`react-build`](https://github.com/MaxwellCohen/react-eco-ci/actions/workflows/react-build.yml) workflow with:
