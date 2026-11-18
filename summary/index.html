@@ -104,10 +104,10 @@ summary{cursor:pointer;font-weight:600}
 <p class="cap">With the flag on and no opt-in, Waku's output is byte-identical to stock: forgetting the option loses the savings but breaks nothing. A second page whose rows are Client Components improves only 1.10&times;, since those rows cannot be elided. With the React changes Next.js needed (below), Waku's bytes are unchanged and its throughput is within noise: 3.26&times; against 3.30&times; for the PR #24 head in the same run.</p>
 
 <h2>Next.js</h2>
-<p>Next.js 16.4.6 needs a small patch, about 100 lines in four files, on <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4">branch <code>html-first/16.4</code></a> (<code>ff79c82d63</code>):</p>
+<p>Next.js 16.4.6 needs a small patch, about 100 lines in four files, on <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4">branch <code>html-first/16.4</code></a> (<code>7b78b2dff0</code>):</p>
 <ul>
-<li><b>Dynamic pages.</b> The HTML render passes <code>elideStaticHosts: true</code> to the Flight render that feeds SSR. RSC requests (navigation, refresh, actions) and PPR resumes still get full payloads.</li>
-<li><b>Static pages.</b> A prerendered page's payload is also stored for navigations and prefetches, so it has to stay complete. It is rendered once as before; the copy inlined into the HTML is that payload decoded and encoded again with elision, the same way Next already re-encodes it for segment prefetches. No Server Component runs twice.</li>
+<li><b>Dynamic pages.</b> The HTML render passes <code>elideStaticHosts: true</code> to the Flight render that feeds SSR, including PPR resumes, whose static shell is already in the prerendered HTML. RSC requests (navigation, refresh, actions) still get full payloads.</li>
+<li><b>Static pages.</b> A prerendered page's payload is also stored for navigations and prefetches, so it has to stay complete. It is rendered once as before; the copy inlined into the HTML is that payload decoded and encoded again with elision, the same way Next already re-encodes it for segment prefetches. No Server Component runs twice. Fully static Cache Components pages are handled the same way.</li>
 <li><b>Recovery.</b> Hydration passes <code>onElidedContentMissing</code>, which refetches only the current route and keeps Next's client caches.</li>
 </ul>
 <p>With PR #24 as it was, Next elided nothing. PR #24 now includes five more React changes (<a href="https://github.com/MaxwellCohen/react/compare/1558a92724...7bf313dd5e">diff</a>), each with a test that fails without it:</p>
@@ -123,14 +123,14 @@ summary{cursor:pointer;font-weight:600}
 <div class="tablewrap"><table>
 <thead><tr><th></th><th class="n">Stock</th><th class="n">Flag on, stock Next</th><th class="n">Flag on, patched Next</th></tr></thead>
 <tbody>
-<tr><td>Requests/s, dynamic</td><td class="n">1.00</td><td class="n">0.95</td><td class="n">2.70&times; (2.50&ndash;2.93)</td></tr>
-<tr><td>TTFB, dynamic</td><td class="n">1.00</td><td class="n">0.80</td><td class="n">0.44&times;</td></tr>
+<tr><td>Requests/s, dynamic</td><td class="n">1.00</td><td class="n">0.95</td><td class="n">2.64&times; (2.59&ndash;2.75)</td></tr>
+<tr><td>TTFB, dynamic</td><td class="n">1.00</td><td class="n">0.80</td><td class="n">0.41&times;</td></tr>
 <tr><td>Inlined Flight, dynamic</td><td class="n">765,297 B</td><td class="n">765,298 B</td><td class="n">23,219 B</td></tr>
 <tr><td>Gzip HTML, dynamic</td><td class="n">108,892 B</td><td class="n">108,883 B</td><td class="n">55,244 B</td></tr>
 <tr><td>Inlined Flight, static</td><td class="n">765,415 B</td><td class="n">&ndash;</td><td class="n">28,760 B</td></tr>
 <tr><td>Gzip HTML, static</td><td class="n">109,291 B</td><td class="n">&ndash;</td><td class="n">57,659 B</td></tr>
 </tbody></table></div>
-<p class="cap">As on Waku, the flag without the Next patch leaves the output unchanged. The page whose rows are Client Components is within noise of stock (1.06&times;). The stored payload of the static page stays complete (680,683 B, no stubs). Live demos on Cloudflare Workers: stock <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/table">dynamic</a> and <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/static-table">static</a>; patched <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/table">dynamic</a>, <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/static-table">static</a> and <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/modal">modal</a>.</p>
+<p class="cap">As on Waku, the flag without the Next patch leaves the output unchanged. The page whose rows are Client Components is within noise of stock (1.06&times;). The stored payload of the static page stays complete (680,683 B, no stubs). With <code>cacheComponents</code> and cached navigations off, a fully static page's inlined Flight drops from 125,199 B to 11,571 B and a PPR page's from 125,291 B to 4,108 B. Live demos on Cloudflare Workers: stock <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/table">dynamic</a> and <a href="https://react-eco-next-cbf8821a-next-off.to-email-max.workers.dev/static-table">static</a>; patched <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/table">dynamic</a>, <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/static-table">static</a> and <a href="https://react-eco-next-7bf313dd-next-elide.to-email-max.workers.dev/modal">modal</a>.</p>
 <p>Next's own end-to-end tests were run against the patched Next with PR #24 vendored, in production mode with Turbopack: 37 suites covering the app router, navigation, back/forward cache, client cache, parallel and intercepted routes, server actions, static generation and ISR, <code>generateStaticParams</code>, fetch deduping, error and not-found pages, metadata and root layouts. 750 tests pass. The 2 failures check React's version string and fail the same way with elision switched off. An earlier set of the core suites also passed with webpack and in <code>next dev</code>. In Chromium the hydrated DOM matches stock on every demo page, counters respond, client navigation and Back make the same requests as stock, and the modal shows its content after one request for the route.</p>
 
 <h2>Correctness</h2>
@@ -142,7 +142,9 @@ summary{cursor:pointer;font-weight:600}
 <ul>
 <li>If an elided region is rendered on the client with no server DOM behind it (a modal or client-only wrapper that mounts after hydration, or a boundary that client-renders after an error), React cannot recreate the content. The framework must pass <code>onElidedContentMissing</code> and refetch a full payload. The Waku patch does, and a modal that mounts its static children after a click then shows them as it does on stock. Without it the page reports an uncaught error that names the element.</li>
 <li>Preload links hoisted into <code>&lt;head&gt;</code> can differ from stock. The resources that matter are the same.</li>
-<li>Next.js: static content that has never been on screen (a modal not yet opened) costs one request for the current route when it mounts. Removing it needs SSR to report which rows it rendered and the Flight stream to stay open until then, which adds a hang risk; that design is written down but not built. Each elided region keeps its detached DOM node while Next's router cache holds the payload, so that Back can restore it without a request. Pages using Cache Components (PPR) are not elided yet.</li>
+<li>Next.js: static content that has never been on screen (a modal not yet opened) costs one request for the current route when it mounts. A fix was built and tested (<a href="https://github.com/MaxwellCohen/react/compare/7bf313dd5e...rsc/html-first-late-rows">late rows</a>: SSR marks what it rendered and the server sends the rest at the end). It removes that request and passes Next's tests, but cuts throughput on the table page from 2.64&times; to 2.51&times; for every request, so it is not part of PR #24.</li>
+<li>Next.js: each elided region keeps its detached DOM node while Next's router cache holds the payload, so that Back can restore it without a request. The memory is freed with the cache entry.</li>
+<li>Next.js with <code>cacheComponents</code>: cached navigations, on by default there, reuse the inlined payload as the client cache and read byte offsets from it, so those pages keep the full inlined payload.</li>
 <li>The savings scale with the amount of static server markup on a page. Expect many real pages to look like the median, not like the largest cases.</li>
 </ul>
 
@@ -167,7 +169,7 @@ npm run measure      # in a second terminal</code></pre>
 <ul class="links">
 <li><a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a>, the reference implementation, based on <code>facebook/react</code> main (final version <a href="https://github.com/MaxwellCohen/react/tree/7bf313dd5e"><code>7bf313dd5e</code></a>)</li>
 <li><a href="../examples/">Examples</a>: all 41 test pages, each with a live demo</li>
-<li>Next.js: the <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4">Next.js 16.4.6 patch</a> (<code>ff79c82d63</code>) and the <a href="https://github.com/MaxwellCohen/react/compare/1558a92724...7bf313dd5e">React changes it needed</a>, now part of PR #24 (<code>7bf313dd5e</code>)</li>
+<li>Next.js: the <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4">Next.js 16.4.6 patch</a> (<code>7b78b2dff0</code>) and the <a href="https://github.com/MaxwellCohen/react/compare/1558a92724...7bf313dd5e">React changes it needed</a>, now part of PR #24 (<code>7bf313dd5e</code>)</li>
 <li><a href="https://github.com/MaxwellCohen/react/blob/5a400f9164/fixtures/flight-ssr-bench/HTML-FIRST.md">Design notes</a></li>
 </ul>
 
@@ -177,7 +179,7 @@ npm run measure      # in a second terminal</code></pre>
 <li>Byte figures and the Chromium check for the 41 pages were measured at <code>5a400f9164</code>, and repeated with the rules Next.js needed (<code>cbf8821a69</code>): all 41 pass, and only <code>fragments-arrays-keys</code> changes, 19 bytes smaller. The Waku figures use React <code>60d28f4ee6</code> and Waku <code>62e75f5f</code>.</li>
 <li>Byte counts are deterministic for most pages. A few vary slightly between runs because of generated ids, so the last digits can change on a rerun.</li>
 <li>Waku: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds, ratios taken within each round against stock. Chromium 156 for the browser checks.</li>
-<li>Next.js: <code>next start</code> with Turbopack, Next.js 16.4.6, same load and rounds as Waku. Stock is PR #24 with the flag off, vendored into Next.js; the throughput columns use React <code>cbf8821a69</code> and Next.js <code>96b8011d85</code>, which differ from the final commits only in the static-page path and a Node option. Static-page bytes and the end-to-end tests use the final <code>7bf313dd5e</code> and <code>ff79c82d63</code>. The Waku comparison used the same React builds as the throughput run.</li>
+<li>Next.js: <code>next start</code> with Turbopack, Next.js 16.4.6, same load and rounds as Waku. Stock is PR #24 with the flag off, vendored into Next.js; throughput and bytes use React <code>7bf313dd5e</code> and Next.js <code>ff79c82d63</code>; the last Next.js commit only adds the Cache Components paths. End-to-end tests: 37 suites at those commits, and 52 suites (adding Cache Components and PPR) with late rows vendored, 869 passing with the same 2 version-string failures. The Waku comparison used the same React builds as the throughput run.</li>
 </ul></details>
 
 <footer>HTML-first React: results &middot; static page.</footer>
