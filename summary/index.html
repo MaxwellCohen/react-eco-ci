@@ -173,15 +173,27 @@ summary{cursor:pointer;font-weight:600}
 </ul>
 
 <h2>Try it yourself</h2>
-<p>You need Node 22 and npm. The starter app installs a React build with the flag on and a patched Waku, both from a <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-df35615">GitHub release</a>, so nothing is cloned or built. The release uses an earlier commit of PR #24 (<code>df356153a6</code>), from before the Next.js changes.</p>
+<p>You need Node 22 and npm. Each starter app installs prebuilt packages from a GitHub release, so nothing is cloned or built. Both starters have been tested with <code>npm run build</code> and <code>npm start</code>, not <code>npm run dev</code>. These are experimental builds, not for production.</p>
+
+<h3>Next.js</h3>
+<p>The starter installs the patched Next.js 16.4.6 with PR #24 at <code>126b0905e5</code> vendored, from the <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-next-126b090"><code>static-host-elision-next-126b090</code> release</a>. This is the build the Next.js results above were checked against.</p>
+<pre><code>npx degit MaxwellCohen/react-eco-ci/starters/next-static-host-elision next-elision-demo
+cd next-elision-demo
+npm install
+npm run build
+npm start            # http://localhost:3000
+npm run measure      # in a second terminal</code></pre>
+<p><code>npm run measure</code> prints the size of <code>/table</code>, <code>/static-table</code> and <code>/client-rows</code> next to stock Next.js 16.4.6 with the same React build and the flag off. On <code>/table</code> it shows about 97% less inlined Flight and 49% less gzipped HTML. Open <code>/modal</code> and click the button: the static terms appear with no extra request. To use the packages in your own app, install the <code>next</code>, <code>react</code> and <code>react-dom</code> tarballs from the release and override <code>react</code>, <code>react-dom</code> and <code>scheduler</code>, as the starter's <code>package.json</code> does. The app must work on Next.js 16.4.</p>
+
+<h3>Waku</h3>
+<p>The starter installs a React build with the flag on and a patched Waku from the <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-df35615"><code>static-host-elision-df35615</code> release</a>. That release uses an earlier commit of PR #24 (<code>df356153a6</code>), from before the Next.js changes.</p>
 <pre><code>npx degit MaxwellCohen/react-eco-ci/starters/waku-static-host-elision elision-demo
 cd elision-demo
 npm install
 npm run build
 npm start            # http://localhost:8080
 npm run measure      # in a second terminal</code></pre>
-<p><code>npm run measure</code> prints the size of the two table pages next to what stock React and stock Waku send for the same pages. Then open <code>/table-host</code> and view the source: the inlined Flight payload is small and contains <code>$J</code> stubs. The starter has been tested with <code>npm run build</code> and <code>npm start</code>, not <code>npm run dev</code>.</p>
-<p>To add the packages to your own Waku app, install the four tarballs from the release and override <code>scheduler</code> and <code>react-is</code> as well. The <a href="https://github.com/MaxwellCohen/react-eco-ci#try-static-host-elision">react-eco-ci README</a> has the exact command and overrides. The app must work on Waku 1.0.0-rc.4. These are experimental builds, not for production.</p>
+<p><code>npm run measure</code> prints the size of the two table pages next to what stock React and stock Waku send for the same pages. Open <code>/table-host</code> and view the source: the inlined Flight payload is small and contains <code>$J</code> stubs. To add the packages to your own Waku app, install the four tarballs from the release and override <code>scheduler</code> and <code>react-is</code> as well. The <a href="https://github.com/MaxwellCohen/react-eco-ci#try-static-host-elision">react-eco-ci README</a> has the exact command and overrides. The app must work on Waku 1.0.0-rc.4.</p>
 
 <h2>Links</h2>
 <ul class="links">
