@@ -108,7 +108,7 @@ export function render(optIn, itemCount, delayMs, options) {
 }
 
 // /form-counter: a form-action counter (useActionState + <form action> + formAction props) on a page that also has content
-// elision can act on: inline CSS and JSON-LD, client rows and, with ?delay=, a late Suspense boundary. The counter is
+// stubbing can act on: inline CSS and JSON-LD, client rows and, with ?delay=, a late Suspense boundary. The counter is
 // interactive and has to hydrate normally.
 function makeCounterPage() {
   return function PageCounter({ delayMs }) {

@@ -11,61 +11,59 @@ The package URLs are in the `react-urls` artifact. Note: pkg.pr.new keys by this
 `node scripts/build-variant.mjs <vite|next|waku> <label>` → `.build/<template>-<label>`.
 The compiler install is required: `yarn build` compiles `eslint-plugin-react-hooks` against compiler sources, which fails without its `@types`.
 
-## Try static host elision
+## Try HTML-first Flight
 
-[`enableFlightStaticHostElision`](https://github.com/MaxwellCohen/react/pull/24) leaves static Server Component output out of the Flight payload the browser receives and adopts it from the HTML instead. Results and design: [summary](https://html-first-react.pages.dev/summary/).
+HTML-first Flight ([React PR #24](https://github.com/MaxwellCohen/react/pull/24), flag `enableFlightHTMLFirst`) leaves static Server Component output out of the Flight payload the browser receives, and the browser adopts that content from the HTML instead. Results and design: [summary](https://html-first-react.pages.dev/summary/).
 
-**Run the demo.** Needs Node 22 and npm; nothing is cloned or built.
+You need Node 22 and npm. Both starters install prebuilt packages from the [`html-first-flight-231161c` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-231161c), so nothing is cloned or built. The release has React `231161c38d` built with the flag on, a patched Next.js 16.4.6 and a patched Waku 1.0.0-rc.4. Each starter has an `.npmrc` with `allow-remote=all`, because npm 12 refuses tarball URLs by default. The starters have been tested with `npm run build` and `npm start`, not `npm run dev`. These are experimental builds, not for production.
 
-```sh
-npx degit MaxwellCohen/react-eco-ci/starters/waku-static-host-elision elision-demo
-cd elision-demo
-npm install
-npm run build
-npm start            # http://localhost:8080
-```
-
-In a second terminal, `npm run measure` prints the size of the two table pages next to what stock React and stock Waku send for the same pages (about 98% less inlined Flight and 54% less gzipped HTML for `/table-host`). The pages:
-
-- `/table-host`: a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. View the source: the inlined `__FLIGHT_DATA` is small and contains `$J` stubs.
-- `/table-client`: the same rows as Client Components, which are never elided, so the saving is smaller.
-- `/late-modal`: static content that only mounts after a click. It is not in the first payload, so the page refetches it. Click "open".
-
-I have only run `npm run build` and `npm start`, not `npm run dev`.
-
-**Use it in your own Waku app.** The packages are attached to the [`static-host-elision-df35615` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-df35615). They are React `df356153a6` built with the flag forced on, and a Waku based on upstream `b0d0a798` (1.0.0-rc.4) with [two small changes](https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...62e75f5f). Install them and override the two packages React depends on:
+**Next.js.** The patched Next.js ([`html-first/16.4`](https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4)) turns the feature on with `experimental.htmlFirstFlight: true` in `next.config.mjs`. Without it, Next.js behaves like stock.
 
 ```sh
-R=https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615
-npm install $R/react-19.3.0-static-host-elision.tgz $R/react-dom-19.3.0-static-host-elision.tgz \
-  $R/react-server-dom-webpack-19.3.0-static-host-elision.tgz $R/waku-1.0.0-rc.4-static-host-elision.tgz
-```
-
-```json
-"overrides": {
-  "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-19.3.0-static-host-elision.tgz",
-  "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-dom-19.3.0-static-host-elision.tgz",
-  "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/scheduler-0.28.0-static-host-elision.tgz",
-  "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-is-19.3.0-static-host-elision.tgz",
-  "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/static-host-elision-df35615/react-server-dom-webpack-19.3.0-static-host-elision.tgz"
-}
-```
-
-The app has to work on Waku 1.0.0-rc.4. These are experimental builds for evaluation, not for production.
-
-**Run the Next.js demo.** It uses a patched Next.js 16.4.6 ([`html-first/16.4`](https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4)) with React `126b0905e5` vendored, from the [`static-host-elision-next-126b090` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/static-host-elision-next-126b090).
-
-```sh
-npx degit MaxwellCohen/react-eco-ci/starters/next-static-host-elision next-elision-demo
-cd next-elision-demo
+npx degit MaxwellCohen/react-eco-ci/starters/next-html-first-flight next-html-first
+cd next-html-first
 npm install
 npm run build
 npm start            # http://localhost:3000
 ```
 
-In a second terminal, `npm run measure` prints the size of `/table`, `/static-table` and `/client-rows` next to stock Next.js 16.4.6 with the same React build and the flag off. `/modal` shows static server children that mount after a click, with no extra request.
+In a second terminal, `npm run measure` prints the size of `/table`, `/static-table` and `/client-rows` next to stock Next.js 16.4.6 with the same React build and the flag off. `/modal` shows static server children that mount after a click, with no extra request. To use it in your own app, install the `next`, `react` and `react-dom` tarballs from the release, override `react`, `react-dom` and `scheduler` with them as the starter's `package.json` does, and set `experimental.htmlFirstFlight: true`. The app must work on Next.js 16.4.
 
-To use it in your own Next.js app, install the `next`, `react` and `react-dom` tarballs from the release and override `react`, `react-dom` and `scheduler` with them, as the starter's `package.json` does. The app must work on Next.js 16.4.
+**Waku.** The patched Waku ([`rsc-html-first-optin`](https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...rsc-html-first-optin)) passes `htmlFirst: true` on the HTML render and refetches the initial payload when React calls `onMissingHTML`.
+
+```sh
+npx degit MaxwellCohen/react-eco-ci/starters/waku-html-first-flight waku-html-first
+cd waku-html-first
+npm install
+npm run build
+npm start            # http://localhost:8080
+```
+
+In a second terminal, `npm run measure` prints the size of the two table pages next to stock React and stock Waku. The pages:
+
+- `/table-host`: a 1000-row table rendered by Server Components, plus inline CSS and JSON-LD. View the source: the inlined `__FLIGHT_DATA` is small and contains `$J` stubs.
+- `/table-client`: the same rows as Client Components, which are never stubbed, so the saving is smaller.
+- `/late-modal`: static content that mounts only after a click. Click "open".
+
+To use it in your own Waku app, install the packages and override the ones React depends on:
+
+```sh
+R=https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c
+npm install $R/react-html-first-flight.tgz $R/react-dom-html-first-flight.tgz \
+  $R/react-server-dom-webpack-html-first-flight.tgz $R/waku-1.0.0-rc.4-html-first-flight.tgz
+```
+
+```json
+"overrides": {
+  "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
+  "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz",
+  "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/scheduler-html-first-flight.tgz",
+  "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-is-html-first-flight.tgz",
+  "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-server-dom-webpack-html-first-flight.tgz"
+}
+```
+
+The app must work on Waku 1.0.0-rc.4.
 
 **Build the packages yourself.** The same packages can be built in CI or locally.
 
@@ -75,8 +73,8 @@ To use it in your own Next.js app, install the `next`, `react` and `react-dom` t
 |---|---|
 | `repo` | `MaxwellCohen/react` |
 | `ref` | `rsc/html-first-one-flag` (or a commit from it) |
-| `flags` | `enableFlightStaticHostElision` |
-| `suffix` | `static-host-elision` |
+| `flags` | `enableFlightHTMLFirst` |
+| `suffix` | `html-first-flight` |
 | `templates` | `["waku"]` |
 | `waku_repo` | `MaxwellCohen/wakujs` |
 | `waku_ref` | `rsc-html-first-optin` |
@@ -87,17 +85,17 @@ It builds React with the flag forced on, builds the Waku fork, publishes both to
 
 ```sh
 cd react && yarn install --frozen-lockfile
-node ../react-eco-ci/scripts/force-flags.mjs . enableFlightStaticHostElision
+node ../react-eco-ci/scripts/force-flags.mjs . enableFlightHTMLFirst
 RELEASE_CHANNEL=experimental node ./scripts/rollup/build.js \
   react/index,react/jsx,react.react-server,react/src/jsx/ReactJSXServer.js,react-dom/index,react-dom/client,react-dom/server,react-dom.react-server,react-dom-server,scheduler,react-is,react-server-dom-webpack/ \
   --type=NODE_DEV,NODE_PROD                                  # output: build/node_modules
 cd ../react-eco-ci
 node scripts/pack-local.mjs ../react/build/node_modules ../wakujs   # writes .tgz/ and react-urls.json
-node scripts/build-variant.mjs waku static-host-elision             # builds .build/waku-static-host-elision
-cd .build/waku-static-host-elision && npx wrangler dev --config dist/server/wrangler.json --port 8787
+node scripts/build-variant.mjs waku html-first-flight               # builds .build/waku-html-first-flight
+cd .build/waku-html-first-flight && npx wrangler dev --config dist/server/wrangler.json --port 8787
 ```
 
-The framework side of this is two small changes, both in the Waku patch: the HTML render passes `elideStaticHosts: true`, and the root passes `onElidedContentMissing` for the initial payload and refetches it in full when React asks.
+The framework side of this is two small changes, both in the Waku patch: the HTML render passes `htmlFirst: true`, and the root passes `onMissingHTML` for the initial payload and refetches it in full when React asks.
 
 Each demo shows `React.version` (and `/version.json`).
 **Next.js caveat:** App Router uses Next's vendored React, so the override doesn't change it; the demo prints server and client versions so you can tell.
