@@ -24,5 +24,5 @@ for (const page of Object.keys(stock)) {
   console.log(`  raw HTML        ${n(raw).padStart(10)} B   stock ${n(s.raw).padStart(10)} B   ${pct(raw, s.raw)}`);
   console.log(`  gzip            ${n(gzip).padStart(10)} B   stock ${n(s.gzip).padStart(10)} B   ${pct(gzip, s.gzip)}`);
   console.log(`  inlined Flight  ${n(flight).padStart(10)} B   stock ${n(s.flight).padStart(10)} B   ${pct(flight, s.flight)}`);
-  console.log(`  elided stubs    ${html.match(/\$J/g)?.length ?? 0}`);
+  console.log(`  stubs           ${html.match(/\$J/g)?.length ?? 0}`);
 }

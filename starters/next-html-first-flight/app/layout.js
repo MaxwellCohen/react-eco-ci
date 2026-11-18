@@ -1,5 +1,5 @@
 import Link from 'next/link';
-export const metadata = { title: 'Static host elision on Next.js' };
+export const metadata = { title: 'HTML-first Flight on Next.js' };
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

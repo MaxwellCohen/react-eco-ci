@@ -17,7 +17,7 @@ on:
         type: choice
         options: [experimental, stable]
       flags:
-        description: Comma-separated ReactFeatureFlags to force true (e.g. enableFlightHostElision,enableFlightHtmlFirst)
+        description: Comma-separated ReactFeatureFlags to force true (e.g. enableFlightHTMLFirst)
         required: false
       suffix:
         description: Appended to the label (and Worker names) so flag variants of one commit do not collide

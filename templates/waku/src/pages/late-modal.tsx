@@ -1,7 +1,7 @@
 import { Modal } from '../components/modal';
 
 // Static server markup passed as `children` to a client component that renders it only after a click.
-// With static host elision on, that markup is left out of the first payload and never reaches the HTML,
+// With HTML-first Flight on, that markup is left out of the first payload and never reaches the HTML,
 // so the client has to ask for it (Waku's patch refetches the payload). Click "open" to see it.
 export default async function Page() {
   return (

@@ -4,7 +4,7 @@ import Row from './row';
 export const dynamic = 'force-dynamic';
 const ROWS = 1000;
 
-// The same table, but every row is a Client Component: nothing in it can be elided.
+// The same table, but every row is a Client Component: nothing in it can be stubbed.
 export default function ClientRowsPage() {
   const rows = Array.from({ length: ROWS }, (_, i) => ({
     id: i,

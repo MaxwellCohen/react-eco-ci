@@ -3,9 +3,9 @@ import { Link } from 'waku';
 export default async function Home() {
   return (
     <main style={{ maxWidth: 720 }}>
-      <h1>Static host elision demo</h1>
+      <h1>HTML-first Flight demo</h1>
       <p>
-        A Waku app on a React build with <code>enableFlightStaticHostElision</code> on and a Waku patch that opts in.
+        A Waku app on a React build with <code>enableFlightHTMLFirst</code> on and a Waku patch that opts in.
         Static Server Component markup is left out of the Flight payload the browser receives and adopted from the HTML.
       </p>
       <ul>
@@ -14,7 +14,7 @@ export default async function Home() {
           JSON-LD. View the source and look at the inlined <code>__FLIGHT_DATA</code>.
         </li>
         <li>
-          <Link to="/table-client">/table-client</Link>: the same rows as Client Components, which are never elided
+          <Link to="/table-client">/table-client</Link>: the same rows as Client Components, which are never stubbed
           (a much smaller saving).
         </li>
         <li>
