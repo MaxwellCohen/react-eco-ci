@@ -59,8 +59,8 @@ ol.steps pre.wire{margin:.5em 0}
 <p class="sub">Declarative partial updates &middot; <code>&lt;template for&gt;</code> &middot; Chromium 156 &middot; updated November 18, 2026</p>
 <h1>template for in streaming SSR: results, batching and gaps</h1>
 
-<p>React and Preact stream late Suspense content as hidden HTML plus a script that moves it into place. <code>&lt;template for&gt;</code> lets the browser do that move instead. In our Chromium runs it used 37% to 55% less main-thread time than React's <code>$RC</code> at the same reveal policy, with level bytes and patch timing.</p>
-<p>The main gap: a native patch applies the moment it's parsed, so it can't be batched. React's PR keeps its 300&nbsp;ms reveal batching by turning native patching off whenever scripts run. <a href="#batching">How batching works</a> explains the mechanism.</p>
+<p>React, Preact and Solid stream late Suspense content as hidden HTML plus a script that moves it into place. <code>&lt;template for&gt;</code> lets the browser do that move instead. We built it into all three. In our Chromium runs it used 37% to 55% less main-thread time than React's <code>$RC</code> at the same reveal policy, with level bytes and patch timing.</p>
+<p>The main gap: a native patch applies the moment it's parsed, so it can't be batched or held. React and Solid both keep control of reveal timing by turning native patching off whenever scripts run. <a href="#batching">How batching works</a> explains the mechanism.</p>
 
 <div class="verdict">
 <div class="box">
@@ -75,7 +75,7 @@ ol.steps pre.wire{margin:.5em 0}
 <div class="box lack">
 <h3>What's missing</h3>
 <ul>
-  <li>A native patch can't be batched or delayed, so React applies patches in script when scripts run.</li>
+  <li>A native patch can't be batched or delayed, so React and Solid apply patches in script when scripts run.</li>
   <li>View transitions, SVG and MathML, style ordering and hydration state still need script.</li>
   <li>Only Chromium supports it. Other browsers use the script fallback.</li>
   <li>The 37% to 55% result comes from a benchmark build that batches on the server, not from the PR's client-side batching.</li>
@@ -93,6 +93,7 @@ ol.steps pre.wire{margin:.5em 0}
   <a href="#why">Why adopt</a>
   <a href="#batching">How batching works</a>
   <a href="#numbers">Results</a>
+  <a href="#solid">Solid</a>
   <a href="#lacking">What's missing</a>
   <a href="#gaps">Platform gaps</a>
   <a href="#ship">What to ship</a>
@@ -141,6 +142,22 @@ ol.steps pre.wire{margin:.5em 0}
   <li><strong>The runtime cleans up at <code>DOMContentLoaded</code>.</strong> It disconnects the observer and queues any <code>&lt;template for&gt;</code> still in the document.</li>
 </ol>
 <p>With scripts disabled or blocked, step 2 never runs. The processing instructions stay in place, and the browser applies each template as it parses it, with no batching. In Firefox and WebKit, the markers already parse as comments, so the script path above is the only path.</p>
+
+<h3 id="solid-batching">How Solid does it</h3>
+<p>Solid 2 (<a href="https://github.com/MaxwellCohen/solid/pull/2">MaxwellCohen/solid#2</a>) disarms the ranges the same way React does, but it has no reveal timer. Solid reveals each fragment as soon as its script runs, unless the app or a stylesheet asks it to wait.</p>
+<ol class="steps">
+  <li><strong>The server wraps each placeholder in a range.</strong> An eager fragment ships as <code>&lt;template id="ID" for="ID"&gt;</code>:
+<pre class="wire">&lt;?start name="ID"&gt;&lt;template id="pl-ID"&gt;&lt;/template&gt;…fallback…&lt;?end&gt;
+&lt;!-- later --&gt;
+&lt;template id="ID" for="ID"&gt;…content…&lt;/template&gt;
+&lt;script&gt;$df("ID")&lt;/script&gt;</pre></li>
+  <li><strong><code>$dpi</code> disarms the ranges.</strong> The inline <code>$df</code> runtime is flushed in its own <code>&lt;script&gt;</code> ahead of the first <code>for</code> template. When it loads, <code>$dpi(document)</code> replaces every <code>&lt;?start&gt;</code> and <code>&lt;?end&gt;</code> with a comment. <code>$dfr</code> runs <code>$dpi</code> again over each payload before inserting it, so a nested range is never live.</li>
+  <li><strong>The server coalesces scripts, not reveals.</strong> <code>$df</code> calls for fragments that resolve in the same burst go into one <code>&lt;script&gt;</code>, batched with microtasks. There's no 300&nbsp;ms throttle.</li>
+  <li><strong>The hydration runtime decides when to swap.</strong> Once it installs <code>_$HY.f</code>, every <code>$df(id)</code> goes through it, and it can hold late swaps after hydration. Before that, <code>$df</code> swaps at once through <code>$dfr</code>.</li>
+  <li><strong>Grouping is opt-in.</strong> Fragments inside a <code>&lt;Reveal&gt;</code> group, and fragments waiting on stylesheets, ship as plain <code>&lt;template id&gt;</code> without <code>for</code>, so they never patch natively. <code>$dfj(ids)</code> reveals a group in order, and waits while any member still has stylesheets loading.</li>
+</ol>
+<p>With scripts off, Chromium patches eager fragments natively. Grouped, style-gated and errored fragments stay on their fallback, as they do today.</p>
+<p>An earlier Solid 2 version (<a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a>, closed) let the browser patch eager fragments even with scripts on. Those fragments skipped the post-hydration hold, had no <code>parent</code> for the reveal event, and weren't reparsed inside SVG or MathML. #2 replaced it to fix all three.</p>
 
 <h2 id="numbers">Results</h2>
 <div class="note">The React numbers below were measured before PR head <code>7b29f02</code>, which replaced the per-group <code>$RP("B:0")</code> script with the sentinel. They haven't been re-run at that head. The inline <code>$RP</code> runtime at <code>7b29f02</code> is 2,598&nbsp;B raw and about 1,275&nbsp;B gzip, including <code>$RV</code>.</div>
@@ -212,6 +229,26 @@ ol.steps pre.wire{margin:.5em 0}
 </table></div>
 <p class="cap">Timing differences are within noise except Firefox patch lag. Most of the extra gzip bytes per boundary are a repeated id (<a href="#g7">gap 7</a>). <a href="data/preact-REPORT.html">Report</a> · <a href="data/preact-DATA.html">data</a>.</p>
 
+<h3 id="solid">Solid</h3>
+<p>Solid 2 <code>next</code> against <a href="https://github.com/MaxwellCohen/solid/pull/2">solid#2</a> (disarm when scripts run). Chrome 157, synthetic pages running the real inline runtime, median of 3 runs. "Nested" means N boundaries that each reveal a nested one.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Scenario</th><th class="n">Swap script time, <code>next</code> (ms)</th><th class="n">Swap script time, #2 (ms)</th><th class="n">Total load, <code>next</code> (ms)</th><th class="n">Total load, #2 (ms)</th></tr></thead>
+<tbody>
+<tr><td>Flat 2,000</td><td class="n">15.5</td><td class="n">15.5</td><td class="n">73</td><td class="n bad">216</td></tr>
+<tr><td>Nested 500</td><td class="n">8.3</td><td class="n">8.2</td><td class="n">&ndash;</td><td class="n">&ndash;</td></tr>
+<tr><td>Nested 2,000</td><td class="n">28.1</td><td class="n">29.8</td><td class="n">110</td><td class="n bad">530</td></tr>
+</tbody>
+</table></div>
+<p class="cap">From the solid#2 description; not re-run for this page. A dash means not reported.</p>
+<ul>
+  <li><strong>Swap script time is level.</strong> That depends on turning markers into comments. With the markers only blanked, nested 500 took 210&nbsp;ms of swap time, and nested 2,000 didn't finish in 2.5&nbsp;s. Chromium inserts a processing instruction into a document far slower than a comment, which matches what React found.</li>
+  <li><strong>Total load grows faster at high counts.</strong> Each <code>&lt;template for&gt;</code> whose target was disarmed makes the parser search the document for one (<a href="#g9">gap 9</a>). At a few hundred boundaries this costs a few milliseconds.</li>
+  <li><strong>Bytes go up about 36&nbsp;B per boundary.</strong> At 200 boundaries in Node, the stream grew from 64,088 to 71,344&nbsp;B (+11.3%) with the same 401 inline scripts. Server render time was within noise. Measured on <a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a>; #2 uses the same wire format.</li>
+  <li><strong>Correctness holds in Chrome 157.</strong> On the <code>templates/ssr</code> demo with 213 streamed boundaries, scripts on: <code>$dfr</code> swapped all 213, none patched natively, and hydration finished with no markers or templates left. Scripts off: Chromium patched all 213 natively.</li>
+  <li><strong>Tests pass.</strong> Server suite 2,186 and hydrate suite 767 on #2.</li>
+</ul>
+<p>Solid 1 got a smaller prototype in <a href="https://github.com/MaxwellCohen/dom-expressions/pull/1">dom-expressions#1</a> (August 28, 2026). It changes 6 lines in <code>server.js</code>: placeholders become <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code>, fragments ship as <code>&lt;template for&gt;</code>, and <code>$df</code> finds the range with a <code>TreeWalker</code>. It doesn't disarm, so with scripts on the browser patches natively. It has no benchmarks.</p>
+
 <h2 id="lacking">What's missing</h2>
 <ul>
   <li><strong>React never uses the native path when scripts run.</strong> To batch on the client without holding bytes on the server, the PR disarms native patching and applies in script (<a href="#batching">How batching works</a>). Native patching only happens with scripts disabled or blocked, and then it isn't batched.</li>
@@ -223,7 +260,7 @@ ol.steps pre.wire{margin:.5em 0}
 </ul>
 
 <h2 id="gaps">Platform gaps: notes for web standards</h2>
-<p>Each item is something a streaming library needs that <code>&lt;template for&gt;</code> doesn't do natively in Chromium 156, with the script React or Preact uses instead. Formatted notes: <a href="data/platform-gaps.html">platform gaps</a>. Markdown to paste into an issue: <a href="data/platform-gaps.md">platform-gaps.md</a>.</p>
+<p>Each item is something a streaming library needs that <code>&lt;template for&gt;</code> doesn't do natively in Chromium 156, with the script React, Preact or Solid uses instead. Formatted notes: <a href="data/platform-gaps.html">platform gaps</a>. Markdown to paste into an issue: <a href="data/platform-gaps.md">platform-gaps.md</a>.</p>
 
 <div class="gap" id="g1">
 <h3><span>1</span>A patch can't be held, batched or scheduled</h3>
@@ -298,6 +335,15 @@ ol.steps pre.wire{margin:.5em 0}
 </dl>
 </div>
 
+<div class="gap" id="g9">
+<h3><span>9</span>A template whose target was disarmed still costs a document search</h3>
+<dl>
+<dt>Today</dt><dd>The solid#2 analysis found that when a <code>&lt;template for&gt;</code> finds no live range, the parser searches the document for one. Disarming every range, as React and Solid do, makes every template pay that search.</dd>
+<dt>Cost</dt><dd>Solid measured total load at flat 2,000 boundaries of 216&nbsp;ms vs 73&nbsp;ms on <code>next</code>, with swap script time level.</dd>
+<dt>Ask</dt><dd>A cheaper way to opt out of native apply than removing the range, such as an attribute on the range or the template. Gap 1 would remove the need to opt out.</dd>
+</dl>
+</div>
+
 <p class="cap">Not verified: whether a large patch shows in pieces while its template is still parsing, name collisions with user content or a second root, and back/forward cache behavior.</p>
 
 <h2 id="ship">What libraries should ship today</h2>
@@ -339,6 +385,16 @@ ol.steps pre.wire{margin:.5em 0}
   <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
 </tr>
 <tr>
+  <td>Solid 2 PRs</td>
+  <td>Disarm when scripts run (#2, open) and native patching with scripts on (#1, closed)</td>
+  <td><a href="https://github.com/MaxwellCohen/solid/pull/2">solid#2</a> · <a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a> · <a href="https://solid-eco-stream-dpu.to-email-max.workers.dev/">demo</a> (still serves an earlier #2 revision)</td>
+</tr>
+<tr>
+  <td>Solid 1 prototype</td>
+  <td><code>&lt;template for&gt;</code> markers in dom-expressions, no disarm</td>
+  <td><a href="https://github.com/MaxwellCohen/dom-expressions/pull/1">dom-expressions#1</a></td>
+</tr>
+<tr>
   <td>Earlier React runs</td>
   <td>Archived three-browser runs from before the equal-policy benchmark</td>
   <td><a href="react/">react/</a></td>
@@ -359,6 +415,7 @@ ol.steps pre.wire{margin:.5em 0}
   <li>PR-head ScriptDuration rows use a separate Chromium 156 replay of the PR's real Fizz HTML, one flush per boundary, with the client <code>$RP</code> throttle. Don't compare them with the server-hold TaskDuration table.</li>
   <li>React timing uses the same harness with late hydration, 16 to 2,000 boundaries. Patch lag is level between variants at the same window. <a href="data/fair-bench/chromium-timing-1x.html">Timing tables</a>.</li>
   <li>Preact: Playwright Chromium, Firefox and WebKit against deployed Workers, 5 interleaved runs per cell. Gzip figures are estimates.</li>
+  <li>Solid: Chrome 157 and Node figures from the solid#1 and solid#2 descriptions, not re-run here. Median of 3 runs for browser timing, 40 runs after 10 warmups for server render.</li>
   <li><code>$RP</code> size at <code>7b29f02</code>: the inline <code>patchDeclarativeBoundaries</code> string, gzipped with Node's default level.</li>
   <li>All runs used one machine. Please challenge the harness.</li>
 </ul>
