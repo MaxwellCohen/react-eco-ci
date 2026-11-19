@@ -15,7 +15,7 @@ The compiler install is required: `yarn build` compiles `eslint-plugin-react-hoo
 
 HTML-first Flight ([React PR #24](https://github.com/MaxwellCohen/react/pull/24), flag `enableFlightHTMLFirst`) leaves static Server Component output out of the Flight payload the browser receives, and the browser adopts that content from the HTML instead. Results and design: [summary](https://html-first-react.pages.dev/summary/).
 
-You need Node 22 and npm. Both starters install prebuilt packages from the [`html-first-flight-231161c` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-231161c), so nothing is cloned or built. The release has React `231161c38d` built with the flag on, a patched Next.js 16.4.6 and a patched Waku 1.0.0-rc.4. Each starter has an `.npmrc` with `allow-remote=all`, because npm 12 refuses tarball URLs by default. The starters have been tested with `npm run build` and `npm start`, not `npm run dev`. These are experimental builds, not for production.
+You need Node 22 and npm. Both starters install prebuilt packages from the [`html-first-flight-85b3ce1` release](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-85b3ce1), so nothing is cloned or built. The release has React `85b3ce11a6` built with the flag on, a patched Next.js 16.4.6 and a patched Waku 1.0.0-rc.4. Each starter has an `.npmrc` with `allow-remote=all`, because npm 12 refuses tarball URLs by default. The starters have been tested with `npm run build` and `npm start`, not `npm run dev`. These are experimental builds, not for production.
 
 **Next.js.** The patched Next.js ([`html-first/16.4`](https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4)) turns the feature on with `experimental.htmlFirstFlight: true` in `next.config.mjs`. Without it, Next.js behaves like stock.
 
@@ -48,18 +48,18 @@ In a second terminal, `npm run measure` prints the size of the two table pages n
 To use it in your own Waku app, install the packages and override the ones React depends on:
 
 ```sh
-R=https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c
+R=https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1
 npm install $R/react-html-first-flight.tgz $R/react-dom-html-first-flight.tgz \
   $R/react-server-dom-webpack-html-first-flight.tgz $R/waku-1.0.0-rc.4-html-first-flight.tgz
 ```
 
 ```json
 "overrides": {
-  "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
-  "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz",
-  "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/scheduler-html-first-flight.tgz",
-  "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-is-html-first-flight.tgz",
-  "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-server-dom-webpack-html-first-flight.tgz"
+  "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-html-first-flight.tgz",
+  "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-dom-html-first-flight.tgz",
+  "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/scheduler-html-first-flight.tgz",
+  "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-is-html-first-flight.tgz",
+  "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-server-dom-webpack-html-first-flight.tgz"
 }
 ```
 

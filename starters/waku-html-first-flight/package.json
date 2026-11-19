@@ -6,22 +6,24 @@
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
-    "measure": "node scripts/measure.mjs"
+    "measure": "node scripts/measure.mjs",
+    "check": "node scripts/check-tabs.mjs"
   },
   "dependencies": {
-    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
-    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz",
-    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-server-dom-webpack-html-first-flight.tgz",
-    "waku": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/waku-1.0.0-rc.4-html-first-flight.tgz"
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-dom-html-first-flight.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-server-dom-webpack-html-first-flight.tgz",
+    "waku": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/waku-1.0.0-rc.4-html-first-flight.tgz"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.5"
+    "@vitejs/plugin-react": "^6.0.5",
+    "playwright": "1.61.0"
   },
   "overrides": {
-    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
-    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz",
-    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/scheduler-html-first-flight.tgz",
-    "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-is-html-first-flight.tgz",
-    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-server-dom-webpack-html-first-flight.tgz"
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-dom-html-first-flight.tgz",
+    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/scheduler-html-first-flight.tgz",
+    "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-is-html-first-flight.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-server-dom-webpack-html-first-flight.tgz"
   }
 }

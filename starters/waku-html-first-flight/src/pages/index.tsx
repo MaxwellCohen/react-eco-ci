@@ -21,6 +21,9 @@ export default async function Home() {
           <Link to="/late-modal">/late-modal</Link>: static content that only mounts after a click. It is not in the
           first payload, so the page refetches it.
         </li>
+        <li>
+          <Link to="/tabs">/tabs</Link>: client tabs that unmount and remount server panels.
+        </li>
       </ul>
       <p>
         Run <code>npm run measure</code> in another terminal to print sizes for the two table pages.
