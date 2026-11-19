@@ -15,6 +15,7 @@ let requests = 0;
 page.on('request', r => {
   if (r.headers().rsc === '1' || new URL(r.url()).pathname.startsWith('/RSC/')) requests++;
 });
+const labelOf = { overview: 'Overview', specs: 'Specs', notes: 'Notes' };
 const settle = () => page.waitForTimeout(1000);
 const shown = async () => {
   for (const id of ['overview', 'specs', 'notes']) {
@@ -30,6 +31,10 @@ async function step(name, action, want, wantRequests) {
   const made = requests - before;
   console.log(`${name.padEnd(36)} panel=${got}  flight requests=${made}`);
   assert.equal(got, want, name);
+  if (want !== null) {
+    const selected = await page.locator('[role=tab][aria-selected=true]').allInnerTexts();
+    assert.deepEqual(selected, [labelOf[want]], name + ': selected tab');
+  }
   if (wantRequests !== undefined) assert.equal(made, wantRequests, name + ': flight requests');
 }
 
