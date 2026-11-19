@@ -157,7 +157,6 @@ ol.steps pre.wire{margin:.5em 0}
   <li><strong>Grouping is opt-in.</strong> Fragments inside a <code>&lt;Reveal&gt;</code> group, and fragments waiting on stylesheets, ship as plain <code>&lt;template id&gt;</code> without <code>for</code>, so they never patch natively. <code>$dfj(ids)</code> reveals a group in order, and waits while any member still has stylesheets loading.</li>
 </ol>
 <p>With scripts off, Chromium patches eager fragments natively. Grouped, style-gated and errored fragments stay on their fallback, as they do today.</p>
-<p>An earlier Solid 2 version (<a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a>, closed) let the browser patch eager fragments even with scripts on. Those fragments skipped the post-hydration hold, had no <code>parent</code> for the reveal event, and weren't reparsed inside SVG or MathML. #2 replaced it to fix all three.</p>
 
 <h2 id="numbers">Results</h2>
 <div class="note">The React numbers below were measured before PR head <code>7b29f02</code>, which replaced the per-group <code>$RP("B:0")</code> script with the sentinel. They haven't been re-run at that head. The inline <code>$RP</code> runtime at <code>7b29f02</code> is 2,598&nbsp;B raw and about 1,275&nbsp;B gzip, including <code>$RV</code>.</div>
