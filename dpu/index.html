@@ -111,7 +111,7 @@ ol.steps pre.wire{margin:.5em 0}
 
 <h2 id="batching">How batching works</h2>
 <p>React batches reveals on purpose. The first boundary to complete starts a timer. Every boundary that completes before the timer fires is revealed with it, in one pass. The next group waits at least 300&nbsp;ms after the previous reveal, so content doesn't pop in one boundary at a time.</p>
-<p>A native <code>&lt;template for&gt;</code> can't wait for a timer (<a href="#g1">gap 1</a>). So when scripts run, the PR takes the ranges away from the parser and applies the patches itself, on the same timer and with the same reveal function as <code>$RC</code>. This describes PR head <code>7b29f02</code> (November 12, 2026).</p>
+<p>A native <code>&lt;template for&gt;</code> can't wait for a timer (<a href="#g1">gap 1</a>). So when scripts run, the PR takes the ranges away from the parser and applies the patches itself, on the same timer and with the same reveal function as <code>$RC</code>. This describes PR head <a href="https://github.com/MaxwellCohen/react/commit/7b29f02056af380dbc83996276153785b204438b"><code>7b29f02</code></a> (November 12, 2026).</p>
 
 <h3>Three batching policies</h3>
 <p>The results below use three policies. Compare rows only within one policy.</p>
