@@ -105,7 +105,7 @@ ol.steps pre.wire{margin:.5em 0}
   <li><strong>It works before, and without, script.</strong> The browser applies a patch as it parses it. Under a strict Content Security Policy (CSP) that blocks inline scripts, the Preact test page still completed in Chromium. With today's format, every fallback stays on screen.</li>
   <li><strong>It uses less main-thread time at React's reveal policy.</strong> With reveals grouped in the same 300&nbsp;ms window React uses, a small script applying <code>&lt;template for&gt;</code> content used 37% less at 60 boundaries, 53% less at 500 and 55% less at 2,000. Native apply used 39% less at 60 and 48% less at 500.</li>
   <li><strong>It costs no extra bytes or time to content.</strong> Whole documents are 6% to 8% smaller raw, and within about 1% after gzip from 500 boundaries up. Patch lag is level at the same policy.</li>
-  <li><strong>It fixed real bugs in Preact.</strong> The <code>&lt;template for&gt;</code> PRs pass 26 of 26 DOM checks in three browsers. Preact <code>main</code> passes 23. Table rows, SVG and MathML fail on <code>main</code>.</li>
+  <li><strong>It fixed real bugs in Preact.</strong> Preact merged <code>&lt;template for&gt;</code> support in #490, which passes 26 of 26 DOM checks in three browsers. Preact <code>main</code> before it passed 23. Table rows, SVG and MathML fail on <code>main</code>.</li>
   <li><strong>It's a platform format.</strong> Libraries that emit the same markers get faster as browsers improve, and each gap the platform closes is script a library can delete.</li>
 </ol>
 
@@ -214,16 +214,16 @@ ol.steps pre.wire{margin:.5em 0}
 <p class="cap">Measured on the server-hold benchmark build. The runtime is sent once per page. Classic <code>$RC</code> plus <code>$RV</code> is 845 / 500&nbsp;B (raw / gzip). <code>$RP</code> was 4,444 / 1,911&nbsp;B before <code>7b29f02</code> and is 2,598 / about 1,275&nbsp;B at <code>7b29f02</code>. The MutationObserver polyfill is 2,533 / 1,112&nbsp;B.</p>
 
 <h3>Preact</h3>
-<p>preact-render-to-string <code>main</code> against two <code>&lt;template for&gt;</code> PRs: #474 (MutationObserver) and #490 (a script per chunk). Three browsers, deployed Workers, 5 interleaved runs per cell.</p>
+<p>preact-render-to-string <code>main</code> against <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a>, which merged on November 12, 2026. #490 sends a React-style init script and a script per chunk. Three browsers, deployed Workers, 5 interleaved runs per cell, measured on the #490 branch on November 9, 2026, before it merged.</p>
 <div class="tablewrap"><table>
-<thead><tr><th></th><th class="n">main</th><th class="n">#474</th><th class="n">#490</th></tr></thead>
+<thead><tr><th></th><th class="n">Before #490</th><th class="n">#490</th></tr></thead>
 <tbody>
-<tr><td>Correct DOM, stream only (26 checks &times; 3 browsers)</td><td class="n bad">23/26</td><td class="n good">26/26</td><td class="n good">26/26</td></tr>
-<tr><td>Patch lag, Firefox, 16 / 60 / 100 boundaries (ms)</td><td class="n">25 / 22 / 28</td><td class="n">11 / 12 / 17</td><td class="n good">&minus;2 / 1 / 6</td></tr>
-<tr><td>Patch lag, Chromium (ms)</td><td class="n">&minus;2 / 0 / 7</td><td class="n">&minus;2 / 0 / 0</td><td class="n">0 / 1 / 5</td></tr>
-<tr><td>Fixed overhead, first boundary (raw B)</td><td class="n">1,319</td><td class="n">1,190</td><td class="n good">883</td></tr>
-<tr><td>Per boundary, gzip (B, estimated)</td><td class="n">14.6</td><td class="n">17.4</td><td class="n">20.1</td></tr>
-<tr><td>Strict CSP, templates left unapplied (Chromium / Firefox / WebKit)</td><td class="n">fallbacks stay</td><td class="n">0 / 112 / 112</td><td class="n">0 / 112 / 112</td></tr>
+<tr><td>Correct DOM, stream only (26 checks &times; 3 browsers)</td><td class="n bad">23/26</td><td class="n good">26/26</td></tr>
+<tr><td>Patch lag, Firefox, 16 / 60 / 100 boundaries (ms)</td><td class="n">25 / 22 / 28</td><td class="n good">&minus;2 / 1 / 6</td></tr>
+<tr><td>Patch lag, Chromium (ms)</td><td class="n">&minus;2 / 0 / 7</td><td class="n">0 / 1 / 5</td></tr>
+<tr><td>Fixed overhead, first boundary (raw B)</td><td class="n">1,319</td><td class="n good">883</td></tr>
+<tr><td>Per boundary, gzip (B, estimated)</td><td class="n">14.6</td><td class="n">20.1</td></tr>
+<tr><td>Strict CSP, templates left unapplied (Chromium / Firefox / WebKit)</td><td class="n">fallbacks stay</td><td class="n">0 / 112 / 112</td></tr>
 </tbody>
 </table></div>
 <p class="cap">Timing differences are within noise except Firefox patch lag. Most of the extra gzip bytes per boundary are a repeated id (<a href="#g7">gap 7</a>). <a href="data/preact-REPORT.html">Report</a> · <a href="data/preact-DATA.html">data</a>.</p>
@@ -321,7 +321,7 @@ ol.steps pre.wire{margin:.5em 0}
 <h3><span>7</span>The range name can't be looked up, and old browsers see a comment</h3>
 <dl>
 <dt>Today</dt><dd>No API maps a name to its range. In browsers without support, the marker parses as a comment.</dd>
-<dt>Cost</dt><dd>Libraries carry a second marker per boundary (React <code>&lt;!--$?--&gt;</code>, Preact <code>&lt;!--$s:id--&gt;</code>). Preact measured 2.8 to 5.5 extra gzip bytes per boundary, mostly the repeated id.</dd>
+<dt>Cost</dt><dd>Libraries carry a second marker per boundary (React <code>&lt;!--$?--&gt;</code>, Preact <code>&lt;!--$s:id--&gt;</code>). Preact #490 measured 5.5 extra gzip bytes per boundary, mostly the repeated id.</dd>
 <dt>Ask</dt><dd>A lookup from name to range, so one marker serves the browser, the fallback and hydration.</dd>
 </dl>
 </div>
@@ -379,9 +379,9 @@ ol.steps pre.wire{margin:.5em 0}
   <td><a href="https://react-eco-stream-index.to-email-max.workers.dev/">index</a> · <a href="https://react-eco-stream-dpu.to-email-max.workers.dev/dpu">dpu</a> · <a href="https://react-eco-stream-baseline.to-email-max.workers.dev/dpu">baseline</a></td>
 </tr>
 <tr>
-  <td>Preact PRs and demos</td>
-  <td>MutationObserver style (#474) and script style (#490)</td>
-  <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
+  <td>Preact PR and demos</td>
+  <td><code>&lt;template for&gt;</code> streaming, merged November 12, 2026</td>
+  <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
 </tr>
 <tr>
   <td>Solid 2 PR</td>
