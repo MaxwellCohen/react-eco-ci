@@ -8,6 +8,7 @@ export default function Page() {
         <li><Link href="/static-table">/static-table</Link>: the same page, prerendered at build time.</li>
         <li><Link href="/client-rows">/client-rows</Link>: the rows are Client Components, which are never stubbed.</li>
         <li><Link href="/modal">/modal</Link>: static server children that mount only after a click.</li>
+        <li><Link href="/tabs">/tabs</Link>: client tabs that unmount and remount server panels.</li>
       </ul>
     </main>
   );

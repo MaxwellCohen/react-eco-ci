@@ -5,16 +5,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3000",
-    "measure": "node scripts/measure.mjs"
+    "measure": "node scripts/measure.mjs",
+    "check": "node scripts/check-tabs.mjs"
   },
   "dependencies": {
-    "next": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/next-16.4.6-html-first-flight.tgz",
-    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
-    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz"
+    "next": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/next-16.4.6-html-first-flight.tgz",
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-dom-html-first-flight.tgz"
   },
   "overrides": {
-    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-html-first-flight.tgz",
-    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/react-dom-html-first-flight.tgz",
-    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-231161c/scheduler-html-first-flight.tgz"
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/react-dom-html-first-flight.tgz",
+    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-85b3ce1/scheduler-html-first-flight.tgz"
+  },
+  "devDependencies": {
+    "playwright": "1.61.0"
   }
 }
