@@ -242,7 +242,7 @@ ol.steps pre.wire{margin:.5em 0}
 <ul>
   <li><strong>Swap script time is level.</strong> That depends on turning markers into comments. With the markers only blanked, nested 500 took 210&nbsp;ms of swap time, and nested 2,000 didn't finish in 2.5&nbsp;s. Chromium inserts a processing instruction into a document far slower than a comment, which matches what React found.</li>
   <li><strong>Total load grows faster at high counts.</strong> Each <code>&lt;template for&gt;</code> whose target was disarmed makes the parser search the document for one (<a href="#g9">gap 9</a>). At a few hundred boundaries this costs a few milliseconds.</li>
-  <li><strong>Bytes go up about 36&nbsp;B per boundary.</strong> At 200 boundaries in Node, the stream grew from 64,088 to 71,344&nbsp;B (+11.3%) with the same 401 inline scripts. Server render time was within noise. Measured on <a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a>; #2 uses the same wire format.</li>
+  <li><strong>The range adds 12&nbsp;B per boundary.</strong> <code>&lt;?end&gt;</code> replaces the <code>&lt;!--pl-ID--&gt;</code> comment, so <code>&lt;?start name&gt;</code>…<code>&lt;?end&gt;</code> costs 12&nbsp;B per boundary over <code>next</code>.</li>
   <li><strong>Correctness holds in Chrome 157.</strong> On the <code>templates/ssr</code> demo with 213 streamed boundaries, scripts on: <code>$dfr</code> swapped all 213, none patched natively, and hydration finished with no markers or templates left. Scripts off: Chromium patched all 213 natively.</li>
   <li><strong>Tests pass.</strong> Server suite 2,186 and hydrate suite 767 on #2.</li>
 </ul>
@@ -384,9 +384,9 @@ ol.steps pre.wire{margin:.5em 0}
   <td><a href="https://preact-eco-index.to-email-max.workers.dev/">preact-eco-index</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/474">#474</a> · <a href="https://github.com/preactjs/preact-render-to-string/pull/490">#490</a></td>
 </tr>
 <tr>
-  <td>Solid 2 PRs</td>
-  <td>Disarm when scripts run (#2, open) and native patching with scripts on (#1, closed)</td>
-  <td><a href="https://github.com/MaxwellCohen/solid/pull/2">solid#2</a> · <a href="https://github.com/MaxwellCohen/solid/pull/1">solid#1</a> · <a href="https://solid-eco-stream-dpu.to-email-max.workers.dev/">demo</a> (still serves an earlier #2 revision)</td>
+  <td>Solid 2 PR</td>
+  <td>Disarm when scripts run</td>
+  <td><a href="https://github.com/MaxwellCohen/solid/pull/2">solid#2</a> · <a href="https://solid-eco-stream-dpu.to-email-max.workers.dev/">demo</a> (still serves an earlier #2 revision)</td>
 </tr>
 <tr>
   <td>Solid 1 prototype</td>
@@ -414,7 +414,7 @@ ol.steps pre.wire{margin:.5em 0}
   <li>PR-head ScriptDuration rows use a separate Chromium 156 replay of the PR's real Fizz HTML, one flush per boundary, with the client <code>$RP</code> throttle. Don't compare them with the server-hold TaskDuration table.</li>
   <li>React timing uses the same harness with late hydration, 16 to 2,000 boundaries. Patch lag is level between variants at the same window. <a href="data/fair-bench/chromium-timing-1x.html">Timing tables</a>.</li>
   <li>Preact: Playwright Chromium, Firefox and WebKit against deployed Workers, 5 interleaved runs per cell. Gzip figures are estimates.</li>
-  <li>Solid: Chrome 157 and Node figures from the solid#1 and solid#2 descriptions, not re-run here. Median of 3 runs for browser timing, 40 runs after 10 warmups for server render.</li>
+  <li>Solid: Chrome 157 figures from the solid#2 description, not re-run here. Median of 3 runs.</li>
   <li><code>$RP</code> size at <code>7b29f02</code>: the inline <code>patchDeclarativeBoundaries</code> string, gzipped with Node's default level.</li>
   <li>All runs used one machine. Please challenge the harness.</li>
 </ul>
