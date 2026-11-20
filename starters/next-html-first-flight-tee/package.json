@@ -1,0 +1,24 @@
+{
+  "name": "next-html-first-flight-tee",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "measure": "node scripts/measure.mjs",
+    "check": "node scripts/check-tabs.mjs"
+  },
+  "dependencies": {
+    "next": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/next-16.4.6-html-first-flight-tee.tgz",
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-dom-html-first-flight.tgz"
+  },
+  "overrides": {
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-dom-html-first-flight.tgz",
+    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/scheduler-html-first-flight.tgz"
+  },
+  "devDependencies": {
+    "playwright": "1.61.0"
+  }
+}
