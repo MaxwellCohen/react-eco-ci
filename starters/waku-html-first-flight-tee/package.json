@@ -1,0 +1,29 @@
+{
+  "name": "waku-html-first-flight-tee",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "waku dev",
+    "build": "waku build",
+    "start": "waku start",
+    "measure": "node scripts/measure.mjs",
+    "check": "node scripts/check-tabs.mjs"
+  },
+  "dependencies": {
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-dom-html-first-flight.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-server-dom-webpack-html-first-flight.tgz",
+    "waku": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/waku-1.0.0-rc.4-html-first-flight-tee.tgz"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "playwright": "1.61.0"
+  },
+  "overrides": {
+    "react": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-html-first-flight.tgz",
+    "react-dom": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-dom-html-first-flight.tgz",
+    "scheduler": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/scheduler-html-first-flight.tgz",
+    "react-is": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-is-html-first-flight.tgz",
+    "react-server-dom-webpack": "https://github.com/MaxwellCohen/react-eco-ci/releases/download/html-first-flight-tee-189973d/react-server-dom-webpack-html-first-flight.tgz"
+  }
+}
