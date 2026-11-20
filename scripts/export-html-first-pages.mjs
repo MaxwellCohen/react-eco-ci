@@ -2,11 +2,24 @@
 // Pre-render flight-ssr-bench scenarios for Cloudflare Workers hosting.
 // Usage:
 //   SCENARIO_BUILDS=<dir> FIXTURE=<flight-ssr-bench> node scripts/export-html-first-pages.mjs \
-//     [--size smoke|full] [--variants off,all] [--out .build/html-first-pages]
+//     [--size smoke|full] [--variants off,all,tee] [--out .build/html-first-pages] \
+//     [--build <variant>=<dir> ...] [--index-variants off,all,tee]
+// --build overrides one variant's React build (e.g. tee=<oss-experimental dir>).
+// --index-variants sets the links listed in index.html/index.json (default: --variants),
+// so a tee-only export can be merged into an existing off/all public/ dir.
 import {spawnSync} from 'node:child_process';
-import {mkdirSync, writeFileSync, existsSync, readFileSync, renameSync, readdirSync} from 'node:fs';
+import {
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  readFileSync,
+  renameSync,
+  readdirSync,
+  statSync,
+} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {homedir} from 'node:os';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -16,10 +29,14 @@ function flag(name, fallback) {
 }
 const size = flag('--size', 'smoke');
 const variants = flag('--variants', 'off,all').split(',').filter(Boolean);
+const indexVariants = flag('--index-variants', variants.join(',')).split(',').filter(Boolean);
+const buildFlags = [];
+args.forEach((a, i) => {
+  if (a === '--build') buildFlags.push('--build', args[i + 1]);
+});
 const out = resolve(flag('--out', join(root, '.build/html-first-pages')));
 const fixture = resolve(
-  process.env.FIXTURE ||
-    '/private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5438c7db-c430-4036-93af-a9b1d4699b04/scratchpad/oneflag-wt/fixtures/flight-ssr-bench',
+  process.env.FIXTURE || join(root, 'fixtures/flight-ssr-bench'),
 );
 const builds = resolve(
   process.env.SCENARIO_BUILDS ||
@@ -91,7 +108,7 @@ const {boot} = require('./scenarios-lib/boot');
 
 const result = spawnSync(
   process.execPath,
-  [exporter, '--builds', builds, '--variants', variants.join(','), '--size', size],
+  [exporter, '--builds', builds, ...buildFlags, '--variants', variants.join(','), '--size', size],
   {
     cwd: fixture,
     env: {...process.env, NODE_ENV: 'production', EXPORT_OUT: out, SCENARIO_BUILDS: builds},
@@ -108,6 +125,48 @@ for (const name of readdirSync(out)) {
   renameSync(join(out, name), join(pub, name));
 }
 
+// Scrub absolute machine paths from Flight module rows / HTML / RSC / client bundles.
+// Client module ids often embed the fixture absolute path; never publish those.
+function scrubPrivatePaths(text) {
+  let s = text;
+  // Collapse anything up through fixtures/flight-ssr-bench/
+  s = s.replace(
+    /(?:\/(?:private\/)?tmp\/|\/var\/folders\/|\/Users\/|\/home\/)[^"'\\\s<>]*?\/fixtures\/flight-ssr-bench\//g,
+    'fixtures/flight-ssr-bench/',
+  );
+  // Same for JS-string-escaped slashes (\/private\/tmp\/…\/fixtures\/flight-ssr-bench\/)
+  s = s.replace(
+    /(?:\\\/(?:private\\\/)?tmp\\\/|\\\/var\\\/folders\\\/|\\\/Users\\\/|\\\/home\\\/)[^"'\\\s<>]*?\\\/fixtures\\\/flight-ssr-bench\\\//g,
+    'fixtures\\/flight-ssr-bench\\/',
+  );
+  // Remaining absolute roots that may appear outside the fixture suffix
+  const roots = [resolve(fixture, '../..'), resolve(fixture), resolve(builds)];
+  for (const root of roots) {
+    if (!root || root === '/') continue;
+    const esc = root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    s = s.replace(new RegExp(esc, 'g'), '[scrubbed]');
+  }
+  s = s.replace(/\/private\/tmp\/[^"'\\\s<>]+/g, '[scrubbed]');
+  s = s.replace(new RegExp(homedir().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/[^"\'\\\\\\s<>]+', 'g'), '[scrubbed]');
+  return s;
+}
+function walkScrub(dir) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) {
+      walkScrub(p);
+      continue;
+    }
+    // HTML/JS/JSON plus extensionless RSC payloads
+    if (/\.(html|js|json|map)$/.test(name) || !name.includes('.')) {
+      const before = readFileSync(p, 'utf8');
+      const after = scrubPrivatePaths(before);
+      if (after !== before) writeFileSync(p, after);
+    }
+  }
+}
+walkScrub(pub);
+
 const meta = JSON.parse(readFileSync(join(pub, 'index.json'), 'utf8'));
 const esc = s =>
   String(s)
@@ -116,9 +175,12 @@ const esc = s =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+meta.variants = indexVariants;
+writeFileSync(join(pub, 'index.json'), JSON.stringify(meta, null, 2));
+
 const rows = meta.scenarios
   .map(s => {
-    const links = variants.map(v => `<a href="/${v}/${s.id}">${v}</a>`).join(' · ');
+    const links = indexVariants.map(v => `<a href="/${v}/${s.id}">${v}</a>`).join(' · ');
     return `<tr><td><code>${esc(s.id)}</code><div class="t">${esc(s.title || '')}</div></td><td>${links}</td></tr>`;
   })
   .join('\n');
@@ -133,8 +195,8 @@ table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #e4e4e7;pad
 a{color:#0b57d0}</style>
 <h1>HTML-first Flight — live scenario demos</h1>
 <p>Same corpus as <a href="https://html-first-react.pages.dev/examples/">the examples index</a>, pre-rendered and hosted on Cloudflare Workers.
-<code>all</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code>; <code>off</code> = the flag off. Size: <code>${esc(size)}</code>.</p>
-<p>Source: <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> · fixture <code>flight-ssr-bench</code>.</p>
+<code>all</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code> (registry design); <code>tee</code> = the same flag over the Flight tee (SSR passes <code>{htmlFirst: true, tee}</code> and reads with <code>createFromTee</code>); <code>off</code> = the flag off. Size: <code>${esc(size)}</code>.</p>
+<p>Source: <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (registry) · <a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a> (tee) · fixture <code>flight-ssr-bench</code>.</p>
 <table><thead><tr><th>Scenario</th><th>Live</th></tr></thead><tbody>
 ${rows}
 </tbody></table>
