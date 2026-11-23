@@ -216,8 +216,9 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <li>it guesses with timers when SSR is done, where the tee version is told;</li>
 <li>it pins a Fizz internal so late hints reach the HTML;</li>
 <li>SSR still parses the whole payload, so pages that keep Client Component props gain less (Next.js 1.06&times;, against 1.19&times; with the tee).</li>
+<li>it stubs the element a Client Component receives as <code>children</code>, so components that inspect it break: an <code>asChild</code> slot (<code>React.Children.only</code>) throws during SSR, and a list that filters its children by type hydrates with an error and renders empty. It also has no size minimum, so a page of 4,000 tiny elements gets 17% larger instead of smaller. The tee version handles all three.</li>
 </ul>
-<p>Its numbers predate the November 23 rework of the tee version and were not measured again. Its pages stay online as the "registry" links on the <a href="https://react-eco-html-first.to-email-max.workers.dev/">examples index</a>.</p>
+<p>Its numbers predate the November 23 rework of the tee version and were not measured again. Its pages stay online as the "registry" links on the <a href="https://react-eco-html-first.to-email-max.workers.dev/">examples index</a>: the 41 original pages from November 19, plus three of the new ones (<a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-children-inspect">children inspection</a>, <a href="https://react-eco-html-first.to-email-max.workers.dev/all/client-suspends-in-ssr">suspending Client Component</a>, <a href="https://react-eco-html-first.to-email-max.workers.dev/all/tiny-stubs-many">tiny elements</a>) built from its current head, <code>ffeae9849d</code>. The <code>asChild</code> page can't be built with it.</p>
 </details>
 
 <h2>Try it</h2>
