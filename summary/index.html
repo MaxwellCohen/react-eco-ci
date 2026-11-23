@@ -105,7 +105,7 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <li><b>During hydration</b> it adopts the server DOM. The stub is one component with one hook.</li>
 <li><b>Content the HTML never rendered</b>, such as a closed modal's children or a hidden tab panel, arrives at the end of the stream once the framework says the HTML is done. The stub renders it when it mounts, with no extra request. If the HTML render failed, every stubbed row is sent.</li>
 <li><b>When it mounts again</b>, for example after Back navigation, it rebuilds from a snapshot of the HTML it adopted.</li>
-<li><b>When a later full payload arrives</b>, from a refresh or an action, React keeps the stub and its DOM if the new element renders the same DOM. Patching changed content in place is a separate follow-up, <a href="https://github.com/MaxwellCohen/react/pull/31">PR #31</a>.</li>
+<li><b>When a later full payload arrives</b>, from a refresh or an action, React keeps the stub and its DOM if the new element renders the same DOM. If the static content changed, React patches the DOM in place, changing only what differs.</li>
 <li><b>If content is still missing</b>, because React renders a boundary on the client for a reason the server never saw, React calls <code>onMissingHTML</code> and the framework refetches.</li>
 </ul>
 
@@ -195,6 +195,7 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <li><b>Four edge cases differ from the feature off,</b> because they need data the feature leaves out on purpose. When React renders a boundary on the client for a reason the server never saw (a context change before the boundary hydrates, or children hidden and shown again), the framework must refetch through <code>onMissingHTML</code>. Invalid nesting, such as a <code>&lt;div&gt;</code> inside a <code>&lt;p&gt;</code>, is adopted as the browser parsed it, where React would rebuild it; a server-side nesting check could close that one.</li>
 <li><b>Copies cost Next.js about 13% throughput.</b> SSR gets copies of the stubbed elements, so it shares no object with the server, as the tee promises. Handing over the server's own elements is a one-line change that recovers the 13%; whether that rule can be relaxed is a question for the tee's design.</li>
 <li><b>A check in React's child reconciler.</b> Keeping stubs on later full payloads adds a host config function and a check at the two places the reconciler replaces a child of a different type, gated by the flag and run only on stubs. Without it, the first <code>router.refresh()</code> on the table page rebuilds 1,044 nodes.</li>
+<li><b>Patching in place is a second DOM diff.</b> About 250 lines in the DOM host config update a stub's changed static content without React re-rendering it. It accepts only static host elements and text and checks the whole subtree first. It can be dropped on its own; changed content would then rebuild the stub's DOM.</li>
 <li><b>HTML snapshots.</b> While a router cache holds a page, each stubbed region keeps a string snapshot of its HTML, so Back restores it without a request. That uses less memory than the element tree it replaces: 75 DOM nodes kept after leaving the table page, against 256.</li>
 <li><b>Preload links</b> hoisted into <code>&lt;head&gt;</code> can differ from the feature off; the resources that matter are the same.</li>
 </ul>
@@ -203,8 +204,7 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <h2>A path into React</h2>
 <ol class="steps">
 <li><b>Land the Flight tee</b> (<a href="https://github.com/react/react/pull/38313">react/react#38313</a> and its stack). HTML-first needs nothing else from upstream.</li>
-<li><b>Land HTML-first behind <code>enableFlightHTMLFirst</code></b> (<a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a>): stubbing in Flight, the stub in the client, the reconciler check, and the <code>htmlFirst</code> option on the webpack and Turbopack server entries. Off by default; the option is ignored without the flag.</li>
-<li><b>Optionally, patch changed content in place</b> (<a href="https://github.com/MaxwellCohen/react/pull/31">PR #31</a>), so a refresh with different static content updates the DOM instead of rebuilding the element.</li>
+<li><b>Land HTML-first behind <code>enableFlightHTMLFirst</code></b> (<a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a>): stubbing in Flight, the stub in the client, the reconciler check, patching changed content in place, and the <code>htmlFirst</code> option on the webpack and Turbopack server entries. Off by default; the option is ignored without the flag.</li>
 <li><b>Frameworks opt in</b> on their HTML render: create a tee, pass the promise, settle it when Fizz is done, and pass <code>onMissingHTML</code>. The Next.js and Waku patches are working examples.</li>
 </ol>
 <p>A version on top of Ledgers is kept up to date as well (<a href="https://github.com/MaxwellCohen/react/pull/30">PR #30</a>).</p>
@@ -244,11 +244,11 @@ npm run measure      # in a second terminal</code></pre>
 
 <h2>Links</h2>
 <ul>
-<li>React: <a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a> (HTML-first on the tee), <a href="https://github.com/MaxwellCohen/react/pull/31">PR #31</a> (patch in place), <a href="https://github.com/MaxwellCohen/react/pull/30">PR #30</a> (with Ledgers), <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (registry alternative). Depends on <a href="https://github.com/react/react/pull/38313">react/react#38313</a>.</li>
+<li>React: <a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a> (HTML-first on the tee, the one to review), <a href="https://github.com/MaxwellCohen/react/pull/30">PR #30</a> (with Ledgers), <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (registry alternative). Depends on <a href="https://github.com/react/react/pull/38313">react/react#38313</a>.</li>
 <li>Design notes: <a href="https://github.com/MaxwellCohen/react/blob/6f7f804093/fixtures/flight-ssr-bench/HTML-FIRST.md">HTML-FIRST.md</a>.</li>
 <li>Framework patches: Next.js <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4-tee-signal"><code>html-first/16.4-tee-signal</code></a> at <code>aee2533f7c</code>; Waku <a href="https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...44d7a8fe"><code>rsc-html-first-tee-signal</code></a> at <code>44d7a8fe</code>.</li>
 <li>Release: <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-tee-d5dd0f5"><code>html-first-flight-tee-d5dd0f5</code></a>. Starters: <a href="https://github.com/MaxwellCohen/react-eco-ci/tree/main/starters/next-html-first-flight-tee">Next.js</a>, <a href="https://github.com/MaxwellCohen/react-eco-ci/tree/main/starters/waku-html-first-flight-tee">Waku</a>.</li>
-<li>Raw results: <a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-on-tee/fixtures/flight-ssr-bench/results-tee/final-2026-11-23">test pages and hydration</a>.</li>
+<li>Raw results: <a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-results/fixtures/flight-ssr-bench/results-tee/final-2026-11-23">test pages and hydration</a>.</li>
 </ul>
 
 <details><summary>Method</summary>
