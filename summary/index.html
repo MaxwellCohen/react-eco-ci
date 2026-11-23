@@ -114,12 +114,12 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <div class="tablewrap"><table>
 <thead><tr><th>All 41 pages</th><th class="n">Off</th><th class="n">On</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>Gzip download</td><td class="n">1,023,745</td><td class="n">594,628</td><td class="n good">&minus;41.9%</td></tr>
-<tr><td>Raw HTML</td><td class="n">14,560,723</td><td class="n">7,675,454</td><td class="n good">&minus;47.3%</td></tr>
-<tr><td>Inlined Flight</td><td class="n">9,282,481</td><td class="n">2,397,212</td><td class="n good">&minus;74.2%</td></tr>
-<tr><td>Brotli</td><td class="n">478,282</td><td class="n">293,860</td><td class="n good">&minus;38.6%</td></tr>
+<tr><td>Gzip download</td><td class="n">1,021,753</td><td class="n">592,662</td><td class="n good">&minus;42.0%</td></tr>
+<tr><td>Raw HTML</td><td class="n">14,558,410</td><td class="n">7,672,988</td><td class="n good">&minus;47.3%</td></tr>
+<tr><td>Inlined Flight</td><td class="n">9,280,168</td><td class="n">2,394,746</td><td class="n good">&minus;74.2%</td></tr>
+<tr><td>Brotli</td><td class="n">477,229</td><td class="n">292,426</td><td class="n good">&minus;38.7%</td></tr>
 </tbody></table></div>
-<p class="cap">A few pages dominate: the five largest savings are 82% of the gzip bytes saved, and the median page saves 6.2%. Expect real pages to look more like the median than the top. One page gets larger, <code>repeated-long-strings</code>, by 1,461 bytes; four others by 2 to 17 bytes. Pages with nothing to stub are byte-identical.</p>
+<p class="cap">A few pages dominate: the five largest savings are 82% of the gzip bytes saved, and the median page saves 6.1%. Expect real pages to look more like the median than the top. One page gets larger, <code>repeated-long-strings</code>, by 1,465 bytes; three others by 4 to 17 bytes. Pages with nothing to stub are byte-identical.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Page (live: off, on)</th><th class="n">Gzip, off</th><th class="n">Gzip, on</th><th class="n">Flight, off</th><th class="n">Flight, on</th></tr></thead>
 <tbody>
@@ -137,15 +137,15 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <div class="tablewrap"><table>
 <thead><tr><th>Page</th><th class="n">Off</th><th class="n">On</th><th class="n">Change</th></tr></thead>
 <tbody>
-<tr><td>data-grid-server-cells</td><td class="n">97.9 ms</td><td class="n">22.0 ms</td><td class="n good">&minus;78%</td></tr>
-<tr><td>server-table-client-rows</td><td class="n">61.6 ms</td><td class="n">39.7 ms</td><td class="n good">&minus;36%</td></tr>
-<tr><td>tiny-stubs-many</td><td class="n">71.4 ms</td><td class="n">70.5 ms</td><td class="n">&minus;1%</td></tr>
-<tr><td>realistic-storefront</td><td class="n">36.8 ms</td><td class="n">37.2 ms</td><td class="n">+1%</td></tr>
-<tr><td>cart-quantity-steppers</td><td class="n">30.6 ms</td><td class="n">30.8 ms</td><td class="n">+1%</td></tr>
-<tr><td>data-grid-client-cells</td><td class="n">59.6 ms</td><td class="n">60.5 ms</td><td class="n">+2%</td></tr>
-<tr><td>product-listing</td><td class="n">77.6 ms</td><td class="n">80.7 ms</td><td class="n">+4%</td></tr>
-<tr><td>client-aschild-slot</td><td class="n">34.2 ms</td><td class="n">36.9 ms</td><td class="n">+8%</td></tr>
-<tr><td>islands-many-tiny</td><td class="n">36.9 ms</td><td class="n">40.3 ms</td><td class="n">+9%</td></tr>
+<tr><td>data-grid-server-cells</td><td class="n">99.8 ms</td><td class="n">22.0 ms</td><td class="n good">&minus;78%</td></tr>
+<tr><td>server-table-client-rows</td><td class="n">64.1 ms</td><td class="n">41.4 ms</td><td class="n good">&minus;35%</td></tr>
+<tr><td>cart-quantity-steppers</td><td class="n">32.0 ms</td><td class="n">31.8 ms</td><td class="n">&minus;1%</td></tr>
+<tr><td>tiny-stubs-many</td><td class="n">75.6 ms</td><td class="n">76.1 ms</td><td class="n">+1%</td></tr>
+<tr><td>data-grid-client-cells</td><td class="n">60.5 ms</td><td class="n">61.8 ms</td><td class="n">+2%</td></tr>
+<tr><td>realistic-storefront</td><td class="n">37.2 ms</td><td class="n">38.5 ms</td><td class="n">+3%</td></tr>
+<tr><td>product-listing</td><td class="n">80.2 ms</td><td class="n">83.2 ms</td><td class="n">+4%</td></tr>
+<tr><td>islands-many-tiny</td><td class="n">38.5 ms</td><td class="n">40.9 ms</td><td class="n">+6%</td></tr>
+<tr><td>client-aschild-slot</td><td class="n">35.4 ms</td><td class="n">38.4 ms</td><td class="n">+8%</td></tr>
 </tbody></table></div>
 <p class="cap">An earlier build with a heavier stub and no size minimum hydrated <code>product-listing</code> in 145 ms, 87% slower than off. The one-hook stub and the 48-byte minimum fixed that.</p>
 
@@ -248,13 +248,13 @@ npm run measure      # in a second terminal</code></pre>
 <li>Design notes: <a href="https://github.com/MaxwellCohen/react/blob/6f7f804093/fixtures/flight-ssr-bench/HTML-FIRST.md">HTML-FIRST.md</a>.</li>
 <li>Framework patches: Next.js <a href="https://github.com/MaxwellCohen/next.js/compare/54b876b6b1...html-first/16.4-tee-signal"><code>html-first/16.4-tee-signal</code></a> at <code>aee2533f7c</code>; Waku <a href="https://github.com/MaxwellCohen/wakujs/compare/b0d0a798...44d7a8fe"><code>rsc-html-first-tee-signal</code></a> at <code>44d7a8fe</code>.</li>
 <li>Release: <a href="https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-tee-d5dd0f5"><code>html-first-flight-tee-d5dd0f5</code></a>. Starters: <a href="https://github.com/MaxwellCohen/react-eco-ci/tree/main/starters/next-html-first-flight-tee">Next.js</a>, <a href="https://github.com/MaxwellCohen/react-eco-ci/tree/main/starters/waku-html-first-flight-tee">Waku</a>.</li>
-<li>Raw results: <a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-results/fixtures/flight-ssr-bench/results-tee/final-2026-11-23">test pages and hydration</a>.</li>
+<li>Raw results: <a href="https://github.com/MaxwellCohen/react/tree/rsc/html-first-results/fixtures/flight-ssr-bench/results-tee/rerun-c568932797">test pages and hydration</a>.</li>
 </ul>
 
 <details><summary>Method</summary>
 <ul>
 <li>"Off" is the same React build with <code>enableFlightHTMLFirst</code> off, which gives the same output as React main. "On" forces the flag on, and the framework opts in on the HTML render.</li>
-<li>Byte and hydration figures for the test pages come from one run on November 23, 2026, with experimental builds of the PR #28 source at <code>6f7f804093</code>. Two Suspense-heavy pages vary slightly between renders in both setups.</li>
+<li>Byte and hydration figures for the test pages come from one run on November 23, 2026, with experimental builds of the PR #28 head <code>c568932797</code>. Two Suspense-heavy pages vary slightly between renders in both setups.</li>
 <li>Next.js and Waku figures use the release files: React <code>d5dd0f51</code> (canary, both flags forced on), Next.js <code>aee2533f7c</code>, Waku <code>44d7a8fe</code>. Every bench app installed them by path, and its lockfile integrity matched the files. The off setups are stock Next.js 16.4.6 and stock Waku rc.4 on canary React.</li>
 <li>Load: autocannon with 16 connections for 10 s after a 10 s warm-up, 5 rounds with server order rotated, on one laptop. The load average was 3.1&ndash;5.4, so treat small differences as noise. Next.js uses <code>next start</code> with Turbopack. Refresh cost is Chrome's main-thread script, layout and style time, median of 10. In-process render times are medians of 60 renders in production mode.</li>
 <li>Hydration: Chromium 139 with 4&times; CPU throttle, median of 15 loads per page. Browser checks used Chromium 139 and Firefox 159 already on the machine.</li>
