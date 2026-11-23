@@ -42,6 +42,12 @@ args.forEach((a, i) => {
   }
 });
 const existingPublic = flag('--existing-public', '');
+// --only a,b: export just these scenario ids; with --existing-public the index keeps the
+// existing public/index.json's scenarios and only updates these entries and the links.
+const only = flag('--only', '');
+// --client-name <file>: name of the exported client bundle (default client.js), so a
+// differing bundle does not overwrite the one already deployed for that variant.
+const clientName = flag('--client-name', 'client.js');
 const buildFlags = [];
 args.forEach((a, i) => {
   if (a === '--build') buildFlags.push('--build', args[i + 1]);
@@ -95,7 +101,7 @@ const {boot} = require('./scenarios-lib/boot');
         fs.mkdirSync(path.join(vDir, 'rsc'), {recursive: true});
         const html = r.html.replace(
           '</body></html>',
-          '<script src="/' + w.name + '/client.js" defer></script></body></html>',
+          '<script src="/' + w.name + '/' + ${JSON.stringify(clientName)} + '" defer></script></body></html>',
         );
         fs.writeFileSync(path.join(vDir, s.id + '.html'), html);
         fs.writeFileSync(path.join(vDir, 'rsc', s.id), f.flight);
@@ -104,7 +110,7 @@ const {boot} = require('./scenarios-lib/boot');
     }
     for (const w of ctx.workers) {
       const client = path.join(ctx.dirs[w.name], 'build-client/client.js');
-      fs.copyFileSync(client, path.join(outDir, w.name, 'client.js'));
+      fs.copyFileSync(client, path.join(outDir, w.name, ${JSON.stringify(clientName)}));
     }
     fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify(index, null, 2));
     console.log('\\nexported', index.scenarios.length, 'scenarios x', opts.variants.length, 'variants ->', outDir);
@@ -120,7 +126,7 @@ const {boot} = require('./scenarios-lib/boot');
 
 const result = spawnSync(
   process.execPath,
-  [exporter, '--builds', builds, ...buildFlags, '--variants', variants.join(','), '--size', size],
+  [exporter, '--builds', builds, ...buildFlags, ...(only ? ['--only', only] : []), '--variants', variants.join(','), '--size', size],
   {
     cwd: fixture,
     env: {...process.env, NODE_ENV: 'production', EXPORT_OUT: out, SCENARIO_BUILDS: builds},
@@ -141,7 +147,7 @@ for (const [v, n] of Object.entries(publishAs)) {
   for (const f of readdirSync(join(pub, n))) {
     if (!f.endsWith('.html')) continue;
     const fp = join(pub, n, f);
-    writeFileSync(fp, readFileSync(fp, 'utf8').replace('src="/' + v + '/client.js"', 'src="/' + n + '/client.js"'));
+    writeFileSync(fp, readFileSync(fp, 'utf8').replace('src="/' + v + '/' + clientName + '"', 'src="/' + n + '/' + clientName + '"'));
   }
 }
 
@@ -196,6 +202,11 @@ const esc = s =>
     .replace(/"/g, '&quot;');
 
 meta.variants = indexVariants;
+if (only && existingPublic) {
+  const prev = JSON.parse(readFileSync(join(resolve(existingPublic), 'index.json'), 'utf8'));
+  const fresh = new Map(meta.scenarios.map(s => [s.id, s]));
+  meta.scenarios = prev.scenarios.map(s => ({...s, ...(fresh.get(s.id) || {})}));
+}
 const has = (v, id) =>
   existsSync(join(pub, v, id + '.html')) ||
   (existingPublic && existsSync(join(resolve(existingPublic), v, id + '.html')));
@@ -203,6 +214,18 @@ const label = v => (v === 'all' ? 'registry' : v);
 for (const s of meta.scenarios) s.variants = indexVariants.filter(v => has(v, s.id));
 writeFileSync(join(pub, 'index.json'), JSON.stringify(meta, null, 2));
 
+const missingRegistry = meta.scenarios.filter(s => !s.variants.includes('all')).map(s => s.id);
+const noRegistry = missingRegistry.length
+  ? missingRegistry.map(id => '<code>' + id + '</code>').join(', ') +
+    (missingRegistry.length > 1 ? ' have' : ' has') +
+    ' no registry page' +
+    (missingRegistry.includes('client-aschild-slot')
+      ? ': the registry hands a Client Component its direct child as a lazy reference, so <code>Children.only</code> throws during SSR (the tee keeps that child a real element).'
+      : '.')
+  : 'Every scenario has a registry page.';
+const registryNote = meta.scenarios.some(s => s.id === 'client-children-inspect' && s.variants.includes('all'))
+  ? ' The registry page of <code>client-children-inspect</code> shows the registry limit: SSR is complete, but in the browser the client components see lazy stubs instead of their children, so hydration mismatches and the list renders empty.'
+  : '';
 const rows = meta.scenarios
   .map(s => {
     const links = s.variants.map(v => `<a href="/${v}/${s.id}">${label(v)}</a>`).join(' · ');
@@ -220,7 +243,7 @@ table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #e4e4e7;pad
 a{color:#0b57d0}</style>
 <h1>HTML-first Flight — live scenario demos</h1>
 <p>Same corpus as <a href="https://html-first-react.pages.dev/examples/">the examples index</a>, pre-rendered and hosted on Cloudflare Workers.
-<code>off</code> = the flag off; <code>registry</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code> (the PR #24 build from Nov 19, registry design); <code>tee</code> = the final build, React <code>d5dd0f51</code> (PR #28 @ 6f7f804093, Nov 23 2026): the same flag over the Flight tee (SSR passes <code>{htmlFirst: true, tee}</code> and reads with <code>createFromTee</code>). Four newer scenarios have no registry page. Size: <code>${esc(size)}</code>.</p>
+<code>off</code> = the flag off; <code>registry</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code> (the PR #24 build from Nov 19, registry design); <code>tee</code> = the final build, React <code>d5dd0f51</code> (PR #28 @ 6f7f804093, Nov 23 2026): the same flag over the Flight tee (SSR passes <code>{htmlFirst: true, tee}</code> and reads with <code>createFromTee</code>). ${noRegistry}${registryNote} Size: <code>${esc(size)}</code>.</p>
 <p>Source: <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (registry) · <a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a> (tee) · fixture <code>flight-ssr-bench</code>.</p>
 <table><thead><tr><th>Scenario</th><th>Live</th></tr></thead><tbody>
 ${rows}
