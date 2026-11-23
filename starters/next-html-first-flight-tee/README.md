@@ -1,6 +1,6 @@
 # HTML-first Flight demo on the Flight tee (Next.js)
 
-A small Next.js app on a patched Next.js 16.4.6 that vendors a React build with `enableFlightHTMLFirst` on. This is the Flight tee version: SSR reads the Flight render through a tee instead of a process-global registry (React [PR #28](https://github.com/MaxwellCohen/react/pull/28), Next.js branch [`html-first/16.4-tee`](https://github.com/MaxwellCohen/next.js/tree/html-first/16.4-tee)). It installs the exact tarballs from release [`html-first-flight-tee-189973d`](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-tee-189973d) that the e2e suites and benchmarks ran against; their sha256 sums are in the release. `next.config.mjs` turns the feature on with `experimental.htmlFirstFlight: true`. See the [react-eco-ci README](https://github.com/MaxwellCohen/react-eco-ci#try-html-first-flight) for what this is.
+A small Next.js app on a patched Next.js 16.4.6 that vendors a React build with `enableFlightHTMLFirst` on. This is the Flight tee version: SSR reads the Flight render through a tee instead of a process-global registry (React [PR #28](https://github.com/MaxwellCohen/react/pull/28), Next.js branch [`html-first/16.4-tee-signal`](https://github.com/MaxwellCohen/next.js/tree/html-first/16.4-tee-signal)). It installs the exact tarballs from release [`html-first-flight-tee-d5dd0f5`](https://github.com/MaxwellCohen/react-eco-ci/releases/tag/html-first-flight-tee-d5dd0f5) that the e2e suites and benchmarks ran against; their sha256 sums are in the release. React is `19.3.0-canary-d5dd0f51-20261123`. The frameworks tell React when the HTML render is done, instead of React guessing with timers. `next.config.mjs` turns the feature on with `experimental.htmlFirstFlight: true`. See the [react-eco-ci README](https://github.com/MaxwellCohen/react-eco-ci#try-html-first-flight) for what this is.
 
 ```sh
 npm install
@@ -17,6 +17,7 @@ Pages: `/table`, `/static-table`, `/client-rows`, `/modal`, `/tabs`.
 
 - Switching away from Overview and back rebuilds it without a request.
 - Specs opens without a request, because React sends its rows at the end of the stream.
+- Specs is still left out of the HTML, because `Tabs` doesn't render it on the server. The panel element that `Tabs` receives in `children` is in the payload now, and what is inside it arrives at the end of the stream. Elements under about 48 bytes are never left out.
 - After a client navigation, Back and Forward show the right panel with no console errors.
 
 ```sh
