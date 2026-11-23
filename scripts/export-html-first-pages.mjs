@@ -7,6 +7,8 @@
 // --build overrides one variant's React build (e.g. tee=<oss-experimental dir>).
 // --index-variants sets the links listed in index.html/index.json (default: --variants),
 // so a tee-only export can be merged into an existing off/all public/ dir.
+// --existing-public <dir>: an already-deployed public/ dir; a variant link is listed for a
+// scenario only if its page exists in the export or in that dir (e.g. no registry page).
 import {spawnSync} from 'node:child_process';
 import {
   mkdirSync,
@@ -30,6 +32,16 @@ function flag(name, fallback) {
 const size = flag('--size', 'smoke');
 const variants = flag('--variants', 'off,all').split(',').filter(Boolean);
 const indexVariants = flag('--index-variants', variants.join(',')).split(',').filter(Boolean);
+// --publish-as <variant>=<name>: publish that exported variant under another name
+// (the final build is the fixture's `all` variant, published as /tee/).
+const publishAs = {};
+args.forEach((a, i) => {
+  if (a === '--publish-as') {
+    const [v, n] = args[i + 1].split('=');
+    publishAs[v] = n;
+  }
+});
+const existingPublic = flag('--existing-public', '');
 const buildFlags = [];
 args.forEach((a, i) => {
   if (a === '--build') buildFlags.push('--build', args[i + 1]);
@@ -124,6 +136,14 @@ for (const name of readdirSync(out)) {
   if (name === 'public') continue;
   renameSync(join(out, name), join(pub, name));
 }
+for (const [v, n] of Object.entries(publishAs)) {
+  renameSync(join(pub, v), join(pub, n));
+  for (const f of readdirSync(join(pub, n))) {
+    if (!f.endsWith('.html')) continue;
+    const fp = join(pub, n, f);
+    writeFileSync(fp, readFileSync(fp, 'utf8').replace('src="/' + v + '/client.js"', 'src="/' + n + '/client.js"'));
+  }
+}
 
 // Scrub absolute machine paths from Flight module rows / HTML / RSC / client bundles.
 // Client module ids often embed the fixture absolute path; never publish those.
@@ -176,11 +196,16 @@ const esc = s =>
     .replace(/"/g, '&quot;');
 
 meta.variants = indexVariants;
+const has = (v, id) =>
+  existsSync(join(pub, v, id + '.html')) ||
+  (existingPublic && existsSync(join(resolve(existingPublic), v, id + '.html')));
+const label = v => (v === 'all' ? 'registry' : v);
+for (const s of meta.scenarios) s.variants = indexVariants.filter(v => has(v, s.id));
 writeFileSync(join(pub, 'index.json'), JSON.stringify(meta, null, 2));
 
 const rows = meta.scenarios
   .map(s => {
-    const links = indexVariants.map(v => `<a href="/${v}/${s.id}">${v}</a>`).join(' · ');
+    const links = s.variants.map(v => `<a href="/${v}/${s.id}">${label(v)}</a>`).join(' · ');
     return `<tr><td><code>${esc(s.id)}</code><div class="t">${esc(s.title || '')}</div></td><td>${links}</td></tr>`;
   })
   .join('\n');
@@ -195,7 +220,7 @@ table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #e4e4e7;pad
 a{color:#0b57d0}</style>
 <h1>HTML-first Flight — live scenario demos</h1>
 <p>Same corpus as <a href="https://html-first-react.pages.dev/examples/">the examples index</a>, pre-rendered and hosted on Cloudflare Workers.
-<code>all</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code> (registry design); <code>tee</code> = the same flag over the Flight tee (SSR passes <code>{htmlFirst: true, tee}</code> and reads with <code>createFromTee</code>); <code>off</code> = the flag off. Size: <code>${esc(size)}</code>.</p>
+<code>off</code> = the flag off; <code>registry</code> = <code>enableFlightHTMLFirst</code> on and the render opted in with <code>htmlFirst: true</code> (the PR #24 build from Nov 19, registry design); <code>tee</code> = the final build, React <code>d5dd0f51</code> (PR #28 @ 6f7f804093, Nov 23 2026): the same flag over the Flight tee (SSR passes <code>{htmlFirst: true, tee}</code> and reads with <code>createFromTee</code>). Four newer scenarios have no registry page. Size: <code>${esc(size)}</code>.</p>
 <p>Source: <a href="https://github.com/MaxwellCohen/react/pull/24">PR #24</a> (registry) · <a href="https://github.com/MaxwellCohen/react/pull/28">PR #28</a> (tee) · fixture <code>flight-ssr-bench</code>.</p>
 <table><thead><tr><th>Scenario</th><th>Live</th></tr></thead><tbody>
 ${rows}
