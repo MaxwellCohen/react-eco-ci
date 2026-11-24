@@ -64,7 +64,7 @@ summary{cursor:pointer;font-weight:600}
 <div class="tablewrap"><table>
 <thead><tr><th></th><th>Today</th><th>HTML-first</th></tr></thead>
 <tbody>
-<tr><td>HTML</td><td>Full markup</td><td>Full markup (unchanged)</td></tr>
+<tr><td>HTML</td><td>Full markup</td><td>Full markup, plus a short marker comment before each stub's DOM</td></tr>
 <tr><td>Flight payload inlined for the browser</td><td>The full element tree again, down to every static <code>&lt;p&gt;</code> and <code>&lt;tr&gt;</code></td><td>Client Components, their props and data as before; static host subtrees become stubs such as <code>"$J5:section"</code></td></tr>
 <tr><td>Hydration</td><td>React builds the whole tree and matches it to the DOM</td><td>Each stub adopts its DOM as is; React hydrates the interactive parts</td></tr>
 <tr><td>Navigation, refresh, actions</td><td>Full payload</td><td>Full payload (unchanged)</td></tr>
@@ -88,7 +88,7 @@ html.allReady.then(htmlDone, htmlFailed);              // then React sends what 
 
 // Browser: hydrate as today, with a way to recover
 createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()});</code></pre>
-<p class="cap">The working patches change 164 lines in Waku and 303 in Next.js (where it sits behind <code>experimental.htmlFirstFlight</code>), including recovery and caching. Without the option, or with the flag off, output is byte-identical to React today.</p>
+<p class="cap">The working patches change 164 lines in Waku and 303 in Next.js (where it sits behind <code>experimental.htmlFirstFlight</code>), including recovery and caching. Without the option, or with the flag off, output is byte-identical to React today. With the option on, the HTML is not byte-identical to the HTML without it, because of the marker comments described below.</p>
 
 <h2>What gets left out</h2>
 <p>Markup is stubbed when it is plain host output of a Server Component in a position React renders in place: children of host elements, Fragments and Suspense boundaries; what's inside the <code>children</code> of Client Components such as layouts and slots; and plain data around elements, such as a framework's route tree.</p>
@@ -103,13 +103,18 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <h3>What a stub does in the browser</h3>
 <ul>
 <li><b>During hydration</b> it adopts the server DOM. The stub is one component with one hook.</li>
-<li><b>Content the HTML never rendered</b>, such as a closed modal's children or a hidden tab panel, arrives at the end of the stream once the framework says the HTML is done. The stub renders it when it mounts, with no extra request. If the HTML render failed, every stubbed row is sent.</li>
+<li><b>Everything the HTML rendered</b> hydrates as soon as its HTML and its payload have arrived. Nothing waits for the end of the stream.</li>
+<li><b>Content the HTML never rendered</b>, such as a closed modal's children or a hidden tab panel, is sent at the end of the stream, once the framework says the HTML is done. It matters only if the user opens it before the stream ends; the stub then renders it with no extra request. If the HTML render failed, every stubbed row is sent.</li>
 <li><b>When it mounts again</b>, for example after Back navigation, it rebuilds from a snapshot of the HTML it adopted.</li>
 <li><b>When a later full payload arrives</b>, from a refresh or an action, React keeps the stub and its DOM if the new element renders the same DOM. If the static content changed, React patches the DOM in place, changing only what differs.</li>
-<li><b>If content is still missing</b>, because React renders a boundary on the client for a reason the server never saw, React calls <code>onMissingHTML</code> and the framework refetches.</li>
+<li><b>If React discards server DOM before a stub adopts it</b>, for example after a context change before a boundary hydrates, or when a boundary is removed and shown again, the stub rebuilds from the HTML in the browser, found through a marker comment that Fizz writes before each stub's DOM. No request is made. <code>onMissingHTML</code> remains as a safety net; no test needs it.</li>
 </ul>
 
+<h3>Prerender and resume (Cache Components)</h3>
+<p>The prerendered shell has no RSC. On resume, Flight renders the full payload, and the copy inlined in the HTML leaves out static markup that is already in the shell or in the resumed HTML. The stored <code>.rsc</code> stays full. When a resume skips an element the prerender already rendered, stubs in its host children (not inside Suspense, not in Client Component props) count as rendered, so the static shell is not sent again as late rows. Content of a boundary that errored in the prerender is still sent.</p>
+
 <h2>Bytes across 41 test pages</h2>
+<p class="cap">The byte tables below predate the marker comments (measured before 2026-11-24).</p>
 <p>Each page is rendered at full size with the flag off and on. Gzip and brotli are measured on the whole document; Flight is the payload inlined in <code>&lt;script&gt;</code> tags.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>All 41 pages</th><th class="n">Off</th><th class="n">On</th><th class="n">Change</th></tr></thead>
@@ -185,14 +190,15 @@ createFromReadableStream(inlinedFlight, {onMissingHTML: () =&gt; refetchRoute()}
 <li><b>45 test pages in browsers:</b> each page is loaded with the feature off and on in Chromium 139 and Firefox 159. The check compares the hydrated DOM, the DOM after interaction, and the DOM after a client navigation to a full payload, and fails on any console or hydration error. All 45 pass. WebKit 18.4 passed all 41 original pages on an earlier build; it was not run on this one.</li>
 <li><b>Live demos:</b> on the Next.js and Waku demos below, every page hydrates with no console errors, counters respond, and opening the modal or a hidden tab shows its content with no extra request.</li>
 <li><b>React's own tests:</b> the six HTML-first suites (136 tests) pass on three release channels, the Flight suites have no failures that don't also happen upstream, and Flow passes on 17 renderers.</li>
-<li><b>Edge cases:</b> 23 tests, each demanding exactly the behavior with the feature off. 19 pass; the other 4 are explained below.</li>
+<li><b>Edge cases:</b> 23 tests, each demanding exactly the behavior with the feature off. 22 pass; the other differs only in a DEV warning, explained below.</li>
 </ul>
 
 <div class="honest" id="tradeoffs">
 <h2>Trade-offs and open questions</h2>
 <ul>
 <li><b>It depends on the Flight tee.</b> react/react#38313 has to land first, with <code>enableFlightTee</code> on in the channel a framework uses. The demo builds force both flags on.</li>
-<li><b>Four edge cases differ from the feature off,</b> because they need data the feature leaves out on purpose. When React renders a boundary on the client for a reason the server never saw (a context change before the boundary hydrates, or children hidden and shown again), the framework must refetch through <code>onMissingHTML</code>. Invalid nesting, such as a <code>&lt;div&gt;</code> inside a <code>&lt;p&gt;</code>, is adopted as the browser parsed it, where React would rebuild it; a server-side nesting check could close that one.</li>
+<li><b>22 of 23 edge cases match the feature off.</b> The last differs only in a DEV warning that React logs once per process, so whichever run goes first logs it; the DOM and errors match. React rebuilds a discarded boundary from the marked HTML, and Flight no longer stubs nesting the HTML parser rewrites, such as a <code>&lt;div&gt;</code> inside a <code>&lt;p&gt;</code>.</li>
+<li><b>Marker comments cost bytes.</b> With the option on, Fizz writes a marker comment before each stub's DOM: about 21–23 B raw and about 4 B gzip per stub. The HTML is therefore not byte-identical to the HTML without the option. With the option or the flag off, output is unchanged.</li>
 <li><b>Copies cost Next.js about 13% throughput.</b> SSR gets copies of the stubbed elements, so it shares no object with the server, as the tee promises. Handing over the server's own elements is a one-line change that recovers the 13%; whether that rule can be relaxed is a question for the tee's design.</li>
 <li><b>A check in React's child reconciler.</b> Keeping stubs on later full payloads adds a host config function and a check at the two places the reconciler replaces a child of a different type, gated by the flag and run only on stubs. Without it, the first <code>router.refresh()</code> on the table page rebuilds 1,044 nodes.</li>
 <li><b>Patching in place is a second DOM diff.</b> About 250 lines in the DOM host config update a stub's changed static content without React re-rendering it. It accepts only static host elements and text and checks the whole subtree first. It can be dropped on its own; changed content would then rebuild the stub's DOM.</li>
