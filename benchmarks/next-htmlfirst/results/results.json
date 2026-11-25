@@ -1,0 +1,650 @@
+{
+ "config": {
+  "ROUNDS": 1,
+  "DURATION": 2,
+  "WARMUP": 1,
+  "SAMPLES": 1,
+  "SEQ": 30,
+  "connections": 16,
+  "variants": [
+   "off-stock",
+   "on-stock",
+   "on-patched"
+  ],
+  "pages": [
+   "table",
+   "client-rows"
+  ],
+  "node": "v26.13.0",
+  "loadavgAtEnd": [
+   3.80810546875,
+   4.02783203125,
+   3.6484375
+  ]
+ },
+ "bytes": {
+  "table/off-stock": {
+   "raw": {
+    "median": 1273545,
+    "min": 1273545,
+    "max": 1273545,
+    "n": 1,
+    "samples": [
+     1273545
+    ]
+   },
+   "gzip": {
+    "median": 108892,
+    "min": 108892,
+    "max": 108892,
+    "n": 1,
+    "samples": [
+     108892
+    ]
+   },
+   "brotli": {
+    "median": 61772,
+    "min": 61772,
+    "max": 61772,
+    "n": 1,
+    "samples": [
+     61772
+    ]
+   },
+   "flight": {
+    "median": 765297,
+    "min": 765297,
+    "max": 765297,
+    "n": 1,
+    "samples": [
+     765297
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/on-stock": {
+   "raw": {
+    "median": 1273546,
+    "min": 1273546,
+    "max": 1273546,
+    "n": 1,
+    "samples": [
+     1273546
+    ]
+   },
+   "gzip": {
+    "median": 108883,
+    "min": 108883,
+    "max": 108883,
+    "n": 1,
+    "samples": [
+     108883
+    ]
+   },
+   "brotli": {
+    "median": 61762,
+    "min": 61762,
+    "max": 61762,
+    "n": 1,
+    "samples": [
+     61762
+    ]
+   },
+   "flight": {
+    "median": 765298,
+    "min": 765298,
+    "max": 765298,
+    "n": 1,
+    "samples": [
+     765298
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/on-patched": {
+   "raw": {
+    "median": 1273546,
+    "min": 1273546,
+    "max": 1273546,
+    "n": 1,
+    "samples": [
+     1273546
+    ]
+   },
+   "gzip": {
+    "median": 108890,
+    "min": 108890,
+    "max": 108890,
+    "n": 1,
+    "samples": [
+     108890
+    ]
+   },
+   "brotli": {
+    "median": 61767,
+    "min": 61767,
+    "max": 61767,
+    "n": 1,
+    "samples": [
+     61767
+    ]
+   },
+   "flight": {
+    "median": 765298,
+    "min": 765298,
+    "max": 765298,
+    "n": 1,
+    "samples": [
+     765298
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/off-stock": {
+   "raw": {
+    "median": 456723,
+    "min": 456723,
+    "max": 456723,
+    "n": 1,
+    "samples": [
+     456723
+    ]
+   },
+   "gzip": {
+    "median": 34730,
+    "min": 34730,
+    "max": 34730,
+    "n": 1,
+    "samples": [
+     34730
+    ]
+   },
+   "brotli": {
+    "median": 21012,
+    "min": 21012,
+    "max": 21012,
+    "n": 1,
+    "samples": [
+     21012
+    ]
+   },
+   "flight": {
+    "median": 256921,
+    "min": 256921,
+    "max": 256921,
+    "n": 1,
+    "samples": [
+     256921
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/on-stock": {
+   "raw": {
+    "median": 456724,
+    "min": 456724,
+    "max": 456724,
+    "n": 1,
+    "samples": [
+     456724
+    ]
+   },
+   "gzip": {
+    "median": 34720,
+    "min": 34720,
+    "max": 34720,
+    "n": 1,
+    "samples": [
+     34720
+    ]
+   },
+   "brotli": {
+    "median": 21001,
+    "min": 21001,
+    "max": 21001,
+    "n": 1,
+    "samples": [
+     21001
+    ]
+   },
+   "flight": {
+    "median": 256922,
+    "min": 256922,
+    "max": 256922,
+    "n": 1,
+    "samples": [
+     256922
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/on-patched": {
+   "raw": {
+    "median": 456724,
+    "min": 456724,
+    "max": 456724,
+    "n": 1,
+    "samples": [
+     456724
+    ]
+   },
+   "gzip": {
+    "median": 34733,
+    "min": 34733,
+    "max": 34733,
+    "n": 1,
+    "samples": [
+     34733
+    ]
+   },
+   "brotli": {
+    "median": 21013,
+    "min": 21013,
+    "max": 21013,
+    "n": 1,
+    "samples": [
+     21013
+    ]
+   },
+   "flight": {
+    "median": 256922,
+    "min": 256922,
+    "max": 256922,
+    "n": 1,
+    "samples": [
+     256922
+    ]
+   },
+   "nonOk": 0
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "loadavg": 5.20703125,
+   "order": [
+    "off-stock",
+    "on-stock",
+    "on-patched"
+   ],
+   "data": {
+    "table/off-stock": {
+     "ttfb": 16.788166499999534,
+     "total": 17.21277049999935,
+     "seqBad": 0,
+     "rps": 57,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 114
+    },
+    "table/on-stock": {
+     "ttfb": 16.226270999999542,
+     "total": 16.675186999999823,
+     "seqBad": 0,
+     "rps": 63.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 127
+    },
+    "table/on-patched": {
+     "ttfb": 16.894333500000357,
+     "total": 17.516062499998952,
+     "seqBad": 0,
+     "rps": 63.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 127
+    },
+    "client-rows/off-stock": {
+     "ttfb": 8.044062999999369,
+     "total": 8.196146500000395,
+     "seqBad": 0,
+     "rps": 128,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 256
+    },
+    "client-rows/on-stock": {
+     "ttfb": 7.909811999999874,
+     "total": 8.129374500000267,
+     "seqBad": 0,
+     "rps": 128,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 256
+    },
+    "client-rows/on-patched": {
+     "ttfb": 8.003749999998035,
+     "total": 8.173146499999348,
+     "seqBad": 0,
+     "rps": 136,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 272
+    }
+   }
+  }
+ ],
+ "ratios": {
+  "table/on-stock": {
+   "rps": {
+    "median": 1.1140350877192982,
+    "min": 1.1140350877192982,
+    "max": 1.1140350877192982,
+    "n": 1,
+    "samples": [
+     1.1140350877192982
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.9665302640404474,
+    "min": 0.9665302640404474,
+    "max": 0.9665302640404474,
+    "n": 1,
+    "samples": [
+     0.9665302640404474
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.9687683339530061,
+    "min": 0.9687683339530061,
+    "max": 0.9687683339530061,
+    "n": 1,
+    "samples": [
+     0.9687683339530061
+    ],
+    "straddlesOne": false
+   }
+  },
+  "table/on-patched": {
+   "rps": {
+    "median": 1.1140350877192982,
+    "min": 1.1140350877192982,
+    "max": 1.1140350877192982,
+    "n": 1,
+    "samples": [
+     1.1140350877192982
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 1.006323918695995,
+    "min": 1.006323918695995,
+    "max": 1.006323918695995,
+    "n": 1,
+    "samples": [
+     1.006323918695995
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 1.0176201733474348,
+    "min": 1.0176201733474348,
+    "max": 1.0176201733474348,
+    "n": 1,
+    "samples": [
+     1.0176201733474348
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/on-stock": {
+   "rps": {
+    "median": 1,
+    "min": 1,
+    "max": 1,
+    "n": 1,
+    "samples": [
+     1
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 0.9833105484132204,
+    "min": 0.9833105484132204,
+    "max": 0.9833105484132204,
+    "n": 1,
+    "samples": [
+     0.9833105484132204
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.9918532446924753,
+    "min": 0.9918532446924753,
+    "max": 0.9918532446924753,
+    "n": 1,
+    "samples": [
+     0.9918532446924753
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/on-patched": {
+   "rps": {
+    "median": 1.0625,
+    "min": 1.0625,
+    "max": 1.0625,
+    "n": 1,
+    "samples": [
+     1.0625
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.9949884778374639,
+    "min": 0.9949884778374639,
+    "max": 0.9949884778374639,
+    "n": 1,
+    "samples": [
+     0.9949884778374639
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.99719380320971,
+    "min": 0.99719380320971,
+    "max": 0.99719380320971,
+    "n": 1,
+    "samples": [
+     0.99719380320971
+    ],
+    "straddlesOne": false
+   }
+  }
+ },
+ "errorsTotal": 0,
+ "browser": [
+  {
+   "v": "off-stock",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "table",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/table",
+     "/",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-patched",
+   "pg": "table",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-patched",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-patched",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/client-rows",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

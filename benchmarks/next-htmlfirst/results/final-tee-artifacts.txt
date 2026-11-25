@@ -1,0 +1,54 @@
+# Release artifacts (/Users/maxcohen/code/react-ecosystem/html-first-tee-release)
+5d1d2bf7f13cb6e157b82dad8cd1476946f12ecb6f13cebdefb4a630a0f684db  next-16.4.6-html-first-flight-tee.tgz
+26686def582df9a03869765594d9dd66faead1c5daeb4bf1cdb0584aa05e8e92  react-dom-html-first-flight.tgz
+21935c062e782e5bdfb08329eea8ce821b4f32f6271c4d7a03552005374fc1a0  react-html-first-flight.tgz
+e42c0435b0041b5be3f61dc871a148320f7d3fdfcf0458f5e3085a7a3cac574a  react-is-html-first-flight.tgz
+dd00965312f7753101e591aed0f5b2895344c2fee86900ba5caf8c534daec539  react-server-dom-webpack-html-first-flight.tgz
+a3696a92a0dc6f974df593422179d36b37620a1af5b55f96ebf194ec8b52a8d8  scheduler-html-first-flight.tgz
+f37407f94ce28aba3e0945eb5c1d108835755230f4c6ee1055d88e02631c3fc1  waku-1.0.0-rc.4-html-first-flight-tee.tgz
+
+# vendored-into-next/ (React tarballs vendored into the Next tarball)
+b50a07e8d705ae67f40984da50d810dea2cb84fc0065e6d4acce8039a1446669  experimental/react-dom.tgz
+cf621b4dab87be755dde95eb9aa4ae7b699aa90bdae0b07cd7dda505afe50ef2  experimental/react-is.tgz
+b56405d601ac49415977c97f45346ed458da08e9c38e4918e17bddd9e5dfabbe  experimental/react-server-dom-turbopack.tgz
+dc75c8fd933666cd88398a138e43926ffc72307aba6e663891047cc84a97d3d7  experimental/react-server-dom-webpack.tgz
+e001e95f9aa1986fa06179e2407b141a18be42cb6f81590fe1035b8dd5155165  experimental/react.tgz
+bc3ee6cd3609fe598a07a11e4c9ff2ea6edb905e7f1b1415e42095893f2dd1cb  experimental/scheduler.tgz
+26686def582df9a03869765594d9dd66faead1c5daeb4bf1cdb0584aa05e8e92  stable/react-dom.tgz
+e42c0435b0041b5be3f61dc871a148320f7d3fdfcf0458f5e3085a7a3cac574a  stable/react-is.tgz
+abd96d2416854909a9e823bce0be9aa1da229fbda398460ddffe303fc5a3bd35  stable/react-server-dom-turbopack.tgz
+dd00965312f7753101e591aed0f5b2895344c2fee86900ba5caf8c534daec539  stable/react-server-dom-webpack.tgz
+21935c062e782e5bdfb08329eea8ce821b4f32f6271c4d7a03552005374fc1a0  stable/react.tgz
+a3696a92a0dc6f974df593422179d36b37620a1af5b55f96ebf194ec8b52a8d8  stable/scheduler.tgz
+
+# Bench app installs: package, tarball path, sha256, package-lock sha512 integrity vs file
+== t-off
+  next ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/next.tgz 76cf8bd71a1e48713a0ac203d49c5abe74a0d4ffde01863389fe29a788fda21b integrity-ok
+  react ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/react.tgz fcdd13f4834b2f8f1fcfbafc4c706a6ca859ee59c864964935163d2c697061d0 integrity-ok
+  react-dom ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/react-dom.tgz 225e0a2c7003288d56cb319c745e27099ac2e5680e4342b7c713e5b137921edf integrity-ok
+  scheduler ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/scheduler.tgz eec28fa71a6794e972a78e24289589e352afe6a7a1a700f869c3b1a49accca72 integrity-ok
+== t-reg
+  next ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/next.tgz 3babf683bfc889fd92bb16056be175d7d13ac8bdd5cdcc278b3c78c2c2f34206 integrity-ok
+  react ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/react.tgz 97b2502d7d347f3dc99940b14dd003cacc3d387801893e48fdd612302263c64c integrity-ok
+  react-dom ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/react-dom.tgz 60a651a8fbe4cb2841d9a8ef2f47e9413e1f97c40673484420f5b2d4fd0b6da7 integrity-ok
+  scheduler ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/scheduler.tgz 004f422b6f555451e484646f668ebbce3447f9c2b3e1f7a22ce3ebeee92529cf integrity-ok
+== t-tee
+  next html-first-tee-release/next-16.4.6-html-first-flight-tee.tgz 5d1d2bf7f13cb6e157b82dad8cd1476946f12ecb6f13cebdefb4a630a0f684db integrity-ok
+  react html-first-tee-release/react-html-first-flight.tgz 21935c062e782e5bdfb08329eea8ce821b4f32f6271c4d7a03552005374fc1a0 integrity-ok
+  react-dom html-first-tee-release/react-dom-html-first-flight.tgz 26686def582df9a03869765594d9dd66faead1c5daeb4bf1cdb0584aa05e8e92 integrity-ok
+  scheduler html-first-tee-release/scheduler-html-first-flight.tgz a3696a92a0dc6f974df593422179d36b37620a1af5b55f96ebf194ec8b52a8d8 integrity-ok
+== t-cc-off
+  next ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/next.tgz 76cf8bd71a1e48713a0ac203d49c5abe74a0d4ffde01863389fe29a788fda21b integrity-ok
+  react ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/react.tgz fcdd13f4834b2f8f1fcfbafc4c706a6ca859ee59c864964935163d2c697061d0 integrity-ok
+  react-dom ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/react-dom.tgz 225e0a2c7003288d56cb319c745e27099ac2e5680e4342b7c713e5b137921edf integrity-ok
+  scheduler ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/5561229a-4edd-45c2-875a-8d9fdaacb5b0/scratchpad/tgz/off-stock/scheduler.tgz eec28fa71a6794e972a78e24289589e352afe6a7a1a700f869c3b1a49accca72 integrity-ok
+== t-cc-reg
+  next ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/next.tgz 3babf683bfc889fd92bb16056be175d7d13ac8bdd5cdcc278b3c78c2c2f34206 integrity-ok
+  react ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/react.tgz 97b2502d7d347f3dc99940b14dd003cacc3d387801893e48fdd612302263c64c integrity-ok
+  react-dom ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/react-dom.tgz 60a651a8fbe4cb2841d9a8ef2f47e9413e1f97c40673484420f5b2d4fd0b6da7 integrity-ok
+  scheduler ../../../../private/tmp/claude-501/-Users-maxcohen-code-react-ecosystem/e78ade9f-686d-4901-b3a8-7a85501d36b9/scratchpad/rel-registry/scheduler.tgz 004f422b6f555451e484646f668ebbce3447f9c2b3e1f7a22ce3ebeee92529cf integrity-ok
+== t-cc-tee
+  next html-first-tee-release/next-16.4.6-html-first-flight-tee.tgz 5d1d2bf7f13cb6e157b82dad8cd1476946f12ecb6f13cebdefb4a630a0f684db integrity-ok
+  react html-first-tee-release/react-html-first-flight.tgz 21935c062e782e5bdfb08329eea8ce821b4f32f6271c4d7a03552005374fc1a0 integrity-ok
+  react-dom html-first-tee-release/react-dom-html-first-flight.tgz 26686def582df9a03869765594d9dd66faead1c5daeb4bf1cdb0584aa05e8e92 integrity-ok
+  scheduler html-first-tee-release/scheduler-html-first-flight.tgz a3696a92a0dc6f974df593422179d36b37620a1af5b55f96ebf194ec8b52a8d8 integrity-ok

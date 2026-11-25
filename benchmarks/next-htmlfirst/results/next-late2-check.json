@@ -1,0 +1,259 @@
+{
+ "variants": [
+  "off-stock",
+  "on-final",
+  "on-late2"
+ ],
+ "browser": [
+  {
+   "v": "off-stock",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/static-table",
+     "/client-rows",
+     "/modal",
+     "/client-rows",
+     "/modal",
+     "/",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-final",
+   "pg": "table",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/static-table",
+     "/client-rows",
+     "/modal",
+     "/client-rows",
+     "/modal",
+     "/",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-final",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/static-table",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-final",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/client-rows",
+     "/table",
+     "/static-table",
+     "/modal"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-late2",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/static-table",
+     "/client-rows",
+     "/modal",
+     "/client-rows",
+     "/modal",
+     "/",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-late2",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/modal",
+     "/table",
+     "/static-table",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-late2",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

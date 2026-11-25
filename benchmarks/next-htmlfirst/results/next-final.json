@@ -1,0 +1,1446 @@
+{
+ "config": {
+  "ROUNDS": 5,
+  "DURATION": 10,
+  "WARMUP": 10,
+  "SAMPLES": 5,
+  "SEQ": 30,
+  "connections": 16,
+  "variants": [
+   "off-stock",
+   "on-stock",
+   "on-Afinal",
+   "on-Bfinal"
+  ],
+  "pages": [
+   "table",
+   "client-rows"
+  ],
+  "node": "v26.13.0",
+  "loadavgAtEnd": [
+   5.93017578125,
+   4.9833984375,
+   4.20458984375
+  ]
+ },
+ "bytes": {
+  "table/off-stock": {
+   "raw": {
+    "median": 1273545,
+    "min": 1273545,
+    "max": 1273545,
+    "n": 5,
+    "samples": [
+     1273545,
+     1273545,
+     1273545,
+     1273545,
+     1273545
+    ]
+   },
+   "gzip": {
+    "median": 108892,
+    "min": 108892,
+    "max": 108892,
+    "n": 5,
+    "samples": [
+     108892,
+     108892,
+     108892,
+     108892,
+     108892
+    ]
+   },
+   "brotli": {
+    "median": 61772,
+    "min": 61772,
+    "max": 61772,
+    "n": 5,
+    "samples": [
+     61772,
+     61772,
+     61772,
+     61772,
+     61772
+    ]
+   },
+   "flight": {
+    "median": 765297,
+    "min": 765297,
+    "max": 765297,
+    "n": 5,
+    "samples": [
+     765297,
+     765297,
+     765297,
+     765297,
+     765297
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/on-stock": {
+   "raw": {
+    "median": 1273546,
+    "min": 1273546,
+    "max": 1273546,
+    "n": 5,
+    "samples": [
+     1273546,
+     1273546,
+     1273546,
+     1273546,
+     1273546
+    ]
+   },
+   "gzip": {
+    "median": 108883,
+    "min": 108883,
+    "max": 108883,
+    "n": 5,
+    "samples": [
+     108883,
+     108883,
+     108883,
+     108883,
+     108883
+    ]
+   },
+   "brotli": {
+    "median": 61762,
+    "min": 61762,
+    "max": 61762,
+    "n": 5,
+    "samples": [
+     61762,
+     61762,
+     61762,
+     61762,
+     61762
+    ]
+   },
+   "flight": {
+    "median": 765298,
+    "min": 765298,
+    "max": 765298,
+    "n": 5,
+    "samples": [
+     765298,
+     765298,
+     765298,
+     765298,
+     765298
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/on-Afinal": {
+   "raw": {
+    "median": 531467,
+    "min": 531467,
+    "max": 531467,
+    "n": 5,
+    "samples": [
+     531467,
+     531467,
+     531467,
+     531467,
+     531467
+    ]
+   },
+   "gzip": {
+    "median": 55244,
+    "min": 55244,
+    "max": 55244,
+    "n": 5,
+    "samples": [
+     55244,
+     55244,
+     55244,
+     55244,
+     55244
+    ]
+   },
+   "brotli": {
+    "median": 36046,
+    "min": 36045,
+    "max": 36046,
+    "n": 5,
+    "samples": [
+     36046,
+     36046,
+     36045,
+     36046,
+     36046
+    ]
+   },
+   "flight": {
+    "median": 23219,
+    "min": 23219,
+    "max": 23219,
+    "n": 5,
+    "samples": [
+     23219,
+     23219,
+     23219,
+     23219,
+     23219
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/on-Bfinal": {
+   "raw": {
+    "median": 531467,
+    "min": 531467,
+    "max": 531467,
+    "n": 5,
+    "samples": [
+     531467,
+     531467,
+     531467,
+     531467,
+     531467
+    ]
+   },
+   "gzip": {
+    "median": 55227,
+    "min": 55227,
+    "max": 55227,
+    "n": 5,
+    "samples": [
+     55227,
+     55227,
+     55227,
+     55227,
+     55227
+    ]
+   },
+   "brotli": {
+    "median": 36047,
+    "min": 36047,
+    "max": 36047,
+    "n": 5,
+    "samples": [
+     36047,
+     36047,
+     36047,
+     36047,
+     36047
+    ]
+   },
+   "flight": {
+    "median": 23219,
+    "min": 23219,
+    "max": 23219,
+    "n": 5,
+    "samples": [
+     23219,
+     23219,
+     23219,
+     23219,
+     23219
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/off-stock": {
+   "raw": {
+    "median": 456723,
+    "min": 456723,
+    "max": 456723,
+    "n": 5,
+    "samples": [
+     456723,
+     456723,
+     456723,
+     456723,
+     456723
+    ]
+   },
+   "gzip": {
+    "median": 34730,
+    "min": 34730,
+    "max": 34730,
+    "n": 5,
+    "samples": [
+     34730,
+     34730,
+     34730,
+     34730,
+     34730
+    ]
+   },
+   "brotli": {
+    "median": 21012,
+    "min": 21012,
+    "max": 21012,
+    "n": 5,
+    "samples": [
+     21012,
+     21012,
+     21012,
+     21012,
+     21012
+    ]
+   },
+   "flight": {
+    "median": 256921,
+    "min": 256921,
+    "max": 256921,
+    "n": 5,
+    "samples": [
+     256921,
+     256921,
+     256921,
+     256921,
+     256921
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/on-stock": {
+   "raw": {
+    "median": 456724,
+    "min": 456724,
+    "max": 456724,
+    "n": 5,
+    "samples": [
+     456724,
+     456724,
+     456724,
+     456724,
+     456724
+    ]
+   },
+   "gzip": {
+    "median": 34720,
+    "min": 34720,
+    "max": 34720,
+    "n": 5,
+    "samples": [
+     34720,
+     34720,
+     34720,
+     34720,
+     34720
+    ]
+   },
+   "brotli": {
+    "median": 21001,
+    "min": 21001,
+    "max": 21001,
+    "n": 5,
+    "samples": [
+     21001,
+     21001,
+     21001,
+     21001,
+     21001
+    ]
+   },
+   "flight": {
+    "median": 256922,
+    "min": 256922,
+    "max": 256922,
+    "n": 5,
+    "samples": [
+     256922,
+     256922,
+     256922,
+     256922,
+     256922
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/on-Afinal": {
+   "raw": {
+    "median": 456665,
+    "min": 456665,
+    "max": 456665,
+    "n": 5,
+    "samples": [
+     456665,
+     456665,
+     456665,
+     456665,
+     456665
+    ]
+   },
+   "gzip": {
+    "median": 34714,
+    "min": 34714,
+    "max": 34715,
+    "n": 5,
+    "samples": [
+     34714,
+     34714,
+     34714,
+     34714,
+     34715
+    ]
+   },
+   "brotli": {
+    "median": 20908,
+    "min": 20908,
+    "max": 20909,
+    "n": 5,
+    "samples": [
+     20908,
+     20909,
+     20908,
+     20909,
+     20908
+    ]
+   },
+   "flight": {
+    "median": 256863,
+    "min": 256863,
+    "max": 256863,
+    "n": 5,
+    "samples": [
+     256863,
+     256863,
+     256863,
+     256863,
+     256863
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/on-Bfinal": {
+   "raw": {
+    "median": 456665,
+    "min": 456665,
+    "max": 456665,
+    "n": 5,
+    "samples": [
+     456665,
+     456665,
+     456665,
+     456665,
+     456665
+    ]
+   },
+   "gzip": {
+    "median": 34704,
+    "min": 34704,
+    "max": 34704,
+    "n": 5,
+    "samples": [
+     34704,
+     34704,
+     34704,
+     34704,
+     34704
+    ]
+   },
+   "brotli": {
+    "median": 20917,
+    "min": 20917,
+    "max": 20917,
+    "n": 5,
+    "samples": [
+     20917,
+     20917,
+     20917,
+     20917,
+     20917
+    ]
+   },
+   "flight": {
+    "median": 256863,
+    "min": 256863,
+    "max": 256863,
+    "n": 5,
+    "samples": [
+     256863,
+     256863,
+     256863,
+     256863,
+     256863
+    ]
+   },
+   "nonOk": 0
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "loadavg": 6.13134765625,
+   "order": [
+    "off-stock",
+    "on-stock",
+    "on-Afinal",
+    "on-Bfinal"
+   ],
+   "data": {
+    "table/off-stock": {
+     "ttfb": 16.849624999995285,
+     "total": 17.532250499993097,
+     "seqBad": 0,
+     "rps": 60.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 608
+    },
+    "table/on-stock": {
+     "ttfb": 17.158104000001913,
+     "total": 17.70758300000307,
+     "seqBad": 0,
+     "rps": 56.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 568
+    },
+    "table/on-Afinal": {
+     "ttfb": 10.465333500003908,
+     "total": 10.682895500009181,
+     "seqBad": 0,
+     "rps": 152,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1520
+    },
+    "table/on-Bfinal": {
+     "ttfb": 8.770103999995627,
+     "total": 9.005020999997214,
+     "seqBad": 0,
+     "rps": 118,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1180
+    },
+    "client-rows/off-stock": {
+     "ttfb": 10.024854499999492,
+     "total": 10.291499999992084,
+     "seqBad": 0,
+     "rps": 122.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1226
+    },
+    "client-rows/on-stock": {
+     "ttfb": 10.236541499994928,
+     "total": 10.547229499992682,
+     "seqBad": 0,
+     "rps": 131.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1312
+    },
+    "client-rows/on-Afinal": {
+     "ttfb": 9.548958499988657,
+     "total": 9.748791999998502,
+     "seqBad": 0,
+     "rps": 139.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1392
+    },
+    "client-rows/on-Bfinal": {
+     "ttfb": 8.468374500007485,
+     "total": 8.702604000005522,
+     "seqBad": 0,
+     "rps": 137.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1374
+    }
+   }
+  },
+  {
+   "round": 1,
+   "loadavg": 4.4580078125,
+   "order": [
+    "off-stock",
+    "on-Bfinal",
+    "on-Afinal",
+    "on-stock"
+   ],
+   "data": {
+    "table/off-stock": {
+     "ttfb": 16.552416999998968,
+     "total": 17.022832999995444,
+     "seqBad": 0,
+     "rps": 62.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 624
+    },
+    "table/on-Bfinal": {
+     "ttfb": 8.873812499994528,
+     "total": 9.115187499992317,
+     "seqBad": 0,
+     "rps": 161.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1616
+    },
+    "table/on-Afinal": {
+     "ttfb": 7.561292000013054,
+     "total": 7.799270500006969,
+     "seqBad": 0,
+     "rps": 162.31,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1623
+    },
+    "table/on-stock": {
+     "ttfb": 16.210124999997788,
+     "total": 16.691228999989107,
+     "seqBad": 0,
+     "rps": 59.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 591
+    },
+    "client-rows/off-stock": {
+     "ttfb": 7.974354000005405,
+     "total": 8.17689600000449,
+     "seqBad": 0,
+     "rps": 138.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1381
+    },
+    "client-rows/on-Bfinal": {
+     "ttfb": 8.047936999995727,
+     "total": 8.232833499991102,
+     "seqBad": 0,
+     "rps": 140.81,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1408
+    },
+    "client-rows/on-Afinal": {
+     "ttfb": 8.04404200000863,
+     "total": 8.185521000006702,
+     "seqBad": 0,
+     "rps": 139.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1392
+    },
+    "client-rows/on-stock": {
+     "ttfb": 8.631312500001513,
+     "total": 8.817958500003442,
+     "seqBad": 0,
+     "rps": 140.81,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1408
+    }
+   }
+  },
+  {
+   "round": 2,
+   "loadavg": 4.2177734375,
+   "order": [
+    "on-Afinal",
+    "on-Bfinal",
+    "off-stock",
+    "on-stock"
+   ],
+   "data": {
+    "table/on-Afinal": {
+     "ttfb": 6.519396000003326,
+     "total": 6.722541500013904,
+     "seqBad": 0,
+     "rps": 175.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1755
+    },
+    "table/on-Bfinal": {
+     "ttfb": 7.1619374999718275,
+     "total": 7.52139549999265,
+     "seqBad": 0,
+     "rps": 171.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1712
+    },
+    "table/off-stock": {
+     "ttfb": 16.204624999983935,
+     "total": 16.720854500017595,
+     "seqBad": 0,
+     "rps": 65,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 650
+    },
+    "table/on-stock": {
+     "ttfb": 12.858604499982903,
+     "total": 13.329291999980342,
+     "seqBad": 0,
+     "rps": 60.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 608
+    },
+    "client-rows/on-Afinal": {
+     "ttfb": 8.215208000008715,
+     "total": 8.571311999985483,
+     "seqBad": 0,
+     "rps": 136,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1360
+    },
+    "client-rows/on-Bfinal": {
+     "ttfb": 8.918978999980027,
+     "total": 9.136458000022685,
+     "seqBad": 0,
+     "rps": 121.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1216
+    },
+    "client-rows/off-stock": {
+     "ttfb": 8.19641649996629,
+     "total": 8.412937499990221,
+     "seqBad": 0,
+     "rps": 136,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1360
+    },
+    "client-rows/on-stock": {
+     "ttfb": 7.030041999998502,
+     "total": 7.209625000017695,
+     "seqBad": 0,
+     "rps": 139.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1392
+    }
+   }
+  },
+  {
+   "round": 3,
+   "loadavg": 4.79931640625,
+   "order": [
+    "on-Afinal",
+    "on-stock",
+    "off-stock",
+    "on-Bfinal"
+   ],
+   "data": {
+    "table/on-Afinal": {
+     "ttfb": 7.1008960000181105,
+     "total": 7.3238340000098106,
+     "seqBad": 0,
+     "rps": 165.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1658
+    },
+    "table/on-stock": {
+     "ttfb": 13.042020499997307,
+     "total": 13.536437500006286,
+     "seqBad": 0,
+     "rps": 63.9,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 639
+    },
+    "table/off-stock": {
+     "ttfb": 16.287270500033628,
+     "total": 16.84379200002877,
+     "seqBad": 0,
+     "rps": 60.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 608
+    },
+    "table/on-Bfinal": {
+     "ttfb": 6.502687000000151,
+     "total": 6.726686999987578,
+     "seqBad": 0,
+     "rps": 167.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1672
+    },
+    "client-rows/on-Afinal": {
+     "ttfb": 7.911082999984501,
+     "total": 8.144978999975137,
+     "seqBad": 0,
+     "rps": 137.7,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1377
+    },
+    "client-rows/on-stock": {
+     "ttfb": 7.497312499996042,
+     "total": 7.751791999966372,
+     "seqBad": 0,
+     "rps": 129.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1296
+    },
+    "client-rows/off-stock": {
+     "ttfb": 8.79716649997863,
+     "total": 8.995687499991618,
+     "seqBad": 0,
+     "rps": 130.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1302
+    },
+    "client-rows/on-Bfinal": {
+     "ttfb": 8.057020999956876,
+     "total": 8.294312499987427,
+     "seqBad": 0,
+     "rps": 134.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1345
+    }
+   }
+  },
+  {
+   "round": 4,
+   "loadavg": 4.33642578125,
+   "order": [
+    "off-stock",
+    "on-stock",
+    "on-Afinal",
+    "on-Bfinal"
+   ],
+   "data": {
+    "table/off-stock": {
+     "ttfb": 18.60245850001229,
+     "total": 19.153062500001397,
+     "seqBad": 0,
+     "rps": 56,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 560
+    },
+    "table/on-stock": {
+     "ttfb": 14.582270499988226,
+     "total": 14.97514549997868,
+     "seqBad": 0,
+     "rps": 60.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 608
+    },
+    "table/on-Afinal": {
+     "ttfb": 7.170020999998087,
+     "total": 7.418187499977648,
+     "seqBad": 0,
+     "rps": 164.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1641
+    },
+    "table/on-Bfinal": {
+     "ttfb": 7.089728999999352,
+     "total": 7.356812500016531,
+     "seqBad": 0,
+     "rps": 172.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1728
+    },
+    "client-rows/off-stock": {
+     "ttfb": 6.713396000006469,
+     "total": 6.882666500023333,
+     "seqBad": 0,
+     "rps": 108.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1088
+    },
+    "client-rows/on-stock": {
+     "ttfb": 8.582166499982122,
+     "total": 8.790978499979246,
+     "seqBad": 0,
+     "rps": 123.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1232
+    },
+    "client-rows/on-Afinal": {
+     "ttfb": 8.571416499995394,
+     "total": 8.791166500013787,
+     "seqBad": 0,
+     "rps": 121.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1216
+    },
+    "client-rows/on-Bfinal": {
+     "ttfb": 8.68049999998766,
+     "total": 8.948541499994462,
+     "seqBad": 0,
+     "rps": 128,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1280
+    }
+   }
+  }
+ ],
+ "ratios": {
+  "table/on-stock": {
+   "rps": {
+    "median": 0.9471153846153847,
+    "min": 0.9342105263157895,
+    "max": 1.0857142857142856,
+    "n": 5,
+    "samples": [
+     0.9342105263157895,
+     0.9471153846153847,
+     0.9353846153846154,
+     1.0509868421052633,
+     1.0857142857142856
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 0.8007493029584287,
+    "min": 0.7838894251519816,
+    "max": 1.0183077664937181,
+    "n": 5,
+    "samples": [
+     1.0183077664937181,
+     0.9793207239763715,
+     0.7935144750338654,
+     0.8007493029584287,
+     0.7838894251519816
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 0.8036454914655302,
+    "min": 0.7818668946534053,
+    "max": 1.010000570092815,
+    "n": 5,
+    "samples": [
+     1.010000570092815,
+     0.980520046222246,
+     0.797165719010731,
+     0.8036454914655302,
+     0.7818668946534053
+    ],
+    "straddlesOne": true
+   }
+  },
+  "table/on-Afinal": {
+   "rps": {
+    "median": 2.7,
+    "min": 2.5,
+    "max": 2.930357142857143,
+    "n": 5,
+    "samples": [
+     2.5,
+     2.601121794871795,
+     2.7,
+     2.7269736842105265,
+     2.930357142857143
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.43597826904166964,
+    "min": 0.38543405432101085,
+    "max": 0.6211018642852192,
+    "n": 5,
+    "samples": [
+     0.6211018642852192,
+     0.4568089361217474,
+     0.4023169928344401,
+     0.43597826904166964,
+     0.38543405432101085
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.4348090976187132,
+    "min": 0.38731077601700026,
+    "max": 0.6093282491037524,
+    "n": 5,
+    "samples": [
+     0.6093282491037524,
+     0.4581652478179781,
+     0.4020453320735989,
+     0.4348090976187132,
+     0.38731077601700026
+    ],
+    "straddlesOne": false
+   }
+  },
+  "table/on-Bfinal": {
+   "rps": {
+    "median": 2.6338461538461537,
+    "min": 1.9407894736842106,
+    "max": 3.085714285714286,
+    "n": 5,
+    "samples": [
+     1.9407894736842106,
+     2.58974358974359,
+     2.6338461538461537,
+     2.75,
+     3.085714285714286
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.44196872806244686,
+    "min": 0.38111785063219833,
+    "max": 0.5361037303491739,
+    "n": 5,
+    "samples": [
+     0.5204925332165007,
+     0.5361037303491739,
+     0.44196872806244686,
+     0.3992496471392628,
+     0.38111785063219833
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.44982123969709414,
+    "min": 0.3841063276442602,
+    "max": 0.5354683030723943,
+    "n": 5,
+    "samples": [
+     0.5136260744164453,
+     0.5354683030723943,
+     0.44982123969709414,
+     0.39935704501552194,
+     0.3841063276442602
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/on-stock": {
+   "rps": {
+    "median": 1.0235294117647058,
+    "min": 0.9953917050691244,
+    "max": 1.1323529411764706,
+    "n": 5,
+    "samples": [
+     1.0701468189233279,
+     1.0196234612599566,
+     1.0235294117647058,
+     0.9953917050691244,
+     1.1323529411764706
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 1.0211162166987509,
+    "min": 0.8522417417033376,
+    "max": 1.2783644075180212,
+    "n": 5,
+    "samples": [
+     1.0211162166987509,
+     1.0823839147341168,
+     0.857697019182397,
+     0.8522417417033376,
+     1.2783644075180212
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 1.0248486129330803,
+    "min": 0.8569688054886982,
+    "max": 1.277263470480437,
+    "n": 5,
+    "samples": [
+     1.0248486129330803,
+     1.0783992483209521,
+     0.8569688054886982,
+     0.8617231312196644,
+     1.277263470480437
+    ],
+    "straddlesOne": true
+   }
+  },
+  "client-rows/on-Afinal": {
+   "rps": {
+    "median": 1.0576036866359446,
+    "min": 1,
+    "max": 1.135399673735726,
+    "n": 5,
+    "samples": [
+     1.135399673735726,
+     1.007965242577842,
+     1,
+     1.0576036866359446,
+     1.1176470588235294
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 1.0022926482618963,
+    "min": 0.8992762612829618,
+    "max": 1.2767631315041053,
+    "n": 5,
+    "samples": [
+     0.9525283883161737,
+     1.0087390150980478,
+     1.0022926482618963,
+     0.8992762612829618,
+     1.2767631315041053
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 1.0010548012353597,
+    "min": 0.9054315192677299,
+    "max": 1.2772907854803053,
+    "n": 5,
+    "samples": [
+     0.94726638488131,
+     1.0010548012353597,
+     1.0188251131065036,
+     0.9054315192677299,
+     1.2772907854803053
+    ],
+    "straddlesOne": true
+   }
+  },
+  "client-rows/on-Bfinal": {
+   "rps": {
+    "median": 1.033026113671275,
+    "min": 0.8941176470588235,
+    "max": 1.1764705882352942,
+    "n": 5,
+    "samples": [
+     1.1207177814029365,
+     1.0196234612599566,
+     0.8941176470588235,
+     1.033026113671275,
+     1.1764705882352942
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 1.0092274559155854,
+    "min": 0.8447378961966894,
+    "max": 1.2930117633429186,
+    "n": 5,
+    "samples": [
+     0.8447378961966894,
+     1.0092274559155854,
+     1.0881559032556127,
+     0.9158654664517772,
+     1.2930117633429186
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 1.0068409210520204,
+    "min": 0.8456108439014931,
+    "max": 1.300156196724645,
+    "n": 5,
+    "samples": [
+     0.8456108439014931,
+     1.0068409210520204,
+     1.0860009360622618,
+     0.9220320848178815,
+     1.300156196724645
+    ],
+    "straddlesOne": true
+   }
+  }
+ },
+ "errorsTotal": 0,
+ "browser": [
+  {
+   "v": "off-stock",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "off-stock",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "table",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-stock",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/client-rows",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Afinal",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Afinal",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Afinal",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/client-rows",
+     "/table",
+     "/modal"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Bfinal",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Bfinal",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "on-Bfinal",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/client-rows",
+     "/modal"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

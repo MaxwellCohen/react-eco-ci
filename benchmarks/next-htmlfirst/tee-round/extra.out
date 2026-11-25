@@ -1,0 +1,132 @@
+{
+ "bytes": {
+  "/static-table/t-off": {
+   "flight": 765516,
+   "gzip": 108963,
+   "status": 200
+  },
+  "/static-table/t-reg": {
+   "flight": 29089,
+   "gzip": 57669,
+   "status": 200
+  },
+  "/static-table/t-tee": {
+   "flight": 29089,
+   "gzip": 57678,
+   "status": 200
+  },
+  "/ppr/t-cc-off": {
+   "flight": 125424,
+   "gzip": 17291,
+   "status": 200
+  },
+  "/static/t-cc-off": {
+   "flight": 125258,
+   "gzip": 16509,
+   "status": 200
+  },
+  "/ppr/t-cc-reg": {
+   "flight": 4265,
+   "gzip": 7182,
+   "status": 200
+  },
+  "/static/t-cc-reg": {
+   "flight": 11609,
+   "gzip": 9091,
+   "status": 200
+  },
+  "/ppr/t-cc-tee": {
+   "flight": 4218,
+   "gzip": 7181,
+   "status": 200
+  },
+  "/static/t-cc-tee": {
+   "flight": 11609,
+   "gzip": 9092,
+   "status": 200
+  }
+ },
+ "stored": {
+  "static-table/t-off": {
+   "bytes": 680767,
+   "stubs": 0
+  },
+  "static-table/t-reg": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static-table/t-tee": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static/t-cc-off": {
+   "bytes": 105830,
+   "stubs": 0
+  },
+  "static/t-cc-reg": {
+   "bytes": 105831,
+   "stubs": 0
+  },
+  "static/t-cc-tee": {
+   "bytes": 105831,
+   "stubs": 0
+  }
+ },
+ "summary": {
+  "refresh": {
+   "t-off": [
+    19,
+    14
+   ],
+   "t-reg": [
+    17,
+    11
+   ],
+   "t-tee": [
+    19,
+    17
+   ]
+  },
+  "mem": {
+   "t-off": {
+    "onTableNodes": 14344,
+    "onTableHeapMB": 4.55,
+    "awayNodes": 256,
+    "awayHeapMB": 4.35
+   },
+   "t-reg": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 4.89,
+    "awayNodes": 75,
+    "awayHeapMB": 4.21
+   },
+   "t-tee": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 4.88,
+    "awayNodes": 75,
+    "awayHeapMB": 4.17
+   }
+  }
+ },
+ "cc": {
+  "t-cc-off": {
+   "logs": [],
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "t-cc-reg": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "t-cc-tee": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  }
+ }
+}

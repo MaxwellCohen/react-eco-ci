@@ -1,0 +1,671 @@
+{
+ "config": {
+  "variants": [
+   "t-off",
+   "t-reg",
+   "t-tee"
+  ],
+  "ccVariants": [
+   "t-cc-off",
+   "t-cc-reg",
+   "t-cc-tee"
+  ],
+  "node": "v26.13.0"
+ },
+ "bytes": {
+  "/static-table/t-off": {
+   "flight": {
+    "median": 765516,
+    "min": 765516,
+    "max": 765516,
+    "samples": [
+     765516,
+     765516,
+     765516,
+     765516,
+     765516
+    ]
+   },
+   "gzip": {
+    "median": 108963,
+    "min": 108963,
+    "max": 108963,
+    "samples": [
+     108963,
+     108963,
+     108963,
+     108963,
+     108963
+    ]
+   },
+   "raw": {
+    "median": 1273817,
+    "min": 1273817,
+    "max": 1273817,
+    "samples": [
+     1273817,
+     1273817,
+     1273817,
+     1273817,
+     1273817
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/static-table/t-reg": {
+   "flight": {
+    "median": 29089,
+    "min": 29089,
+    "max": 29089,
+    "samples": [
+     29089,
+     29089,
+     29089,
+     29089,
+     29089
+    ]
+   },
+   "gzip": {
+    "median": 57669,
+    "min": 57669,
+    "max": 57669,
+    "samples": [
+     57669,
+     57669,
+     57669,
+     57669,
+     57669
+    ]
+   },
+   "raw": {
+    "median": 537334,
+    "min": 537334,
+    "max": 537334,
+    "samples": [
+     537334,
+     537334,
+     537334,
+     537334,
+     537334
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/static-table/t-tee": {
+   "flight": {
+    "median": 29089,
+    "min": 29089,
+    "max": 29089,
+    "samples": [
+     29089,
+     29089,
+     29089,
+     29089,
+     29089
+    ]
+   },
+   "gzip": {
+    "median": 57672,
+    "min": 57672,
+    "max": 57672,
+    "samples": [
+     57672,
+     57672,
+     57672,
+     57672,
+     57672
+    ]
+   },
+   "raw": {
+    "median": 537333,
+    "min": 537333,
+    "max": 537333,
+    "samples": [
+     537333,
+     537333,
+     537333,
+     537333,
+     537333
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/ppr/t-cc-off": {
+   "flight": {
+    "median": 125424,
+    "min": 125424,
+    "max": 125424,
+    "samples": [
+     125424,
+     125424,
+     125424,
+     125424,
+     125424
+    ]
+   },
+   "gzip": {
+    "median": 17293,
+    "min": 17293,
+    "max": 17293,
+    "samples": [
+     17293,
+     17293,
+     17293,
+     17293,
+     17293
+    ]
+   },
+   "raw": {
+    "median": 184914,
+    "min": 184914,
+    "max": 184914,
+    "samples": [
+     184914,
+     184914,
+     184914,
+     184914,
+     184914
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/static/t-cc-off": {
+   "flight": {
+    "median": 125258,
+    "min": 125258,
+    "max": 125258,
+    "samples": [
+     125258,
+     125258,
+     125258,
+     125258,
+     125258
+    ]
+   },
+   "gzip": {
+    "median": 16509,
+    "min": 16509,
+    "max": 16509,
+    "samples": [
+     16509,
+     16509,
+     16509,
+     16509,
+     16509
+    ]
+   },
+   "raw": {
+    "median": 183630,
+    "min": 183630,
+    "max": 183630,
+    "samples": [
+     183630,
+     183630,
+     183630,
+     183630,
+     183630
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/ppr/t-cc-reg": {
+   "flight": {
+    "median": 4265,
+    "min": 4265,
+    "max": 4265,
+    "samples": [
+     4265,
+     4265,
+     4265,
+     4265,
+     4265
+    ]
+   },
+   "gzip": {
+    "median": 7183,
+    "min": 7183,
+    "max": 7183,
+    "samples": [
+     7183,
+     7183,
+     7183,
+     7183,
+     7183
+    ]
+   },
+   "raw": {
+    "median": 63705,
+    "min": 63705,
+    "max": 63705,
+    "samples": [
+     63705,
+     63705,
+     63705,
+     63705,
+     63705
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/static/t-cc-reg": {
+   "flight": {
+    "median": 11609,
+    "min": 11609,
+    "max": 11609,
+    "samples": [
+     11609,
+     11609,
+     11609,
+     11609,
+     11609
+    ]
+   },
+   "gzip": {
+    "median": 9091,
+    "min": 9091,
+    "max": 9091,
+    "samples": [
+     9091,
+     9091,
+     9091,
+     9091,
+     9091
+    ]
+   },
+   "raw": {
+    "median": 69931,
+    "min": 69931,
+    "max": 69931,
+    "samples": [
+     69931,
+     69931,
+     69931,
+     69931,
+     69931
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/ppr/t-cc-tee": {
+   "flight": {
+    "median": 4267,
+    "min": 4266,
+    "max": 4268,
+    "samples": [
+     4268,
+     4267,
+     4267,
+     4266,
+     4268
+    ]
+   },
+   "gzip": {
+    "median": 7188,
+    "min": 7186,
+    "max": 7188,
+    "samples": [
+     7188,
+     7188,
+     7188,
+     7186,
+     7188
+    ]
+   },
+   "raw": {
+    "median": 63707,
+    "min": 63706,
+    "max": 63708,
+    "samples": [
+     63708,
+     63707,
+     63707,
+     63706,
+     63708
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  },
+  "/static/t-cc-tee": {
+   "flight": {
+    "median": 11609,
+    "min": 11609,
+    "max": 11609,
+    "samples": [
+     11609,
+     11609,
+     11609,
+     11609,
+     11609
+    ]
+   },
+   "gzip": {
+    "median": 9090,
+    "min": 9090,
+    "max": 9090,
+    "samples": [
+     9090,
+     9090,
+     9090,
+     9090,
+     9090
+    ]
+   },
+   "raw": {
+    "median": 69931,
+    "min": 69931,
+    "max": 69931,
+    "samples": [
+     69931,
+     69931,
+     69931,
+     69931,
+     69931
+    ]
+   },
+   "status": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ]
+  }
+ },
+ "stored": {
+  "static-table/t-off": {
+   "bytes": 680767,
+   "stubs": 0
+  },
+  "static-table/t-reg": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static-table/t-tee": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static/t-cc-off": {
+   "bytes": 105830,
+   "stubs": 0
+  },
+  "static/t-cc-reg": {
+   "bytes": 105831,
+   "stubs": 0
+  },
+  "static/t-cc-tee": {
+   "bytes": 105831,
+   "stubs": 0
+  }
+ },
+ "refresh": {
+  "t-off": [
+   [
+    20,
+    14
+   ],
+   [
+    19,
+    14
+   ],
+   [
+    22,
+    13
+   ],
+   [
+    20,
+    16
+   ],
+   [
+    20,
+    20
+   ]
+  ],
+  "t-reg": [
+   [
+    20,
+    13
+   ],
+   [
+    21,
+    13
+   ],
+   [
+    21,
+    11
+   ],
+   [
+    21,
+    10
+   ],
+   [
+    20,
+    15
+   ]
+  ],
+  "t-tee": [
+   [
+    19,
+    12
+   ],
+   [
+    22,
+    9
+   ],
+   [
+    17,
+    12
+   ],
+   [
+    15,
+    11
+   ],
+   [
+    21,
+    13
+   ]
+  ]
+ },
+ "mem": {
+  "t-off": [
+   {
+    "onTable": {
+     "nodes": 14344,
+     "heapMB": 4.59
+    },
+    "away": {
+     "nodes": 256,
+     "heapMB": 4.37
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14344,
+     "heapMB": 4.55
+    },
+    "away": {
+     "nodes": 256,
+     "heapMB": 4.36
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14344,
+     "heapMB": 4.55
+    },
+    "away": {
+     "nodes": 256,
+     "heapMB": 4.35
+    }
+   }
+  ],
+  "t-reg": [
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.89
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.21
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.89
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.21
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.89
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.21
+    }
+   }
+  ],
+  "t-tee": [
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.96
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.22
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.96
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.22
+    }
+   },
+   {
+    "onTable": {
+     "nodes": 14163,
+     "heapMB": 4.96
+    },
+    "away": {
+     "nodes": 75,
+     "heapMB": 4.22
+    }
+   }
+  ]
+ },
+ "cc": {
+  "t-cc-off": {
+   "logs": [],
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "t-cc-reg": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "t-cc-tee": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  }
+ },
+ "summary": {
+  "refresh": {
+   "t-off": [
+    20,
+    14
+   ],
+   "t-reg": [
+    21,
+    13
+   ],
+   "t-tee": [
+    19,
+    12
+   ]
+  },
+  "mem": {
+   "t-off": {
+    "onTableNodes": 14344,
+    "onTableHeapMB": 4.55,
+    "awayNodes": 256,
+    "awayHeapMB": 4.36
+   },
+   "t-reg": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 4.89,
+    "awayNodes": 75,
+    "awayHeapMB": 4.21
+   },
+   "t-tee": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 4.96,
+    "awayNodes": 75,
+    "awayHeapMB": 4.22
+   }
+  }
+ }
+}

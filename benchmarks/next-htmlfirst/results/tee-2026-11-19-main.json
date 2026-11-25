@@ -1,0 +1,1090 @@
+{
+ "config": {
+  "ROUNDS": 5,
+  "DURATION": 10,
+  "WARMUP": 10,
+  "SAMPLES": 5,
+  "SEQ": 30,
+  "connections": 16,
+  "variants": [
+   "t-off",
+   "t-reg",
+   "t-tee"
+  ],
+  "pages": [
+   "table",
+   "client-rows"
+  ],
+  "node": "v26.13.0",
+  "loadavgAtEnd": [
+   3.54541015625,
+   7.1591796875,
+   9.71337890625
+  ]
+ },
+ "bytes": {
+  "table/t-off": {
+   "raw": {
+    "median": 1273679,
+    "min": 1273679,
+    "max": 1273679,
+    "n": 5,
+    "samples": [
+     1273679,
+     1273679,
+     1273679,
+     1273679,
+     1273679
+    ]
+   },
+   "gzip": {
+    "median": 108928,
+    "min": 108928,
+    "max": 108928,
+    "n": 5,
+    "samples": [
+     108928,
+     108928,
+     108928,
+     108928,
+     108928
+    ]
+   },
+   "brotli": {
+    "median": 61753,
+    "min": 61753,
+    "max": 61753,
+    "n": 5,
+    "samples": [
+     61753,
+     61753,
+     61753,
+     61753,
+     61753
+    ]
+   },
+   "flight": {
+    "median": 765387,
+    "min": 765387,
+    "max": 765387,
+    "n": 5,
+    "samples": [
+     765387,
+     765387,
+     765387,
+     765387,
+     765387
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/t-reg": {
+   "raw": {
+    "median": 531591,
+    "min": 531591,
+    "max": 531591,
+    "n": 5,
+    "samples": [
+     531591,
+     531591,
+     531591,
+     531591,
+     531591
+    ]
+   },
+   "gzip": {
+    "median": 55209,
+    "min": 55209,
+    "max": 55209,
+    "n": 5,
+    "samples": [
+     55209,
+     55209,
+     55209,
+     55209,
+     55209
+    ]
+   },
+   "brotli": {
+    "median": 36067,
+    "min": 36066,
+    "max": 36067,
+    "n": 5,
+    "samples": [
+     36067,
+     36067,
+     36066,
+     36066,
+     36067
+    ]
+   },
+   "flight": {
+    "median": 23355,
+    "min": 23355,
+    "max": 23355,
+    "n": 5,
+    "samples": [
+     23355,
+     23355,
+     23355,
+     23355,
+     23355
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/t-tee": {
+   "raw": {
+    "median": 531586,
+    "min": 531586,
+    "max": 531586,
+    "n": 5,
+    "samples": [
+     531586,
+     531586,
+     531586,
+     531586,
+     531586
+    ]
+   },
+   "gzip": {
+    "median": 55212,
+    "min": 55210,
+    "max": 55212,
+    "n": 5,
+    "samples": [
+     55212,
+     55212,
+     55212,
+     55212,
+     55210
+    ]
+   },
+   "brotli": {
+    "median": 36064,
+    "min": 36064,
+    "max": 36064,
+    "n": 5,
+    "samples": [
+     36064,
+     36064,
+     36064,
+     36064,
+     36064
+    ]
+   },
+   "flight": {
+    "median": 23351,
+    "min": 23351,
+    "max": 23351,
+    "n": 5,
+    "samples": [
+     23351,
+     23351,
+     23351,
+     23351,
+     23351
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/t-off": {
+   "raw": {
+    "median": 456856,
+    "min": 456856,
+    "max": 456856,
+    "n": 5,
+    "samples": [
+     456856,
+     456856,
+     456856,
+     456856,
+     456856
+    ]
+   },
+   "gzip": {
+    "median": 34754,
+    "min": 34754,
+    "max": 34754,
+    "n": 5,
+    "samples": [
+     34754,
+     34754,
+     34754,
+     34754,
+     34754
+    ]
+   },
+   "brotli": {
+    "median": 21040,
+    "min": 21040,
+    "max": 21040,
+    "n": 5,
+    "samples": [
+     21040,
+     21040,
+     21040,
+     21040,
+     21040
+    ]
+   },
+   "flight": {
+    "median": 257010,
+    "min": 257010,
+    "max": 257010,
+    "n": 5,
+    "samples": [
+     257010,
+     257010,
+     257010,
+     257010,
+     257010
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/t-reg": {
+   "raw": {
+    "median": 456795,
+    "min": 456795,
+    "max": 456795,
+    "n": 5,
+    "samples": [
+     456795,
+     456795,
+     456795,
+     456795,
+     456795
+    ]
+   },
+   "gzip": {
+    "median": 34717,
+    "min": 34717,
+    "max": 34717,
+    "n": 5,
+    "samples": [
+     34717,
+     34717,
+     34717,
+     34717,
+     34717
+    ]
+   },
+   "brotli": {
+    "median": 20910,
+    "min": 20910,
+    "max": 20910,
+    "n": 5,
+    "samples": [
+     20910,
+     20910,
+     20910,
+     20910,
+     20910
+    ]
+   },
+   "flight": {
+    "median": 256999,
+    "min": 256999,
+    "max": 256999,
+    "n": 5,
+    "samples": [
+     256999,
+     256999,
+     256999,
+     256999,
+     256999
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/t-tee": {
+   "raw": {
+    "median": 456790,
+    "min": 456790,
+    "max": 456790,
+    "n": 5,
+    "samples": [
+     456790,
+     456790,
+     456790,
+     456790,
+     456790
+    ]
+   },
+   "gzip": {
+    "median": 34714,
+    "min": 34714,
+    "max": 34714,
+    "n": 5,
+    "samples": [
+     34714,
+     34714,
+     34714,
+     34714,
+     34714
+    ]
+   },
+   "brotli": {
+    "median": 20957,
+    "min": 20957,
+    "max": 20957,
+    "n": 5,
+    "samples": [
+     20957,
+     20957,
+     20957,
+     20957,
+     20957
+    ]
+   },
+   "flight": {
+    "median": 256995,
+    "min": 256995,
+    "max": 256995,
+    "n": 5,
+    "samples": [
+     256995,
+     256995,
+     256995,
+     256995,
+     256995
+    ]
+   },
+   "nonOk": 0
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "loadavg": 12.12548828125,
+   "order": [
+    "t-off",
+    "t-reg",
+    "t-tee"
+   ],
+   "data": {
+    "table/t-off": {
+     "ttfb": 25.446000500000082,
+     "total": 26.347874999999476,
+     "seqBad": 0,
+     "rps": 43.9,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 439
+    },
+    "table/t-reg": {
+     "ttfb": 11.89847899999586,
+     "total": 12.161541499997838,
+     "seqBad": 0,
+     "rps": 124.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1248
+    },
+    "table/t-tee": {
+     "ttfb": 10.971145500006969,
+     "total": 11.290541999995185,
+     "seqBad": 0,
+     "rps": 141.7,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1417
+    },
+    "client-rows/t-off": {
+     "ttfb": 10.56377049999719,
+     "total": 10.992978999995103,
+     "seqBad": 0,
+     "rps": 102.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1024
+    },
+    "client-rows/t-reg": {
+     "ttfb": 14.445646000000124,
+     "total": 14.770854499998677,
+     "seqBad": 0,
+     "rps": 104,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1040
+    },
+    "client-rows/t-tee": {
+     "ttfb": 10.171041499997955,
+     "total": 10.63291699999536,
+     "seqBad": 0,
+     "rps": 134.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1344
+    }
+   }
+  },
+  {
+   "round": 1,
+   "loadavg": 12.716796875,
+   "order": [
+    "t-off",
+    "t-tee",
+    "t-reg"
+   ],
+   "data": {
+    "table/t-off": {
+     "ttfb": 20.322832999998354,
+     "total": 20.991125000015018,
+     "seqBad": 0,
+     "rps": 49.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 498
+    },
+    "table/t-tee": {
+     "ttfb": 6.92581249999057,
+     "total": 7.294291499987594,
+     "seqBad": 0,
+     "rps": 154,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1540
+    },
+    "table/t-reg": {
+     "ttfb": 6.269709000000148,
+     "total": 6.7420209999982035,
+     "seqBad": 0,
+     "rps": 153.7,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1537
+    },
+    "client-rows/t-off": {
+     "ttfb": 10.66666649999388,
+     "total": 10.976041999994777,
+     "seqBad": 0,
+     "rps": 107.3,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1073
+    },
+    "client-rows/t-tee": {
+     "ttfb": 8.77068750000035,
+     "total": 9.063437500008149,
+     "seqBad": 0,
+     "rps": 124.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1244
+    },
+    "client-rows/t-reg": {
+     "ttfb": 10.294416500008083,
+     "total": 10.519729000006919,
+     "seqBad": 0,
+     "rps": 118.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1184
+    }
+   }
+  },
+  {
+   "round": 2,
+   "loadavg": 8.7490234375,
+   "order": [
+    "t-tee",
+    "t-off",
+    "t-reg"
+   ],
+   "data": {
+    "table/t-tee": {
+     "ttfb": 10.821229000008316,
+     "total": 11.208687000005739,
+     "seqBad": 0,
+     "rps": 137.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1376
+    },
+    "table/t-off": {
+     "ttfb": 25.196208499997738,
+     "total": 26.274791999996523,
+     "seqBad": 0,
+     "rps": 46.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 464
+    },
+    "table/t-reg": {
+     "ttfb": 7.926437000016449,
+     "total": 8.377853999991203,
+     "seqBad": 0,
+     "rps": 142.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1424
+    },
+    "client-rows/t-tee": {
+     "ttfb": 8.04445799998939,
+     "total": 8.394791500002611,
+     "seqBad": 0,
+     "rps": 126.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1264
+    },
+    "client-rows/t-off": {
+     "ttfb": 11.721063000004506,
+     "total": 11.991979500016896,
+     "seqBad": 0,
+     "rps": 99.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 992
+    },
+    "client-rows/t-reg": {
+     "ttfb": 11.17287499998929,
+     "total": 11.576125499996124,
+     "seqBad": 0,
+     "rps": 108.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1088
+    }
+   }
+  },
+  {
+   "round": 3,
+   "loadavg": 7.10693359375,
+   "order": [
+    "t-tee",
+    "t-reg",
+    "t-off"
+   ],
+   "data": {
+    "table/t-tee": {
+     "ttfb": 8.673520999989705,
+     "total": 8.951520999980858,
+     "seqBad": 0,
+     "rps": 149.81,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1498
+    },
+    "table/t-reg": {
+     "ttfb": 10.779520999989472,
+     "total": 11.083562999992864,
+     "seqBad": 0,
+     "rps": 147.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1476
+    },
+    "table/t-off": {
+     "ttfb": 23.184916500002146,
+     "total": 23.746979000017745,
+     "seqBad": 0,
+     "rps": 47.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 475
+    },
+    "client-rows/t-tee": {
+     "ttfb": 8.68579150000005,
+     "total": 8.970499499992002,
+     "seqBad": 0,
+     "rps": 129.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1296
+    },
+    "client-rows/t-reg": {
+     "ttfb": 11.257875000010245,
+     "total": 11.597499500028789,
+     "seqBad": 0,
+     "rps": 100.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1006
+    },
+    "client-rows/t-off": {
+     "ttfb": 9.524854000017513,
+     "total": 10.052124999987427,
+     "seqBad": 0,
+     "rps": 100.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1008
+    }
+   }
+  },
+  {
+   "round": 4,
+   "loadavg": 7.71484375,
+   "order": [
+    "t-reg",
+    "t-tee",
+    "t-off"
+   ],
+   "data": {
+    "table/t-reg": {
+     "ttfb": 8.936541499977466,
+     "total": 9.360249999997905,
+     "seqBad": 0,
+     "rps": 136.31,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1363
+    },
+    "table/t-tee": {
+     "ttfb": 8.966208500001812,
+     "total": 9.656666999973822,
+     "seqBad": 0,
+     "rps": 166.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1664
+    },
+    "table/t-off": {
+     "ttfb": 21.637063000001945,
+     "total": 22.416874999995343,
+     "seqBad": 0,
+     "rps": 46.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 464
+    },
+    "client-rows/t-reg": {
+     "ttfb": 9.96760400000494,
+     "total": 10.178771000006236,
+     "seqBad": 0,
+     "rps": 116.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1166
+    },
+    "client-rows/t-tee": {
+     "ttfb": 8.369583999970928,
+     "total": 8.582563000003574,
+     "seqBad": 0,
+     "rps": 134.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1341
+    },
+    "client-rows/t-off": {
+     "ttfb": 9.622540999989724,
+     "total": 9.882603999983985,
+     "seqBad": 0,
+     "rps": 110.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1104
+    }
+   }
+  }
+ ],
+ "ratios": {
+  "table/t-reg": {
+   "rps": {
+    "median": 3.0689655172413794,
+    "min": 2.8428246013667424,
+    "max": 3.1073684210526316,
+    "n": 5,
+    "samples": [
+     2.8428246013667424,
+     3.086345381526104,
+     3.0689655172413794,
+     3.1073684210526316,
+     2.9377155172413794
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.4130200804044737,
+    "min": 0.3085056596194367,
+    "max": 0.4675972163089371,
+    "n": 5,
+    "samples": [
+     0.4675972163089371,
+     0.3085056596194367,
+     0.31458848262893047,
+     0.46493680492610245,
+     0.4130200804044737
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.41755374020686864,
+    "min": 0.31885519778776217,
+    "max": 0.46673570562321137,
+    "n": 5,
+    "samples": [
+     0.46157580070491755,
+     0.3211843576746544,
+     0.31885519778776217,
+     0.46673570562321137,
+     0.41755374020686864
+    ],
+    "straddlesOne": false
+   }
+  },
+  "table/t-tee": {
+   "rps": {
+    "median": 3.1538947368421053,
+    "min": 2.9655172413793105,
+    "max": 3.586206896551724,
+    "n": 5,
+    "samples": [
+     3.227790432801822,
+     3.092369477911647,
+     2.9655172413793105,
+     3.1538947368421053,
+     3.586206896551724
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.414391199951722,
+    "min": 0.34078971666947866,
+    "max": 0.43115402359623994,
+    "n": 5,
+    "samples": [
+     0.43115402359623994,
+     0.34078971666947866,
+     0.4294784669689206,
+     0.37410188645660647,
+     0.414391199951722
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.42659469958914314,
+    "min": 0.34749407189859405,
+    "max": 0.43077668051304335,
+    "n": 5,
+    "samples": [
+     0.4285181252755833,
+     0.34749407189859405,
+     0.42659469958914314,
+     0.3769540959283355,
+     0.43077668051304335
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/t-reg": {
+   "rps": {
+    "median": 1.056159420289855,
+    "min": 0.998015873015873,
+    "max": 1.103448275862069,
+    "n": 5,
+    "samples": [
+     1.015625,
+     1.103448275862069,
+     1.096774193548387,
+     0.998015873015873,
+     1.056159420289855
+    ],
+    "straddlesOne": true
+   },
+   "ttfb": {
+    "median": 1.0358598627966962,
+    "min": 0.9532305218379079,
+    "max": 1.367470639389976,
+    "n": 5,
+    "samples": [
+     1.367470639389976,
+     0.9651015619560234,
+     0.9532305218379079,
+     1.1819472508439022,
+     1.0358598627966962
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 1.0299685184211298,
+    "min": 0.9584264528153158,
+    "max": 1.3436625777239506,
+    "n": 5,
+    "samples": [
+     1.3436625777239506,
+     0.9584264528153158,
+     0.9653223223054888,
+     1.153736100580056,
+     1.0299685184211298
+    ],
+    "straddlesOne": true
+   }
+  },
+  "client-rows/t-tee": {
+   "rps": {
+    "median": 1.2741935483870968,
+    "min": 1.1593662628145387,
+    "max": 1.3125,
+    "n": 5,
+    "samples": [
+     1.3125,
+     1.1593662628145387,
+     1.2741935483870968,
+     1.2857142857142856,
+     1.214673913043478
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.869789383072503,
+    "min": 0.6863249519251196,
+    "max": 0.9628230280088592,
+    "n": 5,
+    "samples": [
+     0.9628230280088592,
+     0.8222519659731915,
+     0.6863249519251196,
+     0.9119080985371619,
+     0.869789383072503
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.8684515741010651,
+    "min": 0.7000338434526829,
+    "max": 0.967246185042298,
+    "n": 5,
+    "samples": [
+     0.967246185042298,
+     0.8257473413469502,
+     0.7000338434526829,
+     0.8923983237378387,
+     0.8684515741010651
+    ],
+    "straddlesOne": false
+   }
+  }
+ },
+ "errorsTotal": 0,
+ "browser": [
+  {
+   "v": "t-off",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-off",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-off",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/static-table",
+     "/table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-reg",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-reg",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-reg",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

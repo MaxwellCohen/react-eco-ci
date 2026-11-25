@@ -1,0 +1,28 @@
+# Release artifacts (/Users/maxcohen/code/react-ecosystem/html-first-tee-release-v2), shasum -c: all OK
+ef4bf08d7840f087c2e410033f53fcf61632de6010a0ad9fadb6200dc0d6dab8  ./next-16.4.6-html-first-flight-tee.tgz
+f99a49f713b1dc87338c9a771765ddf57a6313901c7a9fc89552bdf81494968a  ./react-dom-html-first-flight.tgz
+9926b6dc398ad02ac737ef6bb2f44a715dd28706c4ab2e4e1a286c7b106168bd  ./react-html-first-flight.tgz
+1b5fa1da48ef023fc580aaf16d6d579c8128501b8b20c6587a00b9137dbbb213  ./react-is-html-first-flight.tgz
+f9c7513096bc55257f533a203db49e00f5367cd66bb8655e8abefa0f1674f7e5  ./react-server-dom-turbopack-html-first-flight.tgz
+164886038a414a6f15cd6dc06cdaadd0b293e51680f52338f2a5e39c3d8b784e  ./react-server-dom-webpack-html-first-flight.tgz
+e5208137acf172d613916d7bcc3967fc3a020f980294b5c5a893440e18c2f9c6  ./scheduler-html-first-flight.tgz
+b5b5abed6a834fdd8c84ac733ee706a04a9dd1df0d1c3d2fab96cc2b2a818b81  ./vendored-into-next/experimental/react-dom.tgz
+4540c4a3dd2118c2169d2909cf857e6474fa0d60979d55c218764b6f3a3998e6  ./vendored-into-next/experimental/react-is.tgz
+684620716b8ef3715d007bbb18465a3f523d1ef1173a0ccd9805bd15af31e45a  ./vendored-into-next/experimental/react-server-dom-turbopack.tgz
+482157733e931afe35f18dfbdec5d54bab44d5eaf76c4ee8b6fe2457fa98f2f3  ./vendored-into-next/experimental/react-server-dom-webpack.tgz
+0e26b7cd560af5db917c41937aadef1510f15ce63493bb4fb1c96894333fd652  ./vendored-into-next/experimental/react.tgz
+306217d16c31e03de3400006816778f28815cd4ba3f069513b78687dc768e51f  ./vendored-into-next/experimental/scheduler.tgz
+f99a49f713b1dc87338c9a771765ddf57a6313901c7a9fc89552bdf81494968a  ./vendored-into-next/stable/react-dom.tgz
+1b5fa1da48ef023fc580aaf16d6d579c8128501b8b20c6587a00b9137dbbb213  ./vendored-into-next/stable/react-is.tgz
+f9c7513096bc55257f533a203db49e00f5367cd66bb8655e8abefa0f1674f7e5  ./vendored-into-next/stable/react-server-dom-turbopack.tgz
+164886038a414a6f15cd6dc06cdaadd0b293e51680f52338f2a5e39c3d8b784e  ./vendored-into-next/stable/react-server-dom-webpack.tgz
+9926b6dc398ad02ac737ef6bb2f44a715dd28706c4ab2e4e1a286c7b106168bd  ./vendored-into-next/stable/react.tgz
+e5208137acf172d613916d7bcc3967fc3a020f980294b5c5a893440e18c2f9c6  ./vendored-into-next/stable/scheduler.tgz
+74298ec7f48a30c103d5f4a3369852bc8674942fa7455ed5bcb2e03306772ea7  ./waku-1.0.0-rc.4-html-first-flight-tee.tgz
+f8a5730a80fcde8c0a264d799490d1af632e2d6bbb459b6667f53e355537780d  ./waku-1.0.0-rc.4-stock.tgz
+
+# Bench app installs: lockfile sha512 integrity vs release file (checked 2026-11-23)
+v2-tee, v2-cc-tee: next, react, react-dom, scheduler ok
+t-tee, t-cc-tee (prev, html-first-tee-release/): next, react, react-dom, scheduler ok
+t-off, t-cc-off: Next 16.4.6 stock, install tarballs no longer on disk (old scratchpad); installed node_modules and lockfile unchanged
+Waku f3-off, f3-tee (v2 files): waku, react, react-dom, scheduler, react-server-dom-webpack ok; f-tee, f-ctl (prev files): same ok; react-is is not a lockfile file: entry in any Waku app (same for prev)

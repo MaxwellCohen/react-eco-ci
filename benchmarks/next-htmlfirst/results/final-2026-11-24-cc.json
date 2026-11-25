@@ -1,0 +1,114 @@
+{
+ "config": {
+  "off": "fin-cc-off",
+  "on": "fin-cc-on",
+  "node": "v26.13.0"
+ },
+ "bytes": {
+  "/ppr/fin-cc-off": {
+   "status": 200,
+   "raw": 184861,
+   "gzip": 17256,
+   "flight": 125421,
+   "J": 0,
+   "stubs": 0,
+   "deterministic": false
+  },
+  "/ppr-offpath/fin-cc-off": {
+   "status": 200,
+   "raw": 185245,
+   "gzip": 17395,
+   "flight": 125688,
+   "J": 0,
+   "stubs": 0,
+   "deterministic": false
+  },
+  "/static/fin-cc-off": {
+   "status": 200,
+   "raw": 183577,
+   "gzip": 16474,
+   "flight": 125255,
+   "J": 0,
+   "stubs": 0,
+   "deterministic": true
+  },
+  "/ppr/fin-cc-on": {
+   "status": 200,
+   "raw": 63772,
+   "gzip": 7191,
+   "flight": 4332,
+   "J": 0,
+   "stubs": 0,
+   "deterministic": false
+  },
+  "/ppr-offpath/fin-cc-on": {
+   "status": 200,
+   "raw": 64134,
+   "gzip": 7274,
+   "flight": 4577,
+   "J": 0,
+   "stubs": 0,
+   "deterministic": false
+  },
+  "/static/fin-cc-on": {
+   "status": 200,
+   "raw": 70131,
+   "gzip": 9144,
+   "flight": 11809,
+   "J": 0,
+   "stubs": 397,
+   "deterministic": true
+  }
+ },
+ "stored": {
+  "static/fin-cc-off": {
+   "bytes": 105827,
+   "stubs": 0
+  },
+  "ppr/fin-cc-off": "none",
+  "ppr-offpath/fin-cc-off": "none",
+  "static/fin-cc-on": {
+   "bytes": 105831,
+   "stubs": 0
+  },
+  "ppr/fin-cc-on": "none",
+  "ppr-offpath/fin-cc-on": "none"
+ },
+ "browser": {
+  "fin-cc-off": {
+   "rows/ppr": 500,
+   "rows/ppr-offpath": 500,
+   "counter": "count 2",
+   "rows/static": 500,
+   "navStaticRows": 500,
+   "navPprRows": 500,
+   "backRows": 500,
+   "counterAfterBack": "count 1",
+   "rscRequests": [
+    "/static",
+    "/ppr"
+   ],
+   "logs": [],
+   "nlogs": 0
+  },
+  "fin-cc-on": {
+   "domMatchesOff/ppr": true,
+   "rows/ppr": 500,
+   "domMatchesOff/ppr-offpath": true,
+   "rows/ppr-offpath": 500,
+   "counter": "count 2",
+   "domMatchesOff/static": true,
+   "rows/static": 500,
+   "navStaticRows": 500,
+   "navPprRows": 500,
+   "backRows": 500,
+   "counterAfterBack": "count 1",
+   "rscRequests": [
+    "/static",
+    "/ppr"
+   ],
+   "logs": [],
+   "nlogs": 0
+  }
+ }
+}

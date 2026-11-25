@@ -1,0 +1,132 @@
+{
+ "bytes": {
+  "/static-table/t-off": {
+   "flight": 765516,
+   "gzip": 108963,
+   "status": 200
+  },
+  "/static-table/t-tee": {
+   "flight": 29089,
+   "gzip": 57672,
+   "status": 200
+  },
+  "/static-table/v2-tee": {
+   "flight": 32596,
+   "gzip": 58449,
+   "status": 200
+  },
+  "/ppr/t-cc-off": {
+   "flight": 125424,
+   "gzip": 17293,
+   "status": 200
+  },
+  "/static/t-cc-off": {
+   "flight": 125258,
+   "gzip": 16509,
+   "status": 200
+  },
+  "/ppr/t-cc-tee": {
+   "flight": 4268,
+   "gzip": 7188,
+   "status": 200
+  },
+  "/static/t-cc-tee": {
+   "flight": 11609,
+   "gzip": 9090,
+   "status": 200
+  },
+  "/ppr/v2-cc-tee": {
+   "flight": 4302,
+   "gzip": 7177,
+   "status": 200
+  },
+  "/static/v2-cc-tee": {
+   "flight": 11725,
+   "gzip": 9110,
+   "status": 200
+  }
+ },
+ "stored": {
+  "static-table/t-off": {
+   "bytes": 680767,
+   "stubs": 0
+  },
+  "static-table/t-tee": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static-table/v2-tee": {
+   "bytes": 680761,
+   "stubs": 0
+  },
+  "static/t-cc-off": {
+   "bytes": 105830,
+   "stubs": 0
+  },
+  "static/t-cc-tee": {
+   "bytes": 105831,
+   "stubs": 0
+  },
+  "static/v2-cc-tee": {
+   "bytes": 105830,
+   "stubs": 0
+  }
+ },
+ "summary": {
+  "refresh": {
+   "t-off": [
+    17,
+    12
+   ],
+   "t-tee": [
+    18,
+    11
+   ],
+   "v2-tee": [
+    18,
+    10
+   ]
+  },
+  "mem": {
+   "t-off": {
+    "onTableNodes": 14344,
+    "onTableHeapMB": 4.55,
+    "awayNodes": 256,
+    "awayHeapMB": 4.35
+   },
+   "t-tee": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 4.97,
+    "awayNodes": 75,
+    "awayHeapMB": 4.22
+   },
+   "v2-tee": {
+    "onTableNodes": 14163,
+    "onTableHeapMB": 3.43,
+    "awayNodes": 75,
+    "awayHeapMB": 4.08
+   }
+  }
+ },
+ "cc": {
+  "t-cc-off": {
+   "logs": [],
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "t-cc-tee": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  },
+  "v2-cc-tee": {
+   "logs": [],
+   "domMatches/static": true,
+   "domMatches/ppr": true,
+   "navRows": 1000,
+   "backRows": 1000
+  }
+ }
+}

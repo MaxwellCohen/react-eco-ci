@@ -1,0 +1,1090 @@
+{
+ "config": {
+  "ROUNDS": 5,
+  "DURATION": 10,
+  "WARMUP": 10,
+  "SAMPLES": 5,
+  "SEQ": 30,
+  "connections": 16,
+  "variants": [
+   "t-off",
+   "t-tee",
+   "v2-tee"
+  ],
+  "pages": [
+   "table",
+   "client-rows"
+  ],
+  "node": "v26.13.0",
+  "loadavgAtEnd": [
+   2.2802734375,
+   3.998046875,
+   5.5947265625
+  ]
+ },
+ "bytes": {
+  "table/t-off": {
+   "raw": {
+    "median": 1273679,
+    "min": 1273679,
+    "max": 1273679,
+    "n": 5,
+    "samples": [
+     1273679,
+     1273679,
+     1273679,
+     1273679,
+     1273679
+    ]
+   },
+   "gzip": {
+    "median": 108928,
+    "min": 108928,
+    "max": 108928,
+    "n": 5,
+    "samples": [
+     108928,
+     108928,
+     108928,
+     108928,
+     108928
+    ]
+   },
+   "brotli": {
+    "median": 61753,
+    "min": 61753,
+    "max": 61753,
+    "n": 5,
+    "samples": [
+     61753,
+     61753,
+     61753,
+     61753,
+     61753
+    ]
+   },
+   "flight": {
+    "median": 765387,
+    "min": 765387,
+    "max": 765387,
+    "n": 5,
+    "samples": [
+     765387,
+     765387,
+     765387,
+     765387,
+     765387
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/t-tee": {
+   "raw": {
+    "median": 531598,
+    "min": 531597,
+    "max": 531599,
+    "n": 5,
+    "samples": [
+     531598,
+     531598,
+     531598,
+     531597,
+     531599
+    ]
+   },
+   "gzip": {
+    "median": 55217,
+    "min": 55217,
+    "max": 55217,
+    "n": 5,
+    "samples": [
+     55217,
+     55217,
+     55217,
+     55217,
+     55217
+    ]
+   },
+   "brotli": {
+    "median": 36067,
+    "min": 36067,
+    "max": 36068,
+    "n": 5,
+    "samples": [
+     36068,
+     36068,
+     36067,
+     36067,
+     36067
+    ]
+   },
+   "flight": {
+    "median": 23363,
+    "min": 23362,
+    "max": 23364,
+    "n": 5,
+    "samples": [
+     23363,
+     23363,
+     23363,
+     23362,
+     23364
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/v2-tee": {
+   "raw": {
+    "median": 533080,
+    "min": 533080,
+    "max": 533081,
+    "n": 5,
+    "samples": [
+     533080,
+     533080,
+     533081,
+     533080,
+     533080
+    ]
+   },
+   "gzip": {
+    "median": 55274,
+    "min": 55273,
+    "max": 55275,
+    "n": 5,
+    "samples": [
+     55274,
+     55273,
+     55275,
+     55273,
+     55274
+    ]
+   },
+   "brotli": {
+    "median": 36009,
+    "min": 35990,
+    "max": 36010,
+    "n": 5,
+    "samples": [
+     36010,
+     36009,
+     35990,
+     36009,
+     36009
+    ]
+   },
+   "flight": {
+    "median": 24844,
+    "min": 24844,
+    "max": 24845,
+    "n": 5,
+    "samples": [
+     24844,
+     24844,
+     24845,
+     24844,
+     24844
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/t-off": {
+   "raw": {
+    "median": 456856,
+    "min": 456856,
+    "max": 456856,
+    "n": 5,
+    "samples": [
+     456856,
+     456856,
+     456856,
+     456856,
+     456856
+    ]
+   },
+   "gzip": {
+    "median": 34754,
+    "min": 34754,
+    "max": 34754,
+    "n": 5,
+    "samples": [
+     34754,
+     34754,
+     34754,
+     34754,
+     34754
+    ]
+   },
+   "brotli": {
+    "median": 21040,
+    "min": 21040,
+    "max": 21040,
+    "n": 5,
+    "samples": [
+     21040,
+     21040,
+     21040,
+     21040,
+     21040
+    ]
+   },
+   "flight": {
+    "median": 257010,
+    "min": 257010,
+    "max": 257010,
+    "n": 5,
+    "samples": [
+     257010,
+     257010,
+     257010,
+     257010,
+     257010
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/t-tee": {
+   "raw": {
+    "median": 456803,
+    "min": 456802,
+    "max": 456803,
+    "n": 5,
+    "samples": [
+     456802,
+     456803,
+     456802,
+     456803,
+     456803
+    ]
+   },
+   "gzip": {
+    "median": 34718,
+    "min": 34717,
+    "max": 34718,
+    "n": 5,
+    "samples": [
+     34718,
+     34718,
+     34718,
+     34718,
+     34717
+    ]
+   },
+   "brotli": {
+    "median": 20969,
+    "min": 20967,
+    "max": 20971,
+    "n": 5,
+    "samples": [
+     20970,
+     20969,
+     20971,
+     20969,
+     20967
+    ]
+   },
+   "flight": {
+    "median": 257008,
+    "min": 257007,
+    "max": 257008,
+    "n": 5,
+    "samples": [
+     257007,
+     257008,
+     257007,
+     257008,
+     257008
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/v2-tee": {
+   "raw": {
+    "median": 456849,
+    "min": 456849,
+    "max": 456849,
+    "n": 5,
+    "samples": [
+     456849,
+     456849,
+     456849,
+     456849,
+     456849
+    ]
+   },
+   "gzip": {
+    "median": 34743,
+    "min": 34743,
+    "max": 34743,
+    "n": 5,
+    "samples": [
+     34743,
+     34743,
+     34743,
+     34743,
+     34743
+    ]
+   },
+   "brotli": {
+    "median": 20947,
+    "min": 20947,
+    "max": 20947,
+    "n": 5,
+    "samples": [
+     20947,
+     20947,
+     20947,
+     20947,
+     20947
+    ]
+   },
+   "flight": {
+    "median": 257053,
+    "min": 257053,
+    "max": 257053,
+    "n": 5,
+    "samples": [
+     257053,
+     257053,
+     257053,
+     257053,
+     257053
+    ]
+   },
+   "nonOk": 0
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "loadavg": 4.2529296875,
+   "order": [
+    "t-off",
+    "t-tee",
+    "v2-tee"
+   ],
+   "data": {
+    "table/t-off": {
+     "ttfb": 17.002833500002453,
+     "total": 17.574770499995793,
+     "seqBad": 0,
+     "rps": 67.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 671
+    },
+    "table/t-tee": {
+     "ttfb": 6.308416499996383,
+     "total": 6.472437500000524,
+     "seqBad": 0,
+     "rps": 225.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 2256
+    },
+    "table/v2-tee": {
+     "ttfb": 6.603374999998778,
+     "total": 6.7554794999959995,
+     "seqBad": 0,
+     "rps": 188.3,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1883
+    },
+    "client-rows/t-off": {
+     "ttfb": 7.749353999999585,
+     "total": 7.9742499999993015,
+     "seqBad": 0,
+     "rps": 142.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1424
+    },
+    "client-rows/t-tee": {
+     "ttfb": 6.948146000002453,
+     "total": 7.128458499995759,
+     "seqBad": 0,
+     "rps": 176.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1761
+    },
+    "client-rows/v2-tee": {
+     "ttfb": 6.8077084999968065,
+     "total": 7.007959000002302,
+     "seqBad": 0,
+     "rps": 171.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1711
+    }
+   }
+  },
+  {
+   "round": 1,
+   "loadavg": 3.95654296875,
+   "order": [
+    "t-off",
+    "v2-tee",
+    "t-tee"
+   ],
+   "data": {
+    "table/t-off": {
+     "ttfb": 16.082458500008215,
+     "total": 16.527916500002902,
+     "seqBad": 0,
+     "rps": 64,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 640
+    },
+    "table/v2-tee": {
+     "ttfb": 5.832958000013605,
+     "total": 6.010625000009895,
+     "seqBad": 0,
+     "rps": 192,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1920
+    },
+    "table/t-tee": {
+     "ttfb": 5.279249999992317,
+     "total": 5.4348749999917345,
+     "seqBad": 0,
+     "rps": 224.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 2241
+    },
+    "client-rows/t-off": {
+     "ttfb": 8.06768700000248,
+     "total": 8.262999499987927,
+     "seqBad": 0,
+     "rps": 142.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1424
+    },
+    "client-rows/v2-tee": {
+     "ttfb": 9.674625499988906,
+     "total": 10.14375000000291,
+     "seqBad": 0,
+     "rps": 169.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1696
+    },
+    "client-rows/t-tee": {
+     "ttfb": 6.455229500003043,
+     "total": 6.639563000004273,
+     "seqBad": 0,
+     "rps": 179.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1792
+    }
+   }
+  },
+  {
+   "round": 2,
+   "loadavg": 4.55078125,
+   "order": [
+    "v2-tee",
+    "t-off",
+    "t-tee"
+   ],
+   "data": {
+    "table/v2-tee": {
+     "ttfb": 5.936729500012007,
+     "total": 6.117875500000082,
+     "seqBad": 0,
+     "rps": 193.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1936
+    },
+    "table/t-off": {
+     "ttfb": 16.246437499998137,
+     "total": 16.63172950000444,
+     "seqBad": 0,
+     "rps": 67.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 671
+    },
+    "table/t-tee": {
+     "ttfb": 6.393437499995343,
+     "total": 6.577207999987877,
+     "seqBad": 0,
+     "rps": 225.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 2256
+    },
+    "client-rows/v2-tee": {
+     "ttfb": 6.8401244999986375,
+     "total": 6.994666500002495,
+     "seqBad": 0,
+     "rps": 169.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1695
+    },
+    "client-rows/t-off": {
+     "ttfb": 7.92637499999546,
+     "total": 8.117687999998452,
+     "seqBad": 0,
+     "rps": 142.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1425
+    },
+    "client-rows/t-tee": {
+     "ttfb": 6.170354499990935,
+     "total": 6.322791499987943,
+     "seqBad": 0,
+     "rps": 180.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1808
+    }
+   }
+  },
+  {
+   "round": 3,
+   "loadavg": 4.91796875,
+   "order": [
+    "v2-tee",
+    "t-tee",
+    "t-off"
+   ],
+   "data": {
+    "table/v2-tee": {
+     "ttfb": 5.660249999986263,
+     "total": 5.828311999983271,
+     "seqBad": 0,
+     "rps": 198,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1980
+    },
+    "table/t-tee": {
+     "ttfb": 5.061125000007451,
+     "total": 5.2391460000071675,
+     "seqBad": 0,
+     "rps": 233.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 2336
+    },
+    "table/t-off": {
+     "ttfb": 15.503979000000982,
+     "total": 15.90733350001392,
+     "seqBad": 0,
+     "rps": 66.41,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 664
+    },
+    "client-rows/v2-tee": {
+     "ttfb": 6.762937500025146,
+     "total": 7.005625000048894,
+     "seqBad": 0,
+     "rps": 175.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1758
+    },
+    "client-rows/t-tee": {
+     "ttfb": 5.853291499981424,
+     "total": 5.999562999990303,
+     "seqBad": 0,
+     "rps": 180.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1802
+    },
+    "client-rows/t-off": {
+     "ttfb": 8.629374499985715,
+     "total": 8.88924949997454,
+     "seqBad": 0,
+     "rps": 135.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1356
+    }
+   }
+  },
+  {
+   "round": 4,
+   "loadavg": 3.4501953125,
+   "order": [
+    "t-tee",
+    "v2-tee",
+    "t-off"
+   ],
+   "data": {
+    "table/t-tee": {
+     "ttfb": 5.635812499996973,
+     "total": 5.879166500002611,
+     "seqBad": 0,
+     "rps": 208.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 2081
+    },
+    "table/v2-tee": {
+     "ttfb": 6.743436999997357,
+     "total": 6.949811999977101,
+     "seqBad": 0,
+     "rps": 176,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1760
+    },
+    "table/t-off": {
+     "ttfb": 18.55506199997035,
+     "total": 19.057124499988277,
+     "seqBad": 0,
+     "rps": 59.1,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 591
+    },
+    "client-rows/t-tee": {
+     "ttfb": 6.979937500000233,
+     "total": 7.154458000033628,
+     "seqBad": 0,
+     "rps": 169.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1694
+    },
+    "client-rows/v2-tee": {
+     "ttfb": 7.113125000032596,
+     "total": 7.33531250001397,
+     "seqBad": 0,
+     "rps": 164.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1645
+    },
+    "client-rows/t-off": {
+     "ttfb": 8.045333500020206,
+     "total": 8.227708500024164,
+     "seqBad": 0,
+     "rps": 140.81,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1408
+    }
+   }
+  }
+ ],
+ "ratios": {
+  "table/t-tee": {
+   "rps": {
+    "median": 3.5015625,
+    "min": 3.362146050670641,
+    "max": 3.521150592216582,
+    "n": 5,
+    "samples": [
+     3.362146050670641,
+     3.5015625,
+     3.362146050670641,
+     3.517542538774281,
+     3.521150592216582
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.3282613786934143,
+    "min": 0.303734501129987,
+    "max": 0.3935285812656514,
+    "n": 5,
+    "samples": [
+     0.3710214829778503,
+     0.3282613786934143,
+     0.3935285812656514,
+     0.3264403931408273,
+     0.303734501129987
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.329354130910915,
+    "min": 0.30850228742569363,
+    "max": 0.3954614581716304,
+    "n": 5,
+    "samples": [
+     0.3682800580526541,
+     0.32883001314719734,
+     0.3954614581716304,
+     0.329354130910915,
+     0.30850228742569363
+    ],
+    "straddlesOne": false
+   }
+  },
+  "table/v2-tee": {
+   "rps": {
+    "median": 2.9780033840947544,
+    "min": 2.806259314456036,
+    "max": 3,
+    "n": 5,
+    "samples": [
+     2.806259314456036,
+     3,
+     2.8852459016393444,
+     2.9814786929679267,
+     2.9780033840947544
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.36508369883537023,
+    "min": 0.3626906918497956,
+    "max": 0.3883690915398204,
+    "n": 5,
+    "samples": [
+     0.3883690915398204,
+     0.3626906918497956,
+     0.3654173107188999,
+     0.36508369883537023,
+     0.3634284272404012
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.36639151369889683,
+    "min": 0.36366501488610736,
+    "max": 0.38438507632276714,
+    "n": 5,
+    "samples": [
+     0.38438507632276714,
+     0.36366501488610736,
+     0.36784361482060235,
+     0.36639151369889683,
+     0.3646831398924521
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/t-tee": {
+   "rps": {
+    "median": 1.2584269662921348,
+    "min": 1.2030395568496557,
+    "max": 1.3289085545722714,
+    "n": 5,
+    "samples": [
+     1.2366573033707864,
+     1.2584269662921348,
+     1.2687719298245614,
+     1.3289085545722714,
+     1.2030395568496557
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.8001338549699634,
+    "min": 0.6782984676341388,
+    "max": 0.8966097044996041,
+    "n": 5,
+    "samples": [
+     0.8966097044996041,
+     0.8001338549699634,
+     0.778458563970853,
+     0.6782984676341388,
+     0.8675759059562543
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.8035293963183676,
+    "min": 0.6749234566998583,
+    "max": 0.893934664701556,
+    "n": 5,
+    "samples": [
+     0.893934664701556,
+     0.8035293963183676,
+     0.7788906767529312,
+     0.6749234566998583,
+     0.8695565721625427
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/v2-tee": {
+   "rps": {
+    "median": 1.1910112359550562,
+    "min": 1.1682408919821035,
+    "max": 1.2964601769911506,
+    "n": 5,
+    "samples": [
+     1.2015449438202246,
+     1.1910112359550562,
+     1.1894736842105262,
+     1.2964601769911506,
+     1.1682408919821035
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.8784872261606802,
+    "min": 0.7837112064189984,
+    "max": 1.1991820580032335,
+    "n": 5,
+    "samples": [
+     0.8784872261606802,
+     1.1991820580032335,
+     0.862957467947524,
+     0.7837112064189984,
+     0.8841305335589545
+    ],
+    "straddlesOne": true
+   },
+   "total": {
+    "median": 0.8788235884256094,
+    "min": 0.7881008402417954,
+    "max": 1.2276111114393424,
+    "n": 5,
+    "samples": [
+     0.8788235884256094,
+     1.2276111114393424,
+     0.8616574694671474,
+     0.7881008402417954,
+     0.8915377228048887
+    ],
+    "straddlesOne": true
+   }
+  }
+ },
+ "errorsTotal": 0,
+ "browser": [
+  {
+   "v": "t-off",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-off",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-off",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "t-tee",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "v2-tee",
+   "pg": "table",
+   "domMatchesStock": false,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "v2-tee",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "v2-tee",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/client-rows",
+     "/static-table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

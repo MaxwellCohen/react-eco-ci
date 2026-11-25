@@ -1,0 +1,88 @@
+{
+ "nextBranch": "html-first/16.4-tee@9f9de6041d",
+ "react": "189973d24a8ee07de41d7f41d76faa8bd5a7989f",
+ "on": {
+  "tests": [
+   "Tests:       92 failed, 251 skipped, 779 passed, 1122 total"
+  ],
+  "suites": [
+   "Test Suites: 3 failed, 2 skipped, 47 passed, 50 of 52 total"
+  ],
+  "fail": [
+   [
+    "test/e2e/app-dir/actions/app-action.test.ts",
+    "670.179"
+   ],
+   [
+    "test/e2e/app-dir/app-static/app-static.test.ts",
+    "1174.926"
+   ],
+   [
+    "test/e2e/app-dir/app/index.test.ts",
+    "4326.668"
+   ]
+  ],
+  "pass": 47
+ },
+ "off": {
+  "tests": [
+   "Tests:       4 skipped, 172 passed, 176 total"
+  ],
+  "suites": [
+   "Test Suites: 3 passed, 3 total"
+  ],
+  "fail": [],
+  "pass": 3
+ },
+ "reruns_on": {
+  "1": {
+   "tests": [
+    "Tests:       13 skipped, 302 passed, 315 total"
+   ],
+   "suites": [
+    "Test Suites: 3 passed, 3 total"
+   ],
+   "fail": [],
+   "pass": 3
+  },
+  "2": {
+   "tests": [
+    "Tests:       13 skipped, 302 passed, 315 total"
+   ],
+   "suites": [
+    "Test Suites: 3 passed, 3 total"
+   ],
+   "fail": [],
+   "pass": 3
+  },
+  "3": {
+   "tests": [
+    "Tests:       13 skipped, 302 passed, 315 total"
+   ],
+   "suites": [
+    "Test Suites: 3 passed, 3 total"
+   ],
+   "fail": [],
+   "pass": 3
+  }
+ },
+ "registry_reference": "Registry build (release 231161c Next), same 52 suites, session 5561229a final52.log: app-static PASS (88 s), app/index PASS (69 s), app-action had 1 different failure (refresh+navigation test, flaked and passed on rerun). The tee on-run failures were all in these 3 suites.",
+ "on_failure_kinds": {
+  "hook/test timeout (Exceeded timeout of 120000 ms)": 178,
+  "instance not destroyed": 2,
+  "other assertions, all in app-static (HTTP 500, empty/stale data); all pass in 3/3 reruns": 12
+ },
+ "loadavg_samples_during_on_run": {
+  "16:45": 28.7,
+  "17:16": 6.4,
+  "17:21": 17.9,
+  "17:41": 39.8,
+  "18:10": 19.6,
+  "19:08": 11.9
+ },
+ "loadavg_at_reruns": [
+  "3.60",
+  "3.83",
+  "3.68"
+ ]
+}
