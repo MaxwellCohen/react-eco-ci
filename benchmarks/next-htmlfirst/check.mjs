@@ -49,7 +49,7 @@ const urlOf = (v, pg) => `http://localhost:${ports[v]}/${pg}`;
 await sleep(3000);
 // ---- browser: DOM vs stock after hydration, interaction, client navigation, modal recovery ----
 const browserResults = [];
-const browser = await chromium.launch();
+const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 const bodyHtml = async (page) => (await page.evaluate(() => { const c = document.body.cloneNode(true); c.querySelectorAll('script').forEach((s) => s.remove()); return c.innerHTML; })).replace(/(19\.3\.0|0\.0\.0)-(experimental|canary)-[0-9a-f]{8}-\d{8}/g, 'VER');
 const stockDom = {};
 const navTo = { table: 'client rows', 'client-rows': 'table' };

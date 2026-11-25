@@ -102,7 +102,7 @@ const errorsTotal = rounds.reduce((n, rd) => n + Object.values(rd.data).reduce((
 
 // ---- browser: DOM vs stock after hydration, interaction, client navigation, modal recovery ----
 const browserResults = [];
-const browser = await chromium.launch();
+const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 const bodyHtml = (page) => page.evaluate(() => { const c = document.body.cloneNode(true); c.querySelectorAll('script').forEach((s) => s.remove()); return c.innerHTML; });
 const stockDom = {};
 const navTo = { table: 'client rows', 'client-rows': 'table' };

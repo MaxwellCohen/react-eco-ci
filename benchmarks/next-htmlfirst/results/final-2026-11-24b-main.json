@@ -1,0 +1,720 @@
+{
+ "config": {
+  "ROUNDS": 5,
+  "DURATION": 10,
+  "WARMUP": 10,
+  "SAMPLES": 5,
+  "SEQ": 30,
+  "connections": 16,
+  "variants": [
+   "fin-tpl-off",
+   "fin-tpl-on"
+  ],
+  "pages": [
+   "table",
+   "client-rows"
+  ],
+  "node": "v26.13.0",
+  "loadavgAtEnd": [
+   3.27001953125,
+   3.73828125,
+   4.4833984375
+  ]
+ },
+ "bytes": {
+  "table/fin-tpl-off": {
+   "raw": {
+    "median": 1273614,
+    "min": 1273614,
+    "max": 1273614,
+    "n": 5,
+    "samples": [
+     1273614,
+     1273614,
+     1273614,
+     1273614,
+     1273614
+    ]
+   },
+   "gzip": {
+    "median": 108837,
+    "min": 108837,
+    "max": 108837,
+    "n": 5,
+    "samples": [
+     108837,
+     108837,
+     108837,
+     108837,
+     108837
+    ]
+   },
+   "brotli": {
+    "median": 61724,
+    "min": 61724,
+    "max": 61724,
+    "n": 5,
+    "samples": [
+     61724,
+     61724,
+     61724,
+     61724,
+     61724
+    ]
+   },
+   "flight": {
+    "median": 765378,
+    "min": 765378,
+    "max": 765378,
+    "n": 5,
+    "samples": [
+     765378,
+     765378,
+     765378,
+     765378,
+     765378
+    ]
+   },
+   "nonOk": 0
+  },
+  "table/fin-tpl-on": {
+   "raw": {
+    "median": 534532,
+    "min": 534531,
+    "max": 534533,
+    "n": 5,
+    "samples": [
+     534533,
+     534531,
+     534532,
+     534533,
+     534532
+    ]
+   },
+   "gzip": {
+    "median": 55392,
+    "min": 55391,
+    "max": 55393,
+    "n": 5,
+    "samples": [
+     55392,
+     55391,
+     55391,
+     55393,
+     55392
+    ]
+   },
+   "brotli": {
+    "median": 36007,
+    "min": 36004,
+    "max": 36018,
+    "n": 5,
+    "samples": [
+     36017,
+     36007,
+     36004,
+     36018,
+     36004
+    ]
+   },
+   "flight": {
+    "median": 26296,
+    "min": 26295,
+    "max": 26297,
+    "n": 5,
+    "samples": [
+     26297,
+     26295,
+     26296,
+     26297,
+     26296
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/fin-tpl-off": {
+   "raw": {
+    "median": 456805,
+    "min": 456805,
+    "max": 456805,
+    "n": 5,
+    "samples": [
+     456805,
+     456805,
+     456805,
+     456805,
+     456805
+    ]
+   },
+   "gzip": {
+    "median": 34715,
+    "min": 34715,
+    "max": 34715,
+    "n": 5,
+    "samples": [
+     34715,
+     34715,
+     34715,
+     34715,
+     34715
+    ]
+   },
+   "brotli": {
+    "median": 21008,
+    "min": 21008,
+    "max": 21008,
+    "n": 5,
+    "samples": [
+     21008,
+     21008,
+     21008,
+     21008,
+     21008
+    ]
+   },
+   "flight": {
+    "median": 257009,
+    "min": 257009,
+    "max": 257009,
+    "n": 5,
+    "samples": [
+     257009,
+     257009,
+     257009,
+     257009,
+     257009
+    ]
+   },
+   "nonOk": 0
+  },
+  "client-rows/fin-tpl-on": {
+   "raw": {
+    "median": 456850,
+    "min": 456850,
+    "max": 456850,
+    "n": 5,
+    "samples": [
+     456850,
+     456850,
+     456850,
+     456850,
+     456850
+    ]
+   },
+   "gzip": {
+    "median": 34747,
+    "min": 34747,
+    "max": 34747,
+    "n": 5,
+    "samples": [
+     34747,
+     34747,
+     34747,
+     34747,
+     34747
+    ]
+   },
+   "brotli": {
+    "median": 20952,
+    "min": 20952,
+    "max": 20952,
+    "n": 5,
+    "samples": [
+     20952,
+     20952,
+     20952,
+     20952,
+     20952
+    ]
+   },
+   "flight": {
+    "median": 257054,
+    "min": 257054,
+    "max": 257054,
+    "n": 5,
+    "samples": [
+     257054,
+     257054,
+     257054,
+     257054,
+     257054
+    ]
+   },
+   "nonOk": 0
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "loadavg": 3.03759765625,
+   "order": [
+    "fin-tpl-off",
+    "fin-tpl-on"
+   ],
+   "data": {
+    "table/fin-tpl-off": {
+     "ttfb": 17.262896000000183,
+     "total": 17.77093750000131,
+     "seqBad": 0,
+     "rps": 64,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 640
+    },
+    "table/fin-tpl-on": {
+     "ttfb": 6.081666499994753,
+     "total": 6.298374999998487,
+     "seqBad": 0,
+     "rps": 184,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1840
+    },
+    "client-rows/fin-tpl-off": {
+     "ttfb": 8.371228500000143,
+     "total": 8.6035619999966,
+     "seqBad": 0,
+     "rps": 144,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1440
+    },
+    "client-rows/fin-tpl-on": {
+     "ttfb": 6.799687500002619,
+     "total": 7.0264790000001085,
+     "seqBad": 0,
+     "rps": 161.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1615
+    }
+   }
+  },
+  {
+   "round": 1,
+   "loadavg": 4.1767578125,
+   "order": [
+    "fin-tpl-off",
+    "fin-tpl-on"
+   ],
+   "data": {
+    "table/fin-tpl-off": {
+     "ttfb": 17.94249999999738,
+     "total": 18.52262449999398,
+     "seqBad": 0,
+     "rps": 62.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 624
+    },
+    "table/fin-tpl-on": {
+     "ttfb": 7.340229000008549,
+     "total": 7.563521000003675,
+     "seqBad": 0,
+     "rps": 179.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1792
+    },
+    "client-rows/fin-tpl-off": {
+     "ttfb": 8.383458000003884,
+     "total": 8.6096455000079,
+     "seqBad": 0,
+     "rps": 137.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1376
+    },
+    "client-rows/fin-tpl-on": {
+     "ttfb": 7.106187500001397,
+     "total": 7.305229000005056,
+     "seqBad": 0,
+     "rps": 164.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1648
+    }
+   }
+  },
+  {
+   "round": 2,
+   "loadavg": 3.97998046875,
+   "order": [
+    "fin-tpl-off",
+    "fin-tpl-on"
+   ],
+   "data": {
+    "table/fin-tpl-off": {
+     "ttfb": 17.493812499997148,
+     "total": 17.91299999999319,
+     "seqBad": 0,
+     "rps": 63.3,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 633
+    },
+    "table/fin-tpl-on": {
+     "ttfb": 6.622791999994661,
+     "total": 6.835333499984699,
+     "seqBad": 0,
+     "rps": 184,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1840
+    },
+    "client-rows/fin-tpl-off": {
+     "ttfb": 8.043270999987726,
+     "total": 8.269604500004789,
+     "seqBad": 0,
+     "rps": 137.6,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1376
+    },
+    "client-rows/fin-tpl-on": {
+     "ttfb": 6.418541500010178,
+     "total": 6.650645500005339,
+     "seqBad": 0,
+     "rps": 166.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1665
+    }
+   }
+  },
+  {
+   "round": 3,
+   "loadavg": 3.62353515625,
+   "order": [
+    "fin-tpl-off",
+    "fin-tpl-on"
+   ],
+   "data": {
+    "table/fin-tpl-off": {
+     "ttfb": 16.489000000001397,
+     "total": 16.902624999987893,
+     "seqBad": 0,
+     "rps": 60.8,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 608
+    },
+    "table/fin-tpl-on": {
+     "ttfb": 7.607104499998968,
+     "total": 7.799396000002162,
+     "seqBad": 0,
+     "rps": 183.5,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1835
+    },
+    "client-rows/fin-tpl-off": {
+     "ttfb": 8.17974999998114,
+     "total": 8.399833499992383,
+     "seqBad": 0,
+     "rps": 140.81,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1408
+    },
+    "client-rows/fin-tpl-on": {
+     "ttfb": 6.833083500008797,
+     "total": 6.98697899999388,
+     "seqBad": 0,
+     "rps": 163.31,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1633
+    }
+   }
+  },
+  {
+   "round": 4,
+   "loadavg": 4.06201171875,
+   "order": [
+    "fin-tpl-off",
+    "fin-tpl-on"
+   ],
+   "data": {
+    "table/fin-tpl-off": {
+     "ttfb": 17.86483349998889,
+     "total": 18.314562500003376,
+     "seqBad": 0,
+     "rps": 64,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 640
+    },
+    "table/fin-tpl-on": {
+     "ttfb": 6.494145999997272,
+     "total": 6.793250000002445,
+     "seqBad": 0,
+     "rps": 187.9,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1879
+    },
+    "client-rows/fin-tpl-off": {
+     "ttfb": 8.327958499998203,
+     "total": 8.515354000002844,
+     "seqBad": 0,
+     "rps": 139.4,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1394
+    },
+    "client-rows/fin-tpl-on": {
+     "ttfb": 6.453208000006271,
+     "total": 6.691582999992534,
+     "seqBad": 0,
+     "rps": 166.2,
+     "errors": 0,
+     "timeouts": 0,
+     "non2xx": 0,
+     "requests": 1662
+    }
+   }
+  }
+ ],
+ "ratios": {
+  "table/fin-tpl-on": {
+   "rps": {
+    "median": 2.9067930489731437,
+    "min": 2.871794871794872,
+    "max": 3.018092105263158,
+    "n": 5,
+    "samples": [
+     2.875,
+     2.871794871794872,
+     2.9067930489731437,
+     3.018092105263158,
+     2.9359375
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.3785791119000355,
+    "min": 0.3522970016151803,
+    "max": 0.46134419916297675,
+    "n": 5,
+    "samples": [
+     0.3522970016151803,
+     0.4090973387214502,
+     0.3785791119000355,
+     0.46134419916297675,
+     0.36351561854753983
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.3815850778756935,
+    "min": 0.3544199623682218,
+    "max": 0.46143104991134504,
+    "n": 5,
+    "samples": [
+     0.3544199623682218,
+     0.40833959572014933,
+     0.3815850778756935,
+     0.46143104991134504,
+     0.3709206812885207
+    ],
+    "straddlesOne": false
+   }
+  },
+  "client-rows/fin-tpl-on": {
+   "rps": {
+    "median": 1.1922525107604016,
+    "min": 1.1215277777777777,
+    "max": 1.2100290697674418,
+    "n": 5,
+    "samples": [
+     1.1215277777777777,
+     1.1976744186046513,
+     1.2100290697674418,
+     1.1597897876571266,
+     1.1922525107604016
+    ],
+    "straddlesOne": false
+   },
+   "ttfb": {
+    "median": 0.8122687727377772,
+    "min": 0.7748847451638553,
+    "max": 0.8476439555131193,
+    "n": 5,
+    "samples": [
+     0.8122687727377772,
+     0.8476439555131193,
+     0.7980013976925523,
+     0.8353658119165686,
+     0.7748847451638553
+    ],
+    "straddlesOne": false
+   },
+   "total": {
+    "median": 0.8166941785277871,
+    "min": 0.7858255804738474,
+    "max": 0.848493587802001,
+    "n": 5,
+    "samples": [
+     0.8166941785277871,
+     0.848493587802001,
+     0.8042277596227834,
+     0.8317997017441139,
+     0.7858255804738474
+    ],
+    "straddlesOne": false
+   }
+  }
+ },
+ "errorsTotal": 0,
+ "browser": [
+  {
+   "v": "fin-tpl-off",
+   "pg": "table",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "fin-tpl-off",
+   "pg": "client-rows",
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/static-table",
+     "/modal",
+     "/table",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "fin-tpl-off",
+   "pg": "modal",
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/client-rows",
+     "/table",
+     "/static-table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "fin-tpl-on",
+   "pg": "table",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": "ERR page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navi",
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "fin-tpl-on",
+   "pg": "client-rows",
+   "domMatchesStock": true,
+   "rows": 1000,
+   "interactive": [
+    "Row 99: 1",
+    "Row 599: 2",
+    10
+   ],
+   "nav": {
+    "forward": {
+     "rows": 1000,
+     "counter": "Row 99: 1"
+    },
+    "backRows": 1000,
+    "backCounter": "Row 199: 1",
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/modal",
+     "/",
+     "/table",
+     "/modal",
+     "/static-table",
+     "/table"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  },
+  {
+   "v": "fin-tpl-on",
+   "pg": "modal",
+   "domMatchesStock": true,
+   "modal": {
+    "clauses": 20,
+    "rscRequests": [
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows",
+     "/",
+     "/table",
+     "/static-table",
+     "/client-rows"
+    ]
+   },
+   "logs": [],
+   "nlogs": 0
+  }
+ ]
+}

@@ -10,7 +10,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const servers = variants.map((v, i) => spawn(`${H}/.build/${v}/node_modules/.bin/next`, ['start', '--port', String(8301 + i)], { cwd: `${H}/.build/${v}`, stdio: 'ignore', detached: true, env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' } }));
 process.on('exit', () => servers.forEach((s) => { try { process.kill(-s.pid); } catch {} }));
 await sleep(5000);
-const b = await chromium.launch();
+const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 const acc = {};
 for (let t = 0; t < 10; t++) for (const i of (t % 2 ? [2, 1, 0] : [0, 1, 2]).map((k) => (k + t) % 3)) {
   const v = variants[i];

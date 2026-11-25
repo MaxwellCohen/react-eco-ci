@@ -42,7 +42,7 @@ for (const v of [...variants, ...ccVariants]) for (const p of ['static-table', '
   try { const f = `${B}/${v}/.next/server/app/${p}.rsc`; const s = readFileSync(f, 'utf8'); out.stored[`${p}/${v}`] = { bytes: statSync(f).size, stubs: (s.match(/"\$J\d+:/g) || []).length }; } catch {}
 }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 // ---- refresh main-thread ms (refresh-cpu.mjs): 5 trials, two refreshes each ----
 for (let trial = 0; trial < 5; trial++) for (const v of trial % 2 ? [...variants].reverse() : variants) {
   const p = await browser.newPage(); const cdp = await p.context().newCDPSession(p);
